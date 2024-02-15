@@ -11,7 +11,11 @@ FINRA TRACE
 
 # Task Assignment Draft
 
-
+1. A separate file or set of files whose only purpose is to clean the data and put it into a “tidy” format. The analysis of the data should be kept in separate files.
+2. A single LaTeX document that briefly describes the nature of the replication project and contains all the tables and charts that your code produces. 
+3. Provide at least one jupyter notebook that gives an brief tour of the cleaned data and some of the analysis that is performed in the code. You can think of this as giving the reader a tour of the code that you have written. 
+4. Replication and Updating: Replicate the series, tables, and/or figures listed for your assigned project. Choose a reasonable tolerance and construct unit tests to ensure that your numbers match the paper’s within this tolerance. Reproduce the series, tables, and/or figures with updated numbers. That is, replicating the numbers from the paper require performing the calculations over the same time period as that of the paper. In this task, you’ll recalculate the series, tables, and/or figures using numbers up until the present (or at least the most recently available numbers).
+5. Outside of the tables, figures, or derived series that you are to replicate, have you also provided a table of your own summary statistics AND charts that gives you and the reader of sufficient understanding of the underlying data. These tables and/or figures must be typeset on LaTeX and you must provide captions on the Tables and Figure that properly describe them and motivate them. That is, you must tell me in the caption what I should learn or take away from each table and figure. You are to choose how many figures and or tables is sufficient for your case, but it will usually be one of each.
 
 # Quick Start
 
