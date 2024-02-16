@@ -1,4 +1,4 @@
-Replication of Tables in _The Illiquidity of Corporate Bonds_, Bao, Pan, and Wang (2010). 
+[Replication of Tables in _The Illiquidity of Corporate Bonds_, Bao, Pan, and Wang (2010).](https://github.com/zhangruoxikathy/corporate_bond_liquidity_research/blob/main/The%20Journal%20of%20Finance%20-%202011%20-%20BAO%20-%20The%20Illiquidity%20of%20Corporate%20Bonds.pdf) 
 ==================
 
 # About this project
