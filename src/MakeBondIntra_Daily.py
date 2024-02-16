@@ -771,7 +771,7 @@ PricesExport = pd.concat(price_super_list , axis=0     , ignore_index=False)
 VolumeExport = pd.concat(volume_super_list, axis=0     , ignore_index=False)
 
 # Save in compressed GZIP format # 
-PricesExport.to_csv('Prices_BBW_TRACE_Enhanced_Dick_Nielsen.csv.gzip'     , compression='gzip')   
-VolumeExport.to_csv('Volumes_BBW_TRACE_Enhanced_Dick_Nielsen.csv.gzip'   , compression='gzip')     
-CleaningExport.to_csv('Cleaning_TRACE_Enhanced_Dick_Nielsen.csv') 
+PricesExport.to_csv('../data/Prices_BBW_TRACE_Enhanced_Dick_Nielsen.csv.gzip'     , compression='gzip')   
+VolumeExport.to_csv('../data/Volumes_BBW_TRACE_Enhanced_Dick_Nielsen.csv.gzip'   , compression='gzip')     
+CleaningExport.to_csv('../data/Cleaning_TRACE_Enhanced_Dick_Nielsen.csv') 
 # =============================================================================     
