@@ -11,6 +11,11 @@ FINRA TRACE
 
 # Task Assignment Draft
 
+Table 1: 2 people
+Table 2: 2 people
+
+For each table, we must complete the below assignments. Check for overlaps.
+
 1. A separate file or set of files whose only purpose is to clean the data and put it into a “tidy” format. The analysis of the data should be kept in separate files.
 2. A single LaTeX document that briefly describes the nature of the replication project and contains all the tables and charts that your code produces. 
 3. Provide at least one jupyter notebook that gives an brief tour of the cleaned data and some of the analysis that is performed in the code. You can think of this as giving the reader a tour of the code that you have written. 
