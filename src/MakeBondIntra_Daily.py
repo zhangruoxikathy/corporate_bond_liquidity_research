@@ -89,7 +89,7 @@ fisd_issue = db.raw_sql("""SELECT complete_cusip, issue_id,
                   bond_type,private_placement,
                   interest_frequency,dated_date,
                   day_count_basis,offering_date                 
-                  FROM fisd.fisd_mergedissue  
+                  FROM fisd.fisd_mergedissue
                   """)
                   
 fisd = pd.merge(fisd_issue, fisd_issuer, on = ['issuer_id'], how = "left")                              
@@ -210,7 +210,7 @@ for i in range(0,len(cusip_chunks)):
     #* Load data from WRDS per chunk          */
     #* ************************************** */ 
         
-    trace = db.raw_sql('SELECT cusip_id,bond_sym_id,trd_exctn_dt,trd_exctn_tm,days_to_sttl_ct,lckd_in_ind,wis_fl,sale_cndtn_cd,msg_seq_nb, trc_st, trd_rpt_dt,trd_rpt_tm, entrd_vol_qt, rptd_pr,yld_pt,asof_cd,orig_msg_seq_nb,rpt_side_cd,cntra_mp_id FROM trace.trace_enhanced WHERE cusip_id in %(cusip_id)s', 
+    trace = db.raw_sql("SELECT cusip_id,bond_sym_id,trd_exctn_dt,trd_exctn_tm,days_to_sttl_ct,lckd_in_ind,wis_fl,sale_cndtn_cd,msg_seq_nb, trc_st, trd_rpt_dt,trd_rpt_tm, entrd_vol_qt, rptd_pr,yld_pt,asof_cd,orig_msg_seq_nb,rpt_side_cd,cntra_mp_id FROM trace.trace_enhanced WHERE cusip_id in %(cusip_id)s AND trd_exctn_dt >= '07/01/2002' AND trd_exctn_dt <= '07/01/2004'", 
                   params=parm)
            
     CleaningExport['Obs.Pre'].iloc[i] = int(len(trace))
@@ -771,7 +771,7 @@ PricesExport = pd.concat(price_super_list , axis=0     , ignore_index=False)
 VolumeExport = pd.concat(volume_super_list, axis=0     , ignore_index=False)
 
 # Save in compressed GZIP format # 
-PricesExport.to_csv('../data/Prices_BBW_TRACE_Enhanced_Dick_Nielsen.csv.gzip'     , compression='gzip')   
-VolumeExport.to_csv('../data/Volumes_BBW_TRACE_Enhanced_Dick_Nielsen.csv.gzip'   , compression='gzip')     
-CleaningExport.to_csv('../data/Cleaning_TRACE_Enhanced_Dick_Nielsen.csv') 
+PricesExport.to_csv('../data/pulled/Prices_BBW_TRACE_Enhanced_Dick_Nielsen.csv.gzip'     , compression='gzip')   
+VolumeExport.to_csv('../data/pulled/Volumes_BBW_TRACE_Enhanced_Dick_Nielsen.csv.gzip'   , compression='gzip')     
+CleaningExport.to_csv('../data/pulled/Cleaning_TRACE_Enhanced_Dick_Nielsen.csv') 
 # =============================================================================     

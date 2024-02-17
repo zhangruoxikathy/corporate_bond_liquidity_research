@@ -76,8 +76,8 @@ description_bondret = {
 
 def pull_bondret(wrds_username=WRDS_USERNAME):
     """
-    Select  
-    See description_compustat for a description of the variables.
+    Pull corporate bond returns data from WRDS.
+    See description_bondret for a description of the variables.
     """
     sql_query = """
         SELECT 
@@ -87,26 +87,18 @@ def pull_bondret(wrds_username=WRDS_USERNAME):
             dated_date, first_interest_date, last_interest_date, ncoups,
             amount_outstanding, r_sp, r_mr, r_fr, n_sp, n_mr, n_fr, rating_num
         FROM 
-        
             WRDSAPPS.BONDRET
         WHERE 
             date >= '07/01/2002'
         """
     # with wrds.Connection(wrds_username=wrds_username) as db:
-    #     comp = db.raw_sql(sql_query, date_cols=["datadate"])
+    #     comp = db.raw_sql(sql_query, date_cols=["date"])
     db = wrds.Connection(wrds_username=WRDS_USERNAME)
     bond = db.raw_sql(sql_query, date_cols=["date"])
     db.close()
 
     bond["year"] = bond["date"].dt.year
     return bond
-
-
-# ISSUE_ID, bond_sym_id, bsym, ISIN, company_symbol, BOND_TYPE,
-#             SECURITY_LEVEL, CONV, OFFERING_DATE, OFFERING_AMT, OFFERING_PRICE, PRINCIPAL_AMT,
-#             MATURITY, TREASURY_MATURITY, COUPON, DAY_COUNT_BASIS, DATED_DATE,
-#             FIRST_INTEREST_DATE, LAST_INTEREST_DATE, NCOUPS, AMOUNT_OUTSTANDING, R_SP, R_MR,
-#             R_FR, N_SP, N_MR, N_FR, RATING_NUM 
 
 
 def load_bondret(data_dir=DATA_DIR):
