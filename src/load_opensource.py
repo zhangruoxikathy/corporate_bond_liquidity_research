@@ -49,14 +49,16 @@ def pull_daily_bond_file():
     # df.info()
     return df
 
-def load_bond_file(data_dir=DATA_DIR):
+
+def load_daily_bond(data_dir=DATA_DIR):
 
     path = data_dir / "manual" / "BondDailyPublic.parquet"
     df = pd.read_parquet(path)
     return df
 
+
 def _demo():
-    df = load_bond_file(data_dir=DATA_DIR)
+    df = load_daily_bond(data_dir=DATA_DIR)
 
 
 if __name__ == "__main__":

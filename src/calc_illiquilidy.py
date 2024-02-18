@@ -31,14 +31,20 @@ DATA_DIR = config.DATA_DIR
 
 import misc_tools
 import load_wrds_k
+import load_opensource
 
-
-df  = pd.read_csv('../data/manual/BondDailyPublic.csv.gzip',
-     compression='gzip')
-df['trd_exctn_dt'] = pd.to_datetime(df['trd_exctn_dt'])
-df_2004 = df[df['trd_exctn_dt'].dt.year == 2004]
+# df  = pd.read_csv('../data/manual/BondDailyPublic.csv.gzip',
+#      compression='gzip')
+df_daily = load_opensource.load_daily_bond(data_dir=DATA_DIR)
+df_daily['trd_exctn_dt'] = pd.to_datetime(df_daily['trd_exctn_dt'])
+df_2004 = df_daily[df_daily['trd_exctn_dt'].dt.year == 2004]
 df_2004['cusip_id'].nunique()
 
+
+
+
+
+# Calculate via monthly data
 df_bondret = load_wrds_k.load_bondret(data_dir=DATA_DIR)
 df_bondret['logprc']     = np.log(df_bondret['price_eom'])
 df_bondret = df_bondret.sort_values(['cusip', 'date'])
