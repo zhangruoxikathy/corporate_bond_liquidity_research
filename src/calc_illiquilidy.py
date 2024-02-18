@@ -37,7 +37,18 @@ import load_opensource
 #      compression='gzip')
 df_daily = load_opensource.load_daily_bond(data_dir=DATA_DIR)
 df_daily['trd_exctn_dt'] = pd.to_datetime(df_daily['trd_exctn_dt'])
-df_2004 = df_daily[df_daily['trd_exctn_dt'].dt.year == 2004]
+cutoff_date = pd.Timestamp('2009-06-30')
+df = df_daily[df_daily['trd_exctn_dt'] <= cutoff_date].dropna()
+periods = df.groupby('cusip_id')['trd_exctn_dt'].agg(['max', 'min'])
+periods['max_period'] = (periods['max'] - periods['min']).dt.days
+periods['threshold'] = periods['max_period'] * 0.75 * 252 / 365.25
+counts = df['cusip_id'].value_counts()
+to_keep_days = counts[counts > 10]
+ids_to_keep = counts[counts > periods.loc[counts.index, 'threshold']]
+df_filtered = df[df['cusip_id'].isin(ids_to_keep.index) & df['cusip_id'].isin(to_keep_days.index)]
+
+
+df_2004 = df_filtered[df_filtered['trd_exctn_dt'].dt.year == 2004]
 df_2004['cusip_id'].nunique()
 
 
