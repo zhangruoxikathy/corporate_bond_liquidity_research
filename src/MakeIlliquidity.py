@@ -131,7 +131,7 @@ from pandas.tseries.holiday import USFederalHolidayCalendar
 from pandas.tseries.offsets import CustomBusinessDay
 calendar = USFederalHolidayCalendar()
 start_date = '01JUL2002'
-end_date   = '31DEC2022'
+end_date   = '31DEC2023'
 holidays = calendar.holidays(start_date, end_date)
 holidays
 holiday_date_list = holidays.date.tolist()
