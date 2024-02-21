@@ -26,8 +26,8 @@ DATA_DIR = config('DATA_DIR', default=(BASE_DIR / 'data'), cast=Path)
 OUTPUT_DIR = config('OUTPUT_DIR', default=(BASE_DIR / 'output'), cast=Path)
 WRDS_USERNAME = config("WRDS_USERNAME", default="zhangruoxikathy")
 
+
 if __name__ == "__main__":
-    
     ## If they don't exist, create the data and output directories
     (DATA_DIR / 'pulled').mkdir(parents=True, exist_ok=True)
     (DATA_DIR / 'manual').mkdir(parents=True, exist_ok=True)

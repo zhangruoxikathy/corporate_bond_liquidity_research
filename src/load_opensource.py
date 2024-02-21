@@ -46,13 +46,13 @@ def pull_daily_bond_file():
     with gzip.open(gzip_file, "rb") as f:
         df = pd.read_csv(f, parse_dates=["trd_exctn_dt"])
     df = df.drop(columns=["Unnamed: 0"])
-    # df.info()
     return df
 
 
 def load_daily_bond(data_dir=DATA_DIR):
-
-    path = data_dir / "manual" / "BondDailyPublic.parquet"
+    path = data_dir / "pulled" / "BondDailyPublic.parquet"
+    if not path.exists():
+        path = data_dir / "manual" / "BondDailyPublic.parquet"
     df = pd.read_parquet(path)
     return df
 
