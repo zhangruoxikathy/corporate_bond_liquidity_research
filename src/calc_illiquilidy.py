@@ -30,7 +30,7 @@ OUTPUT_DIR = config.OUTPUT_DIR
 DATA_DIR = config.DATA_DIR
 
 import misc_tools
-import load_wrds_k
+import load_wrds_bondret
 import load_opensource
 
 # df  = pd.read_csv('../data/manual/BondDailyPublic.csv.gzip',
@@ -56,7 +56,7 @@ df_2004['cusip_id'].nunique()
 
 
 # Calculate via monthly data
-df_bondret = load_wrds_k.load_bondret(data_dir=DATA_DIR)
+df_bondret = load_wrds_bondret.load_bondret(data_dir=DATA_DIR)
 df_bondret['logprc']     = np.log(df_bondret['price_eom'])
 df_bondret = df_bondret.sort_values(['cusip', 'date'])
 df_bondret['deltap'] = df_bondret.groupby('cusip')['logprc'].diff().round(5)

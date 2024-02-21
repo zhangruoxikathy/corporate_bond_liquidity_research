@@ -52,7 +52,7 @@ def pull_daily_bond_file():
 
 def load_daily_bond(data_dir=DATA_DIR):
 
-    path = data_dir / "manual" / "BondDailyPublic.parquet"
+    path = data_dir / "pulled" / "BondDailyPublic.parquet"
     df = pd.read_parquet(path)
     return df
 
@@ -65,4 +65,4 @@ if __name__ == "__main__":
     df = pull_daily_bond_file()
     folder_path = DATA_DIR
     folder_path.mkdir(parents=True, exist_ok=True)
-    df.to_parquet(DATA_DIR / "manual" / "BondDailyPublic.parquet")
+    df.to_parquet(DATA_DIR / "pulled" / "BondDailyPublic.parquet")
