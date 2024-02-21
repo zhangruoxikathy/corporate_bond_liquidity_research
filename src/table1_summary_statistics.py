@@ -50,7 +50,6 @@ for year in range(2003, 2010):
 
 
 
-
 #calculate summary statistics for all data for panel B 
 
 bond_num_all = {}
