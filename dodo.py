@@ -51,20 +51,48 @@ def copy_notebook_to_folder(notebook_stem, origin_folder, destination_folder):
     return command
 
 
-def task_pull_fred():
-    """ """
-    file_dep = ["./src/load_fred.py"]
-    file_output = ["fred.parquet"]
-    targets = [DATA_DIR / "pulled" / file for file in file_output]
-
+def task_pull_data():
+    file_dep = [
+        "./src/config.py",
+        "./src/load_wrds_bondret.py",
+        "./src/load_opensource.py",
+        ]
+    targets = [
+        Path(DATA_DIR) / "pulled" / file for file in
+        [
+            ## src/load_wrds_bondret.py
+            "Bondret.parquet",
+            ## src/load_opensource.py
+            "BondDailyPublic.parquet",
+        ]
+    ]
     return {
         "actions": [
-            "ipython ./src/load_fred.py",
+            "ipython src/config.py",
+            "ipython src/load_wrds_bondret.py",
+            "ipython src/load_opensource.py"
         ],
         "targets": targets,
         "file_dep": file_dep,
         "clean": True,
+        "verbosity": 2, # Print everything immediately. This is important in
+        # case WRDS asks for credentials.
     }
+
+# def task_pull_fred():
+#     """ """
+#     file_dep = ["./src/load_fred.py"]
+#     file_output = ["fred.parquet"]
+#     targets = [DATA_DIR / "pulled" / file for file in file_output]
+#
+#     return {
+#         "actions": [
+#             "ipython ./src/load_fred.py",
+#         ],
+#         "targets": targets,
+#         "file_dep": file_dep,
+#         "clean": True,
+#     }
 
 
 # def task_pull_data_via_presto():

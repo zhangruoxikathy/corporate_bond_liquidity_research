@@ -100,7 +100,6 @@ def pull_bondret(wrds_username=WRDS_USERNAME):
 def load_bondret(data_dir=DATA_DIR):
     path = Path(data_dir) / "pulled" / "Bondret.parquet"
     bond = pd.read_parquet(path)
-    
     return bond
 
 
