@@ -70,7 +70,11 @@ description_bondret = {
     "n_sp": "n_sp",
     "n_mr": "n_mr",
     "n_fr": "n_fr",
-    "rating_num": "rating_num"
+    "rating_num": "rating_num",
+    "tmt": "Time to Maturity",
+    "price_eom": "End of Month Price",
+    "price_ldm": "Last Day of Month Price",
+    "price_l5m": "Last 5th Day of Month Price"
 }
 
 
@@ -82,7 +86,8 @@ def pull_bondret(wrds_username=WRDS_USERNAME):
     sql_query = """
         SELECT 
             cusip, date, issue_id, bond_sym_id, price_eom, price_ldm, price_l5m,
-            bsym, isin, company_symbol, bond_type,
+            bsym, isin, company_symbol, bond_type, rating_cat, tmt,
+            rating_class, t_date, t_volume, t_dvolume,
             security_level, conv, offering_date, offering_amt, offering_price,
             principal_amt, maturity, treasury_maturity, coupon, day_count_basis,
             dated_date, first_interest_date, last_interest_date, ncoups,
