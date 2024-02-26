@@ -42,6 +42,26 @@ from datetime import datetime, timedelta
 from datetime import datetime
 tqdm.pandas()
 
+import pandas as pd
+import numpy as np
+import config
+
+OUTPUT_DIR = config.OUTPUT_DIR
+DATA_DIR = config.DATA_DIR
+
+import misc_tools
+import load_wrds_bondret
+import load_opensource
+import data_processing as data
+
+# df  = pd.read_csv('../data/manual/BondDailyPublic.csv.gzip',
+#      compression='gzip')
+df_daily = load_opensource.load_daily_bond(data_dir=DATA_DIR)
+df_bondret = load_wrds_bondret.load_bondret(data_dir=DATA_DIR)
+merged_df = data.all_trace_data_merge(df_daily, df_bondret, start_date = '2003-04-14', end_date = '2009-06-30')
+merged_df = data.sample_selection(merged_df, start_date = '2003-04-14', end_date = '2009-06-30')
+
+
 #* ************************************** */
 #* Load daily data                        */
 #* ************************************** */
