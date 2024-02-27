@@ -13,6 +13,8 @@ def all_trace_data_merge(df_daily, df_bondret, start_date = '2003-04-14', end_da
     start_date = pd.to_datetime(start_date)
     end_date = pd.to_datetime(end_date)
 
+    df_daily['trd_exctn_dt'] = pd.to_datetime(df_daily['trd_exctn_dt'])
+
     df_daily = df_daily[(df_daily['trd_exctn_dt'] >= start_date) & (df_daily['trd_exctn_dt'] <= end_date)]
 
     df_daily['trd_exctn_dt'] = pd.to_datetime(df_daily['trd_exctn_dt'])

@@ -218,20 +218,22 @@ def calc_annual_illiquidity_table_spd(df):
     return table2_spd
 
 
+##############################################################
+# Util: output dataframe 
+##############################################################
+
+
+
+
 
 def main():
 
     cleaned_df = clean_merged_data('2003-04-14', '2009-06-30')
     df = calc_deltaprc(cleaned_df)
-    table2_final_daily = calc_annual_illiquidity_table_daily(df)
+    table2_daily = calc_annual_illiquidity_table_daily(df)
+    table2_spd = calc_annual_illiquidity_table_spd(df)  # by multiplying these values by 5, we get approximately the same result as the one in the paper
 
-    latex_table2_final_daily = table2_final_daily.to_latex(index=False, float_format="{:0.2f}".format, na_rep='NA')
-    print(latex_table2_final_daily)
 
-    table2_final_spd = calc_annual_illiquidity_table_spd(df)  # by multiplying these values by 5, we get approximately the same result as the one in the paper
-
-    latex_table2_final_spd = table2_final_spd.to_latex(index=False, float_format="{:0.2f}".format, na_rep='NA')
-    print(latex_table2_final_spd)
 
 
 if __name__ == "__main__":
@@ -336,7 +338,7 @@ if __name__ == "__main__":
 #     'Robust_t_stat': robust_t_stats.values
 # }).reset_index(drop=True)
 
-def calc_annual_illiquidity_table_spd(df):
+# def calc_annual_illiquidity_table_spd(df):
 #     """"""
 #     df_unique = df.groupby(['cusip', 'month_year'])['t_spread'].first().reset_index()
 #     df_unique['year'] = df_unique['month_year'].dt.year  
@@ -465,5 +467,5 @@ def calc_annual_illiquidity_table_spd(df):
 
 
 
-if __name__ == "__main__":
-    pass
+# if __name__ == "__main__":
+#     pass

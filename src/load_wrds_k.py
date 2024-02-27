@@ -3,7 +3,7 @@
 Overview
 -------------
 This Python script aims to load corporate bond data from WRDSAPPS.BONDRET 
-on WRDS since 2002-07.
+on WRDS from 2002-07.
  
 Requirements
 -------------
@@ -64,8 +64,17 @@ description_bondret = {
     "last_interest_date": "last_interest_date",
     "ncoups": "ncoups",
     "amount_outstanding": "amount_outstanding",
-    "n_mr": "numeric moody rating",
-    "tmt": 'time to maturity'
+    "r_sp": "r_sp",
+    "r_mr": "r_mr",
+    "r_fr": "r_fr",
+    "n_sp": "n_sp",
+    "n_mr": "n_mr",
+    "n_fr": "n_fr",
+    "rating_num": "rating_num",
+    "tmt": "Time to Maturity",
+    "price_eom": "End of Month Price",
+    "price_ldm": "Last Day of Month Price",
+    "price_l5m": "Last 5th Day of Month Price"
 }
 
 
