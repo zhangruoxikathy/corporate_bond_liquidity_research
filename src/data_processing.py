@@ -4,7 +4,7 @@ import pandas as pd
 def all_trace_data_merge(df_daily, df_bondret, start_date = '2003-04-14', end_date = '2009-06-30'):
     
     """
-    this function merge the daily TRARCE opensource data downloaded from https://openbondassetpricing.com/  
+    this function merges the daily TRARCE opensource data downloaded from https://openbondassetpricing.com/  
     with the montly Bondret data from WRDS
     """
 
@@ -40,7 +40,7 @@ def all_trace_data_merge(df_daily, df_bondret, start_date = '2003-04-14', end_da
 def sample_selection(df, start_date = '2003-04-14', end_date = '2009-06-30'):
 
     """
-    this function selection samples to be included in paper following the below steps as outlined in the paper 
+    this function selects samples to be included in paper following the below steps as outlined in the paper 
     """
 
     # select Phase I and II bonds from 2003-04-14 to 2009-6-30 

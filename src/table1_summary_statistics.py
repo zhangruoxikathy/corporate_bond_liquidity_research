@@ -8,7 +8,7 @@ OUTPUT_DIR = config.OUTPUT_DIR
 DATA_DIR = config.DATA_DIR
 
 #loading raw data 
-df_bondret = load_wrds_bondret.load_bondret(data_dir = DATA_DIR)
+df_bondret = load_wrds_bondret.load_bondret(data_dir=DATA_DIR)
 df_daily = load_opensource.load_daily_bond(data_dir=DATA_DIR)
 
 #processing data 
@@ -17,15 +17,12 @@ df_sample = data_processing.sample_selection(df_all) # this is the dataset for p
 
 
 def bond_number(df, year):
-    
     df_select = df[df['year'] == year]
     return df_select['cusip'].nunique()
 
 
 def sum_stat(df, year, variable):
-    
     df_select = df[df['year'] == year]
-    
     mean = df_select[variable].mean()
     median  = df_select[variable].median()
     sd = df_select[variable].std()
@@ -47,7 +44,6 @@ for year in range(2003, 2010):
     summary_rating_sample[year] = sum_stat(df_sample, year, 'n_mr')
     summary_coupon_sample[year] = sum_stat(df_sample, year, 'coupon_x')
     summary_maturity_sample[year] = sum_stat(df_sample, year,'tmt')
-
 
 
 
