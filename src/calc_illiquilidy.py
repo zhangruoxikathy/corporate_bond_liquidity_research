@@ -8,6 +8,7 @@ Requirements
 -------------
 
 ../data/pulled/Bondret.parquet resulting from load_wrds_bondret.py
+../data/pulled/BondDailyPublic resulting from load_opensource.py
 
 '''
 
@@ -76,7 +77,9 @@ def clean_merged_data(start_date, end_date):
     return df
 
 
-cleaned_df = clean_merged_data('2003-04-14', '2009-06-30')
+##############################################################
+# Panel A: Individual Bonds
+##############################################################
 
 
 def calc_deltaprc(df):
@@ -110,9 +113,6 @@ def calc_deltaprc(df):
     df_final = df_final[df_final['trade_counts'] >= 10]    
     
     return df_final
-    
-    
-df = calc_deltaprc(cleaned_df)
 
 
 def calc_annual_illiquidity_table_daily(df):
@@ -184,15 +184,11 @@ def calc_annual_illiquidity_table_daily(df):
     return table2_daily
 
 
-table2_final_daily = calc_annual_illiquidity_table_daily(df)
-
-latex_table2_final_daily = table2_final_daily.to_latex(index=False, float_format="{:0.2f}".format, na_rep='NA')
-print(latex_table2_final_daily)
-
 
 ##############################################################
-# Implied Gamma/illiquidity by Quoted Bid-Ask Spreads
+# Panel C: Implied Gamma/illiquidity by Quoted Bid-Ask Spreads
 ##############################################################
+
 
 def calc_annual_illiquidity_table_spd(df):
     """Calculate mean and median gamma implied by quoted bid-ask spreads by year.
@@ -222,18 +218,24 @@ def calc_annual_illiquidity_table_spd(df):
     return table2_spd
 
 
-table2_final_spd = calc_annual_illiquidity_table_spd(df)  # by multiplying these values by 5, we get approximately the same result as the one in the paper
+
+def main():
+
+    cleaned_df = clean_merged_data('2003-04-14', '2009-06-30')
+    df = calc_deltaprc(cleaned_df)
+    table2_final_daily = calc_annual_illiquidity_table_daily(df)
+
+    latex_table2_final_daily = table2_final_daily.to_latex(index=False, float_format="{:0.2f}".format, na_rep='NA')
+    print(latex_table2_final_daily)
+
+    table2_final_spd = calc_annual_illiquidity_table_spd(df)  # by multiplying these values by 5, we get approximately the same result as the one in the paper
+
+    latex_table2_final_spd = table2_final_spd.to_latex(index=False, float_format="{:0.2f}".format, na_rep='NA')
+    print(latex_table2_final_spd)
 
 
-latex_table2_final_spd = table2_final_spd.to_latex(index=False, float_format="{:0.2f}".format, na_rep='NA')
-print(latex_table2_final_spd)
-
-
-
-
-
-
-
+if __name__ == "__main__":
+    main()
 
 
 # draft ################################################################################
