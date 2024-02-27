@@ -12,7 +12,8 @@ DATA_DIR = config.DATA_DIR
 # df_bondret = load_wrds_bondret.load_bondret(data_dir = DATA_DIR)
 # df_daily = load_opensource.load_daily_bond(data_dir=DATA_DIR)
 
-# #loading raw data 
+# loading raw data, since the data is too large, we can load the parquet file directly
+# in final case, we can comment the following two lines and use the above two lines to load the raw data
 df_bondret = pd.read_parquet(DATA_DIR / "pulled" / "Bondret.parquet")
 df_daily = pd.read_csv('/Users/adair/Desktop/FinancialTool/Group_Project/BondDailyPublic.csv')
 
@@ -86,8 +87,15 @@ def cal_count(dataframe, column='cusip'):
     Returns:
     pandas.Series: A series containing the count of unique values for each year.
     """
-    count = dataframe.groupby('year')[column].nunique()
+    count = dataframe.groupby('year')[column].nunique().reset_index()
+    count.rename(columns={column: column+'_count'}, inplace=True)
+    count.set_index('year', inplace=True)
     return count
+
+
+# Calculate the number of unique cusips in df_sample and df_all
+df_sample_cusip = cal_count(df_sample)
+df_all_cusip = cal_count(df_all)
 
 
 # Calculate the Issuance of df_sample and df_all
@@ -186,18 +194,28 @@ df_sample_vol = pd.concat([cal_avrage(df_sample_vol_grouped, 'volatility'), \
 df_all_vol = pd.concat([cal_avrage(df_all_vol_grouped, 'volatility'), \
                     cal_median(df_all_vol_grouped, 'volatility'), cal_std(df_all_vol_grouped, 'volatility')], axis=1)
 
+# Calculate the Price in df_sample and df_all
+df_sample_month_price = df_sample.groupby(['year', 'cusip', 'date'])['prclean'].mean().reset_index()
+df_all_month_price = df_all.groupby(['year', 'cusip', 'date'])['prclean'].mean().reset_index()
+
+df_sample_price = pd.concat([cal_avrage(df_sample_month_price, 'prclean'), \
+                    cal_median(df_sample_month_price, 'prclean'), cal_std(df_sample_month_price, 'prclean')], axis=1)
+
+df_all_price = pd.concat([cal_avrage(df_all_month_price, 'prclean'), \
+                    cal_median(df_all_month_price, 'prclean'), cal_std(df_all_month_price, 'prclean')], axis=1)
 
 
+# concat all results of df_sample and df_all
+df_sample_result = pd.concat([df_sample_cusip, df_sample_issuance, df_sample_moody, df_sample_maturity, df_sample_coupon, \
+                    df_sample_age, df_sample_turnover, df_sample_return, df_sample_vol, df_sample_price], axis=1)
 
-# concat all sample results
-df_sample_result = pd.concat([df_sample_issuance, df_sample_moody, df_sample_maturity, df_sample_coupon, df_sample_age, df_sample_turnover], axis=1)
-
+df_all_result = pd.concat([df_all_cusip, df_all_issuance, df_all_moody, df_all_maturity, df_all_coupon, \
+                    df_all_age, df_all_turnover, df_all_return, df_all_vol, df_all_price], axis=1)
 # transform the df_sample_result, make its index as column
 df_sample_result = df_sample_result.T
-
-df_sample_result.head()
+df_all_result = df_all_result.T
 
 if __name__ == "__main__":
-    # Save the results to a csv file
-    df_sample_issuance.to_csv(OUTPUT_DIR / 'df_sample_issuance.csv')
+    df_sample_result.to_csv(OUTPUT_DIR / 'table1_panelA.csv')
+    df_all_result.to_csv(OUTPUT_DIR / 'table1_panelB.csv')
 
