@@ -36,7 +36,7 @@ OUTPUT_DIR = Path(config.OUTPUT_DIR)
 
 cleaned_df = illiq.clean_merged_data('2003-04-14', '2009-06-30')
 df = illiq.calc_deltaprc(cleaned_df)
-table2_daily = illiq.calc_annual_illiquidity_table_daily(df)
+illiq_daily, table2_daily = illiq.calc_annual_illiquidity_table_daily(df)
 table2_spd = illiq.calc_annual_illiquidity_table_spd(df) 
 
 
@@ -46,8 +46,12 @@ pd.set_option('display.float_format', lambda x: '%.4f' % x)
 float_format_func = lambda x: '{:.4f}'.format(x)
 
 # Produce latex tables
+illiq_daily_summary = illiq_daily.describe()
+latex_illiq_daily = illiq_daily_summary.to_latex(index=False, float_format=float_format_func, column_format='rrr', escape=False)
 latex_table2_daily = table2_daily.to_latex(index=False, float_format=float_format_func, column_format='l|rrrr', escape=False)
 latex_table2_spd = table2_spd.to_latex(index=False, float_format=float_format_func, column_format='l|rr', escape=False)
+
+print(latex_illiq_daily)
 print(latex_table2_daily)
 print(latex_table2_spd)
 
@@ -58,6 +62,9 @@ latex_document = f"""
 \\usepackage{{booktabs}}
 
 \\begin{{document}}
+
+\\section*{{Summary Statistics: Monthly Illiquidity Using Daily Data}}
+{latex_illiq_daily}
 
 \\section*{{Panel A: Individual Bonds, Daily Data}}
 {latex_table2_daily}

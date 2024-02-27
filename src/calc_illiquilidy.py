@@ -54,8 +54,7 @@ def clean_merged_data(start_date, end_date):
     merged_df['month_year'] = pd.to_datetime(merged_df['trd_exctn_dt']).dt.to_period('M') 
 
     # Lags days for day_counts
-    merged_df['trd_exctn_dt_lag'] = merged_df.\
-        groupby('cusip')['trd_exctn_dt'].shift(1)
+    merged_df['trd_exctn_dt_lag'] = merged_df.groupby('cusip')['trd_exctn_dt'].shift(1)
     dfDC = merged_df.dropna(subset=['trd_exctn_dt_lag'])
 
     # Generate a list of U.S. holidays over this period
@@ -110,8 +109,7 @@ def calc_deltaprc(df):
     # Drop NAs in deltap, deltap_lag and bonds < 10 observations of the paired price changes
     df_final = df.dropna(subset=['deltap', 'deltap_lag', 'prclean'])  # 'offering_date', 'price_ldm', 'offering_price', 'amount_outstanding'])
     df_final['trade_counts'] = df_final.groupby(['cusip', 'year'])['deltap'].transform("count")
-    df_final = df_final[df_final['trade_counts'] >= 10]    
-    
+
     return df_final
 
 
@@ -181,7 +179,8 @@ def calc_annual_illiquidity_table_daily(df):
 
     table2_daily = pd.concat([table2_daily, overall_data], ignore_index=True)
 
-    return table2_daily
+    return Illiq_month, table2_daily
+
 
 
 
@@ -230,7 +229,10 @@ def main():
 
     cleaned_df = clean_merged_data('2003-04-14', '2009-06-30')
     df = calc_deltaprc(cleaned_df)
-    table2_daily = calc_annual_illiquidity_table_daily(df)
+    # unique_cusip = np.unique(df['cusip'])
+    # df_unique_cusip = pd.DataFrame(unique_cusip, columns=['CUSIP'])
+    # df_unique_cusip.to_csv("../data/unique_cusips.csv", index=True)
+    illiq_daily, table2_daily = calc_annual_illiquidity_table_daily(df)
     table2_spd = calc_annual_illiquidity_table_spd(df)  # by multiplying these values by 5, we get approximately the same result as the one in the paper
 
 
