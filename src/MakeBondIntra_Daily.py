@@ -210,7 +210,8 @@ for i in range(0,len(cusip_chunks)):
     #* Load data from WRDS per chunk          */
     #* ************************************** */ 
         
-    trace = db.raw_sql("SELECT cusip_id,bond_sym_id,trd_exctn_dt,trd_exctn_tm,days_to_sttl_ct,lckd_in_ind,wis_fl,sale_cndtn_cd,msg_seq_nb, trc_st, trd_rpt_dt,trd_rpt_tm, entrd_vol_qt, rptd_pr,yld_pt,asof_cd,orig_msg_seq_nb,rpt_side_cd,cntra_mp_id FROM trace.trace_enhanced WHERE cusip_id in %(cusip_id)s AND trd_exctn_dt >= '07/01/2002' AND trd_exctn_dt <= '07/01/2004'", 
+    trace = db.raw_sql(
+        "SELECT cusip_id,bond_sym_id,trd_exctn_dt,trd_exctn_tm,days_to_sttl_ct,lckd_in_ind,wis_fl,sale_cndtn_cd,msg_seq_nb, trc_st, trd_rpt_dt,trd_rpt_tm, entrd_vol_qt, rptd_pr,yld_pt,asof_cd,orig_msg_seq_nb,rpt_side_cd,cntra_mp_id FROM trace.trace_enhanced WHERE cusip_id in %(cusip_id)s AND trd_exctn_dt >= '07/01/2002' AND trd_exctn_dt <= '07/01/2004'",
                   params=parm)
            
     CleaningExport['Obs.Pre'].iloc[i] = int(len(trace))
