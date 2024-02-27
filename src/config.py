@@ -36,6 +36,7 @@ NUM_WORKERS = config("NUM_WORKERS", default=8, cast=int)
 if __name__ == "__main__":
     ## If they don't exist, create the data and output directories
     (DATA_DIR / 'pulled').mkdir(parents=True, exist_ok=True)
+    # (DATA_DIR / 'manual').mkdir(parents=True, exist_ok=True)
     (DATA_DIR / 'pulled' / 'temp').mkdir(parents=True, exist_ok=True)
     LOG_DIR.mkdir(parents=True, exist_ok=True)
     (DATA_DIR / 'manual').mkdir(parents=True, exist_ok=True)
