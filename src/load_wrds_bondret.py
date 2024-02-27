@@ -3,7 +3,7 @@
 Overview
 -------------
 This Python script aims to load corporate bond data from WRDSAPPS.BONDRET 
-on WRDS from 2002-07.
+on WRDS since 2002-07.
  
 Requirements
 -------------
