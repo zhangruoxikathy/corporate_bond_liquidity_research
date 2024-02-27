@@ -77,11 +77,12 @@ def pull_bondret(wrds_username=WRDS_USERNAME):
     sql_query = """
         SELECT 
             cusip, date, issue_id, bond_sym_id, price_eom, price_ldm, price_l5m,
-            bsym, isin, company_symbol, bond_type, t_spread,	
+            bsym, isin, company_symbol, bond_type, rating_cat, tmt,
+            rating_class, t_date, t_volume, t_dvolume, t_spread,
             security_level, conv, offering_date, offering_amt, offering_price,
             principal_amt, maturity, treasury_maturity, coupon, day_count_basis,
             dated_date, first_interest_date, last_interest_date, ncoups,
-            amount_outstanding, n_mr, tmt
+            amount_outstanding, r_sp, r_mr, r_fr, n_sp, n_mr, n_fr, rating_num
         FROM 
             WRDSAPPS.BONDRET
         WHERE 
