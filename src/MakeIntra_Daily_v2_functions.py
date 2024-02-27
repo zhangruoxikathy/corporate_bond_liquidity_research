@@ -38,6 +38,9 @@ import os
 import pandas as pd
 
 pd.options.mode.chained_assignment = None  # default='warn'
+pd.options.display.max_columns = None
+pd.set_option('display.width', 1000)
+
 import numpy as np
 import wrds
 from itertools import chain
@@ -194,9 +197,9 @@ def _wrds_query_and_save_data(chunk, start_date, end_date):
             f"WHERE cusip_id in %(cusip_id)s AND trd_exctn_dt >= '{start_date}' AND trd_exctn_dt <= '{end_date}'",
             params=parm)
         trace.to_csv(config.DATA_DIR / "pulled" / "temp" / f"temp_trace_{chunk[0]}.csv", index=False)
-        print(f"PID: {os.getpid()}; Chunk {chunk[0]} took {round(time.time() - start, 2)} secs.")
+        logging.info(f"PID: {os.getpid()}; Chunk {chunk[0]} took {round(time.time() - start, 2)} secs.")
     except Exception as e:
-        print(f"PID: {os.getpid()}; Error pulling chunk {chunk[0]}: {e}")
+        logging.info(f"PID: {os.getpid()}; Error pulling chunk {chunk[0]}: {e}")
 
 
 def _pull_TRACE_sequential(cusip_chunks, start_date, end_date):
@@ -234,6 +237,7 @@ class CleanTraceChunkResult:
         self.cleaning_results = {}
         self.prices = None
         self.volumes = None
+        self.illiquidity = None
 
 
 def _process_clean_TRACE(file_path):
@@ -247,7 +251,7 @@ def _process_clean_TRACE(file_path):
     result.chunk_id = int(match.group(1))
     logging.info(f"PID: {os.getpid()}, processing chunk {result.chunk_id}")
 
-    trace = pd.read_csv(file_path)
+    trace = pd.read_csv(file_path, low_memory=False)
 
     result.cleaning_results['Obs.Pre'] = int(len(trace))
 
@@ -286,6 +290,7 @@ def _process_clean_TRACE(file_path):
         logging.info(f"PID: {os.getpid()}, PostBBW generated no results")
         return result
 
+    # TODO: is this right?
     # * ************************************ */
     # * 1.0 Parsing out Post 2012/02/06 Data */
     # * ************************************ */
@@ -549,7 +554,7 @@ def _process_clean_TRACE(file_path):
 
     # =====================================================================
 
-    # 2.2.5 Caluclate no of pair of records;
+    # 2.2.5 Calculate no of pair of records;
     # Assuming the original table is named "__w_keep"
 
     __w_keep['npair'] = __w_keep.drop_duplicates().groupby(by=[
@@ -871,15 +876,7 @@ def _process_clean_TRACE(file_path):
     return result
 
 
-
-def _clean_TRACE_parallel(trace_files):
-
-    with Pool(processes=config.NUM_WORKERS) as pool:
-        # Use partial to create a function with first argument fixed
-        process_file_partial = partial(_process_clean_TRACE)
-        # Map the function to the list of files, it will run in parallel
-        results = pool.map(process_file_partial, trace_files)
-
+def _process_cleaned_TRACE_results(results):
     price_super_list = []
     volume_super_list = []
     illiquidity_super_list = []
@@ -894,21 +891,48 @@ def _clean_TRACE_parallel(trace_files):
 
     # Convert super list to dataframe #
     # Credit to Mihai Mihut for this suggestion (lists) #
-    PricesExport = pd.concat(price_super_list, axis=0, ignore_index=False)
-    VolumeExport = pd.concat(volume_super_list, axis=0, ignore_index=False)
-    IlliqExport = pd.concat(illiquidity_super_list, axis=0, ignore_index=False)
-    CleaningExport = pd.DataFrame(data=cleaning_results,
-                                  columns=['chunk_id', 'Obs.Pre', 'Obs.PostBBW', 'Obs.PostDickNielsen'])
-    # CleaningExport = pd.concat(cleaning_results, axis=0, ignore_index=False)
+    if len(price_super_list) > 0:
+        PricesExport = pd.concat(price_super_list, axis=0, ignore_index=False)
+        PricesExport.to_csv(config.DATA_DIR / 'pulled' / 'Prices_BBW_TRACE_Enhanced_Dick_Nielsen.csv.gzip',
+                            compression='gzip')
+    if len(volume_super_list) > 0:
+        VolumeExport = pd.concat(volume_super_list, axis=0, ignore_index=False)
+        VolumeExport.to_csv(config.DATA_DIR / 'pulled' / 'Volumes_BBW_TRACE_Enhanced_Dick_Nielsen.csv.gzip',
+                            compression='gzip')
+    if len(illiquidity_super_list) > 0:
+        IlliqExport = pd.concat(illiquidity_super_list, axis=0, ignore_index=False)
+        IlliqExport.to_csv(config.DATA_DIR / 'pulled' / 'Illiq.csv.gzip', compression='gzip')
+    if len(cleaning_results) > 0:
+        CleaningExport = pd.DataFrame(data=cleaning_results,
+                                      columns=['chunk_id', 'Obs.Pre', 'Obs.PostBBW', 'Obs.PostDickNielsen'])
+        CleaningExport.to_csv(config.DATA_DIR / 'pulled' / 'Cleaning_TRACE_Enhanced_Dick_Nielsen.csv')
 
-    # Save in compressed GZIP format #
-    PricesExport.to_csv(config.DATA_DIR / 'pulled' / 'Prices_BBW_TRACE_Enhanced_Dick_Nielsen.csv.gzip',
-                        compression='gzip')
-    VolumeExport.to_csv(config.DATA_DIR / 'pulled' / 'Volumes_BBW_TRACE_Enhanced_Dick_Nielsen.csv.gzip',
-                        compression='gzip')
-    IlliqExport.to_csv(config.DATA_DIR / 'pulled' / 'Illiq.csv.gzip', compression='gzip')
-    CleaningExport.to_csv(config.DATA_DIR / 'pulled' / 'Cleaning_TRACE_Enhanced_Dick_Nielsen.csv')
-    # =============================================================================
+
+
+
+
+
+
+def _clean_TRACE_sequential(trace_files):
+    """ Clean the chunked TRACE files in sequentially """
+    results = []
+    for file_path in trace_files:
+        results.append(_process_clean_TRACE(file_path))
+
+    _process_cleaned_TRACE_results(results)
+
+
+
+def _clean_TRACE_parallel(trace_files):
+    """ Clean the chunked TRACE files in parallel """
+    with Pool(processes=config.NUM_WORKERS) as pool:
+        # Use partial to create a function with first argument fixed
+        process_file_partial = partial(_process_clean_TRACE)
+        # Map the function to the list of files, it will run in parallel
+        results = pool.map(process_file_partial, trace_files)
+
+    _process_cleaned_TRACE_results(results)
+
 
 
 def clean_TRACE():
@@ -921,7 +945,7 @@ def clean_TRACE():
     if config.RUN_TRACE_IN_PARALLEL:
         _clean_TRACE_parallel(trace_files)
     else:
-        raise NotImplemented()
+        _clean_TRACE_sequential(trace_files)
 
 
 if __name__ == '__main__':
