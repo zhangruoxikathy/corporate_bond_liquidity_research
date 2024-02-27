@@ -19,6 +19,11 @@ YOUR LATEX TABLE CODE HERE
 import pandas as pd
 import numpy as np
 
+import config
+from pathlib import Path
+DATA_DIR = Path(config.DATA_DIR)
+OUTPUT_DIR = Path(config.OUTPUT_DIR)
+
 OUTPUT_DIR = config.OUTPUT_DIR
 DATA_DIR = config.DATA_DIR
 
@@ -28,10 +33,7 @@ import load_opensource
 import data_processing as data
 import calc_illiquilidy as illiq
 
-import config
-from pathlib import Path
-DATA_DIR = Path(config.DATA_DIR)
-OUTPUT_DIR = Path(config.OUTPUT_DIR)
+
 
 
 cleaned_df = illiq.clean_merged_data('2003-04-14', '2009-06-30')
@@ -51,9 +53,9 @@ latex_illiq_daily = illiq_daily_summary.to_latex(index=False, float_format=float
 latex_table2_daily = table2_daily.to_latex(index=False, float_format=float_format_func, column_format='l|rrrr', escape=False)
 latex_table2_spd = table2_spd.to_latex(index=False, float_format=float_format_func, column_format='l|rr', escape=False)
 
-print(latex_illiq_daily)
-print(latex_table2_daily)
-print(latex_table2_spd)
+# print(latex_illiq_daily)
+# print(latex_table2_daily)
+# print(latex_table2_spd)
 
 
 # LaTeX document content

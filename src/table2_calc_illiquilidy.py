@@ -163,18 +163,18 @@ def calc_annual_illiquidity_table_daily(df):
     # Combine the results
     table2_daily = pd.DataFrame({
         'Year': robust_t_stats.index,
-        'Mean_illiq': Illiq_month.groupby('year')['illiq'].mean(),
-        'Median_illiq': Illiq_month.groupby('year')['illiq'].median(),
-        'Per_t_greater_1_96': percent_significant,
-        'Robust_t_stat': robust_t_stats.values
+        'Mean illiq': Illiq_month.groupby('year')['illiq'].mean(),
+        'Median illiq': Illiq_month.groupby('year')['illiq'].median(),
+        'Per t greater 1.96': percent_significant,
+        'Robust t stat': robust_t_stats.values
     }).reset_index(drop=True)
     
     overall_data = pd.DataFrame({
         'Year': ['Full'],
-        'Mean_illiq': [overall_illiq_mean],
-        'Median_illiq': [overall_illiq_median],
-        'Per_t_greater_1_96': [overall_percent_significant],
-        'Robust_t_stat': [overall_robust_t_stat]
+        'Mean illiq': [overall_illiq_mean],
+        'Median illiq': [overall_illiq_median],
+        'Per t greater 1.96': [overall_percent_significant],
+        'Robust t stat': [overall_robust_t_stat]
     })
 
     table2_daily = pd.concat([table2_daily, overall_data], ignore_index=True)
@@ -216,10 +216,6 @@ def calc_annual_illiquidity_table_spd(df):
     
     return table2_spd
 
-
-##############################################################
-# Util: output dataframe 
-##############################################################
 
 
 
