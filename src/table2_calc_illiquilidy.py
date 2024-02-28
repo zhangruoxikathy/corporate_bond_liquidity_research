@@ -76,6 +76,7 @@ def clean_merged_data(start_date, end_date):
     return df
 
 
+
 ##############################################################
 # Panel A: Individual Bonds
 ##############################################################
@@ -108,7 +109,7 @@ def calc_deltaprc(df):
     
     # Drop NAs in deltap, deltap_lag and bonds < 10 observations of the paired price changes
     df_final = df.dropna(subset=['deltap', 'deltap_lag', 'prclean'])  # 'offering_date', 'price_ldm', 'offering_price', 'amount_outstanding'])
-    df_final['trade_counts'] = df_final.groupby(['cusip', 'year'])['deltap'].transform("count")
+    # df_final['trade_counts'] = df_final.groupby(['cusip', 'year'])['deltap'].transform("count")
 
     return df_final
 

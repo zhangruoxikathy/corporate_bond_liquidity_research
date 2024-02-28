@@ -31,7 +31,7 @@ import misc_tools
 import load_wrds_bondret
 import load_opensource
 import data_processing as data
-import calc_illiquilidy as illiq
+import table2_calc_illiquilidy as illiq
 
 
 
