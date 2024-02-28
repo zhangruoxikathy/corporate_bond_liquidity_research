@@ -36,6 +36,7 @@ import load_opensource
 import data_processing as data
 
 
+
 def clean_merged_data(start_date, end_date):
     """Load merged, pre-cleaned daily and monthly corporate bond data for a given time interval.
     """
@@ -47,7 +48,7 @@ def clean_merged_data(start_date, end_date):
                                           start_date = start_date, end_date = end_date)
     merged_df = data.sample_selection(merged_df, start_date = start_date,
                                       end_date = end_date)
-    
+
     # Clean data
     merged_df = merged_df.dropna(subset=['prclean'])
     merged_df = merged_df.sort_values(by='trd_exctn_dt')
@@ -219,6 +220,22 @@ def calc_annual_illiquidity_table_spd(df):
 
 
 
+def calc_annual_illiquidity_table_portfolio(df):
+    """Calculate illiquidity by using equal weighted and issurance weighted portfolios for each year.
+    """
+    
+    grouped_df = df.groupby('trd_exctn_dt')[['deltap', 'deltap_lag']].mean().reset_index()
+    grouped_df['year'] = grouped_df['trd_exctn_dt'].dt.year
+    tqdm.pandas()
+    
+    Illiq_port = grouped_df.groupby(['year'] )[['deltap','deltap_lag']]\
+        .progress_apply(lambda x: x.cov().iloc[0,1]) * -1
+    Illiq_month = Illiq_port.reset_index()
+    Illiq_month.columns = ['cusip','month_year','illiq']
+    Illiq_month['year'] = Illiq_month['month_year'].dt.year
+    Illiq_month = Illiq_month.dropna(subset=['illiq'])
+    
+    
 
 
 
@@ -229,7 +246,7 @@ def main():
     # unique_cusip = np.unique(df['cusip'])
     # df_unique_cusip = pd.DataFrame(unique_cusip, columns=['CUSIP'])
     # df_unique_cusip.to_csv("../data/unique_cusips.csv", index=True)
-    illiq_daily, table2_daily = calc_annual_illiquidity_table_daily(df)
+    illiq_daily, table2_daily = calc_annual_illiquidity_table_daily(df_final)
     table2_spd = calc_annual_illiquidity_table_spd(df)  # by multiplying these values by 5, we get approximately the same result as the one in the paper
 
 
@@ -468,3 +485,17 @@ if __name__ == "__main__":
 
 # if __name__ == "__main__":
 #     pass
+
+
+    # dfp  = pd.read_csv('../data/pulled/Prices_BBW_TRACE_Enhanced_Dick_Nielsen.csv.gzip', compression='gzip')
+    # dfv = pd.read_csv('../data/pulled/Volumes_BBW_TRACE_Enhanced_Dick_Nielsen.csv.gzip', compression = "gzip")
+    # illiq = pd.read_csv('../data/pulled/Illiq.csv.gzip', compression='gzip')
+    
+    # dfp[ 'trd_exctn_dt'] =  dfp['trd_exctn_dt'].values.astype('M8[D]')
+    # dfv['trd_exctn_dt'] = dfv['trd_exctn_dt'].values.astype('M8[D]')
+    
+    # df_all = dfp.merge(dfv, how = "inner", left_on = ['trd_exctn_dt','cusip_id'],
+    #                    right_on = ['trd_exctn_dt','cusip_id'])
+
+    # df_daily = df_all.copy()
+    # # df_all         = df_all.set_index(['cusip_id', 'trd_exctn_dt'])
