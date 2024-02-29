@@ -223,19 +223,93 @@ def calc_annual_illiquidity_table_spd(df):
 def calc_annual_illiquidity_table_portfolio(df):
     """Calculate illiquidity by using equal weighted and issurance weighted portfolios for each year.
     """
-    
-    grouped_df = df.groupby('trd_exctn_dt')[['deltap', 'deltap_lag']].mean().reset_index()
-    grouped_df['year'] = grouped_df['trd_exctn_dt'].dt.year
+    # Equal weighted
+    df_ew = df.groupby('trd_exctn_dt')[['deltap', 'deltap_lag']].mean().reset_index()
+    df_ew['year'] = df_ew['trd_exctn_dt'].dt.year
+
     tqdm.pandas()
     
-    Illiq_port = grouped_df.groupby(['year'] )[['deltap','deltap_lag']]\
+    Illiq_port_ew = df_ew.groupby(['year'] )[['deltap','deltap_lag']]\
         .progress_apply(lambda x: x.cov().iloc[0,1]) * -1
-    Illiq_month = Illiq_port.reset_index()
-    Illiq_month.columns = ['cusip','month_year','illiq']
-    Illiq_month['year'] = Illiq_month['month_year'].dt.year
-    Illiq_month = Illiq_month.dropna(subset=['illiq'])
+    Illiq_port_ew = Illiq_port_ew.reset_index()
+    Illiq_port_ew.columns = ['year','Equal-weighted']
+    Illiq_port_ew = Illiq_port_ew.dropna(subset=['Equal-weighted'])
     
+    # for full equal weighted porfolio illiquidity
+    df_ew['full'] = 1 
+    Illiq_port_ew_full = df_ew.groupby(['full'] )[['deltap','deltap_lag']]\
+        .progress_apply(lambda x: x.cov().iloc[0,1]) * -1
     
+    # Calculate t-stat for equal-weighted illiquidity
+    Illiq_port_ew['EW t-stat'] = Illiq_port_ew.apply(
+        lambda row: row['Equal-weighted'] / (df_ew[df_ew['year'] == row['year']]['deltap'].std() / 
+                                             (len(df_ew[df_ew['year'] == row['year']]) ** 0.5)), axis=1)
+    
+    # Calculate t-stat for full sample
+    ew_full_mean = Illiq_port_ew_full[1]
+    ew_full_std = df_ew['deltap'].std()
+    ew_full_size = len(df_ew)
+    ew_full_t_stat = ew_full_mean / (ew_full_std / (ew_full_size ** 0.5))
+    
+    # Issurance weighted
+    df['issurance'] = df['offering_amt'] * df['principal_amt'] * df['offering_price'] / 100 / 1000000
+    df['value_weighted_deltap'] = df['deltap'] * df['issurance']
+    df['value_weighted_deltap_lag'] = df['deltap_lag'] * df['issurance']
+
+    # Group by day and calculate the sum of the value-weighted columns and issurance
+    df_vw = df.groupby('trd_exctn_dt').agg(
+        total_value_weighted_deltap=pd.NamedAgg(column='value_weighted_deltap', aggfunc='sum'),
+        total_value_weighted_deltap_lag=pd.NamedAgg(column='value_weighted_deltap_lag', aggfunc='sum'),
+        total_issurance=pd.NamedAgg(column='issurance', aggfunc='sum')
+    )
+
+    # Calculate the average value-weighted deltap and deltap_lag
+    df_vw['deltap_vw'] = df_vw['total_value_weighted_deltap'] / df_vw['total_issurance']
+    df_vw['deltap_lag_vw'] = df_vw['total_value_weighted_deltap_lag'] / df_vw['total_issurance']
+    df_vw['year'] = df_vw.index.year
+    
+    tqdm.pandas()
+    Illiq_port_vw = df_vw.groupby(['year'])[['deltap_vw','deltap_lag_vw']]\
+        .progress_apply(lambda x: x.cov().iloc[0,1]) * -1
+    Illiq_port_vw = Illiq_port_vw.reset_index()
+    Illiq_port_vw.columns = ['year','Issuance-weighted']
+    Illiq_port_vw = Illiq_port_vw.dropna(subset=['Issuance-weighted'])
+
+    # for full equal weighted porfolio illiquidity
+    df_vw['full'] = 1
+    Illiq_port_vw_full = df_vw.groupby(['full'] )[['deltap_vw','deltap_lag_vw']]\
+        .progress_apply(lambda x: x.cov().iloc[0,1]) * -1
+        
+    # Calculate t-stat for issuance-weighted illiquidity
+    Illiq_port_vw['IW t-stat'] = Illiq_port_vw.apply(
+        lambda row: row['Issuance-weighted'] / (df_vw[df_vw['year'] == row['year']]['deltap_vw'].std() / 
+                                                 (len(df_vw[df_vw['year'] == row['year']]) ** 0.5)), axis=1)
+
+    # Calculate t-stat for full sample
+    iw_full_mean = Illiq_port_vw_full[1]
+    iw_full_std = df_vw['deltap_vw'].std()
+    iw_full_size = len(df_vw)
+    iw_full_t_stat = iw_full_mean / (iw_full_std / (iw_full_size ** 0.5))
+
+    table2_port = pd.DataFrame({
+        'Year': Illiq_port_vw['year'],
+        'Equal-weighted': Illiq_port_ew['Equal-weighted'],
+        'EW t-stat': Illiq_port_ew['EW t-stat'],
+        'Issuance-weighted': Illiq_port_vw['Issuance-weighted'],
+        'IW t-stat': Illiq_port_vw['IW t-stat']
+    }).reset_index(drop=True)
+    
+    overall_data = pd.DataFrame({
+        'Year': ['Full'],
+        'Equal-weighted': Illiq_port_ew_full,
+        'EW t-stat': ew_full_t_stat,
+        'Issuance-weighted': Illiq_port_vw_full,
+        'IW t-stat': iw_full_t_stat
+    })
+
+    table2_port = pd.concat([table2_port, overall_data], ignore_index=True)
+    
+    return table2_port
 
 
 
@@ -246,256 +320,11 @@ def main():
     # unique_cusip = np.unique(df['cusip'])
     # df_unique_cusip = pd.DataFrame(unique_cusip, columns=['CUSIP'])
     # df_unique_cusip.to_csv("../data/unique_cusips.csv", index=True)
-    illiq_daily, table2_daily = calc_annual_illiquidity_table_daily(df_final)
+    illiq_daily, table2_daily = calc_annual_illiquidity_table_daily(df)
     table2_spd = calc_annual_illiquidity_table_spd(df)  # by multiplying these values by 5, we get approximately the same result as the one in the paper
-
+    table2_port = calc_annual_illiquidity_table_portfolio(df)
 
 
 
 if __name__ == "__main__":
     main()
-
-
-# draft ################################################################################
-# dfv = pd.read_csv\
-#     ('Volumes_BBW_TRACE_Enhanced_Dick_Nielsen.csv.gzip',
-#      compression = "gzip")
-# df = df.merge(dfv, how = "inner", left_on = ['TRD_EXCTN_DT','CUSIP_ID'],
-#                                   right_on = ['TRD_EXCTN_DT','CUSIP_ID'])
-
-
-# illiq = -cov(deltap, deltap_lag), groupby in month #
-# Equation (2) in
-# "The Illiquidity of Corporate Bonds" by Bao, Pan and Wang (2011)
-# In The Journal of Finance
-# Equation (2) in BBW's JFE Paper.
-
-# tqdm.pandas()
-
-
-# Illiq_month_all = df.groupby(['cusip', 'month_year'] )[['deltap','deltap_lag']]\
-#     .progress_apply(lambda x: \
-#                     x.cov().iloc[0,1]) * -1
-# Illiq_month_all = Illiq_month_all.reset_index()
-# Illiq_month_all.columns = ['cusip', 'month_year','illiq']
-
-# Illiq_month_all = Illiq_month_all.sort_values(by='month_year')
-# Illiq_month_all['year'] = Illiq_month_all['month_year'].dt.year
-# Illiq_month_all = Illiq_month_all.dropna(subset=['illiq'])
-# Illiq_daily_table3 = Illiq_month_all.groupby('year')['illiq'].mean().reset_index()
-# # Illiq_daily_table3 = Illiq_month_all.groupby('year')['illiq'].mean().reset_index()
-# Illiq_table_median3 = Illiq_month_all.groupby('year')['illiq'].median().reset_index()
-# Illiq_month_all.describe()
-
-# df = df.sort_values(by='month_year')
-# Illiq_month = df.groupby(['cusip','month_year'] )[['deltap','deltap_lag']]\
-#     .progress_apply(lambda x: \
-#                     x.cov().iloc[0,1]) * -1
-# Illiq_month = Illiq_month.reset_index()
-
-# Illiq_month.columns = ['cusip','month_year','illiq']
-# Illiq_month = Illiq_month.dropna(subset=['illiq'])
-# Illiq_month['roll'] = np.where(Illiq_month['illiq'] >  0,
-#                          (2 * np.sqrt(Illiq_month['illiq'])),
-#                          0 )
-
-# # Illiq_month = Illiq_month[Illiq_month['illiq'] < 1000]
-# # lower_bound = Illiq_month['illiq'].quantile(0.05)
-# # upper_bound = Illiq_month['illiq'].quantile(0.95)
-
-# # Filter the DataFrame to keep only rows where 'illiq' is within the calculated bounds
-# # Illiq_month_filtered = Illiq_month[(Illiq_month['illiq'] >= lower_bound) &
-# #                                    (Illiq_month['illiq'] <= upper_bound)]
-
-
-# Illiq_month['year'] = Illiq_month['month_year'].dt.year
-# # Illiq_daily_table2 = Illiq_month.groupby(['cusip', 'year'])['illiq'].mean().reset_index()
-# Illiq_daily_table2 = Illiq_month.groupby('year')['illiq'].mean().reset_index()
-
-# np.mean(Illiq_month['illiq'])
-# # Illiq['year'] = pd.to_datetime( Illiq['year'].astype(str) )
-# # Illiq['date'] = Illiq['date'] + pd.offsets.MonthEnd(0)   
-# Illiq_daily_table2_median = Illiq_month.groupby('year')['illiq'].median().reset_index()
-
-# Illiq_daily_table_spd = Illiq_month.groupby('year')['roll'].mean().reset_index()
-
-
-# # Calculate t-statistics for each cusip in each year
-# Illiq_month['t_stat'] = Illiq_month.groupby(['month_year'])['illiq'].transform(
-#     lambda x: (x.mean() / x.sem()) if x.sem() > 0 else np.nan
-# )
-
-# # Identify the entries with t-stat >= 1.96
-# Illiq_month['significant'] = Illiq_month['t_stat'] >= 1.96
-
-# # Calculate the percentage of significant t-stats for each year
-# percent_significant = Illiq_month.groupby('year')['significant'].mean() * 100
-
-
-# def get_robust_t_stat(group):
-#     # Run OLS on a constant term only (mean of illiq) to get the intercept's t-stat
-#     X = add_constant(group['illiq'])
-#     ols_result = OLS(group['illiq'], X).fit(cov_type='HAC', cov_kwds={'maxlags':1})
-    
-#     # The t-stat for the intercept (mean of illiq) will be our robust t-stat
-#     return abs(ols_result.tvalues[0])
-
-# Illiq_month = Illiq_month.dropna(subset=['illiq', 't_stat'])
-
-# # Calculate robust t-statistics for each year
-# robust_t_stats = Illiq_month.groupby('year').apply(get_robust_t_stat)
-
-# # Combine the results into a final DataFrame
-# final_results = pd.DataFrame({
-#     'Year': robust_t_stats.index,
-#     'Mean_illiq': Illiq_month.groupby('year')['illiq'].mean(),
-#     'Median_illiq': Illiq_month.groupby('year')['illiq'].median(),
-#     'Per_t_greater_1_96': percent_significant,
-#     'Robust_t_stat': robust_t_stats.values
-# }).reset_index(drop=True)
-
-# def calc_annual_illiquidity_table_spd(df):
-#     """"""
-#     df_unique = df.groupby(['cusip', 'month_year'])['t_spread'].first().reset_index()
-#     df_unique['year'] = df_unique['month_year'].dt.year  
-#     df_unique = df_unique.sort_values(by='month_year')
-    
-    
-#     df_unique['spd_implied'] = np.power(df_unique['t_spread']/2, 2)
-#     spd_implied_table = df_unique.groupby(['cusip', 'year'])['spd_implied'].mean()
-#     spd_implied_table.describe()
-    
-#     # case 1
-#     df_unique.groupby('year')['t_spread'].mean()
-    
-#     df_unique['logspread'] = np.log(df_unique['t_spread'])
-#     df_unique['logspread_lag'] = df_unique.groupby('cusip')['logspread'].shift(1)
-#     df_unique['delta_spread'] = df_unique['logspread'] - df_unique['logspread_lag']
-
-#     # Restrict log returns to be in the interval [1,1]
-#     df_unique['delta_spread'] = np.where(df_unique['delta_spread'] > 1, 1, df_unique['delta_spread'])
-#     df_unique['delta_spread'] = np.where(df_unique['delta_spread'] <-1, -1, df_unique['delta_spread'])
-
-#     # Convert logspread to % i.e. returns in % as opposed to decimals
-#     df_unique['delta_spread'] = df_unique['delta_spread']
-
-#     df_unique['logspread_lead'] = df_unique.groupby('cusip')['logspread'].shift(-1)
-#     df_unique['delta_spread_lag'] = df_unique['logspread_lead'] - df_unique['logspread']
-#     df_unique['delta_spread_lag'] = np.where(df_unique['delta_spread_lag'] > 1, 1,
-#                                              df_unique['delta_spread_lag'])
-#     df_unique['delta_spread_lag'] = np.where(df_unique['delta_spread_lag'] <-1, -1,
-#                                              df_unique['delta_spread_lag'])
-#     df_unique['delta_spread_lag'] = df_unique['delta_spread_lag']
-    
-#     df_unique = df_unique.dropna(subset=['delta_spread_lag', 'delta_spread', 't_spread'])
-    
-    
-#     # case 2
-#     df_unique = df_unique.dropna(subset=['t_spread'])
-#     df_unique['spread_lag'] = df_unique.groupby('cusip')['t_spread'].shift(1)
-#     df_unique['spread_lead'] = df_unique.groupby('cusip')['t_spread'].shift(-1)
-#     df_unique['spread_lag'] = df_unique['spread_lag']
-#     df_unique['spread_lead'] = df_unique['spread_lead']
-
-#     df_unique['delta_s'] = (df_unique['t_spread'] - df_unique['spread_lag']) / df_unique['spread_lag']
-#     df_unique['delta_s_lag'] = (df_unique['spread_lead'] - df_unique['t_spread']) / df_unique['t_spread']
-#     df_unique = df_unique.dropna(subset=['delta_s', 'delta_s_lag', 't_spread'])
-#     df_unique.describe()
-
-#     Illiq_mean_table = df_unique.groupby(['cusip','year'] )[['delta_s','delta_s_lag']]\
-#         .progress_apply(lambda x: x.cov().iloc[0,1]) * -1
-#     Illiq_mean_table = Illiq_mean_table.reset_index()
-#     Illiq_mean_table.columns = ['cusip','year','illiq']
-#     Illiq_mean_table.describe()
-#     # Illiq_daily_annualbycusip = Illiq_month.groupby(['cusip', 'year'])['illiq'].mean().reset_index()
-#     Illiq_mean_table = Illiq_mean_table.groupby('year')['illiq'].mean().reset_index()
-#     overall_illiq_mean = np.mean(Illiq_month['illiq'])
-#     Illiq_table_median = Illiq_month.groupby('year')['illiq'].median().reset_index()
-#     overall_illiq_median = Illiq_month['illiq'].median()
-    
-#     df_unique = df_unique.dropna(subset=['delta_s', 'delta_s_lag', 't_spread'])
-
-#     Illiq_mean_table = df_unique.groupby(['cusip','year'] )[['delta_s','delta_s_lag']]\
-#         .progress_apply(lambda x: x.cov().iloc[0,1]) * -1
-#     Illiq_mean_table = Illiq_mean_table.reset_index()
-#     Illiq_mean_table.columns = ['cusip','year','illiq']
-#     Illiq_mean_table = Illiq_mean_table.dropna(subset=['illiq'])
-#     Illiq_mean_table.describe()
-#     # Illiq_daily_annualbycusip = Illiq_month.groupby(['cusip', 'year'])['illiq'].mean().reset_index()
-#     Illiq_mean_table = Illiq_mean_table.groupby('year')['illiq'].mean().reset_index()
-#     overall_illiq_mean = np.mean(Illiq_month['illiq'])
-#     Illiq_table_median = Illiq_month.groupby('year')['illiq'].median().reset_index()
-#     overall_illiq_median = Illiq_month['illiq'].median()
-    
-#     # case 3:
-#     df_unique = df.groupby(['cusip', 'month_year'])['t_spread'].first().reset_index()
-#     df_unique = df_unique.sort_values(by='month_year')
-#     df_unique = df_unique.dropna(subset=['t_spread'])
-#     df_unique['spread_lag'] = df_unique.groupby(['cusip'])['t_spread'].shift(1)
-#     df_unique = df_unique.dropna(subset=['spread_lag'])
-#     df_unique['year'] = df_unique['month_year'].dt.year
-#     Illiq_mean_table = df_unique.groupby(['cusip','year'] )[['t_spread','spread_lag']]\
-#         .progress_apply(lambda x: x.cov().iloc[0,1]) * -1
-#     Illiq_mean_table = Illiq_mean_table.reset_index()
-#     Illiq_mean_table.columns = ['cusip','year','illiq']
-    
-#     # Drop NaN values that were produced by shifting
-#     Illiq_mean_table = Illiq_mean_table.dropna(subset=['illiq'])
-    
-#     # Group by year and calculate the mean and median implied γ for each year
-#     annual_illiq = Illiq_mean_table.groupby('year')['illiq'].agg(['mean', 'median']).reset_index()
-    
-#     # Calculate overall mean and median implied γ across the full sample period
-#     overall_mean_gamma = df['gamma'].mean()
-#     overall_median_gamma = df['gamma'].median()
-
-
-    
-#     df_unique.groupby('year')['t_spread'].mean()  
-    
-# cleaned_df.groupby('year')['t_spread'].median()
-# df.groupby('year')['t_spread'].mean()
-# df.groupby('year')['t_spread'].median()
-
-
-# np.mean(cleaned_df['t_spread'])
-
-################################################################################
-
-
-# Price - Equal-Weight   #
-# prc_EW = trace.groupby(['cusip_id','trd_exctn_dt'])[['rptd_pr']].mean().sort_index(level  =  'cusip_id').round(4) 
-# prc_EW.columns = ['prc_ew']
-        
-# # Price - Volume-Weight # 
-# trace['dollar_vol']    = ( trace['entrd_vol_qt'] * trace['rptd_pr']/100 ).round(0) # units x clean prc                               
-# trace['value-weights'] = trace.groupby([ 'cusip_id','trd_exctn_dt'],
-#                                                 group_keys=False)[['entrd_vol_qt']].apply( lambda x: x/np.nansum(x) )
-# prc_VW = trace.groupby(['cusip_id','trd_exctn_dt'])[['rptd_pr','value-weights']].apply( lambda x: np.nansum( x['rptd_pr'] * x['value-weights']) ).to_frame().round(4)
-# prc_VW.columns = ['prc_vw']
-        
-# PricesAll = prc_EW.merge(prc_VW, how = "inner", left_index = True, right_index = True)  
-# PricesAll.columns                = ['prc_ew','prc_vw']              
-# # Volume #
-# VolumesAll                        = trace.groupby(['cusip_id','trd_exctn_dt'])[['entrd_vol_qt']].sum().sort_index(level  =  "cusip_id")                       
-# VolumesAll['dollar_volume']       = trace.groupby(['cusip_id','trd_exctn_dt'])[['dollar_vol']].sum().sort_index(level  =  "cusip_id").round(0)
-# VolumesAll.columns                = ['qvolume','dvolume'] 
-
-
-
-# if __name__ == "__main__":
-#     pass
-
-
-    # dfp  = pd.read_csv('../data/pulled/Prices_BBW_TRACE_Enhanced_Dick_Nielsen.csv.gzip', compression='gzip')
-    # dfv = pd.read_csv('../data/pulled/Volumes_BBW_TRACE_Enhanced_Dick_Nielsen.csv.gzip', compression = "gzip")
-    # illiq = pd.read_csv('../data/pulled/Illiq.csv.gzip', compression='gzip')
-    
-    # dfp[ 'trd_exctn_dt'] =  dfp['trd_exctn_dt'].values.astype('M8[D]')
-    # dfv['trd_exctn_dt'] = dfv['trd_exctn_dt'].values.astype('M8[D]')
-    
-    # df_all = dfp.merge(dfv, how = "inner", left_on = ['trd_exctn_dt','cusip_id'],
-    #                    right_on = ['trd_exctn_dt','cusip_id'])
-
-    # df_daily = df_all.copy()
-    # # df_all         = df_all.set_index(['cusip_id', 'trd_exctn_dt'])
