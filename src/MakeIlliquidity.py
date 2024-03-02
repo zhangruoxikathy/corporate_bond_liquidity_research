@@ -66,10 +66,10 @@ merged_df = data.sample_selection(merged_df, start_date = '2003-04-14', end_date
 #* Load daily data                        */
 #* ************************************** */
 df  = pd.read_csv\
-    ('Prices_BBW_TRACE_Enhanced_Dick_Nielsen.csv.gzip',
+    ('../data/pulled/Prices_BBW_TRACE_Enhanced_Dick_Nielsen.csv.gzip',
      compression='gzip')
 dfv = pd.read_csv\
-    ('Volumes_BBW_TRACE_Enhanced_Dick_Nielsen.csv.gzip',
+    ('../data/pulled/Volumes_BBW_TRACE_Enhanced_Dick_Nielsen.csv.gzip',
      compression = "gzip")
 
 #* ************************************** */
@@ -93,7 +93,12 @@ dfv['TRD_EXCTN_DT'] = dfv['TRD_EXCTN_DT'].values.astype('M8[D]')
 df = df.merge(dfv, how = "inner", left_on = ['TRD_EXCTN_DT','CUSIP_ID'],
                                   right_on = ['TRD_EXCTN_DT','CUSIP_ID'])
 
-df         = df.set_index(['CUSIP_ID', 'TRD_EXCTN_DT'])
+# df         = df.set_index(['CUSIP_ID', 'TRD_EXCTN_DT'])
+start_date = '2003-04-15'
+end_date = '2009-06-29'
+df['TRD_EXCTN_DT'] = pd.to_datetime(df['TRD_EXCTN_DT'])
+
+df = df[(df['TRD_EXCTN_DT'] > start_date) & (df['TRD_EXCTN_DT'] < end_date)]
 
 # Rename #
 df.rename(columns={'PRC_VW':'close' }, inplace=True)
@@ -234,13 +239,15 @@ Illiq = df.groupby(['CUSIP_ID','month_year'] )[['deltap','deltap_lag']]\
                     x.cov().iloc[0,1]) * -1
     
 Illiq = Illiq.reset_index()
-Illiq.columns = ['cusip','date','illiq']
+Illiq.columns = ['cusip','month_date','illiq']
 Illiq['date'] = pd.to_datetime( Illiq['date'].astype(str) )
 Illiq['date'] = Illiq['date'] + pd.offsets.MonthEnd(0)   
 Illiq['roll'] = np.where(Illiq['illiq'] >  0,
                          (2 * np.sqrt(Illiq['illiq'])),
                          0 )
-
+Illiq['year'] = Illiq['month_date'].dt.year
+Illiq = Illiq.dropna(subset=['illiq'])
+Illiq.groupby('year')['illiq'].mean()
 #* ************************************** */
 #* Compute Amihud, Roll and VoV           */
 #* ************************************** */
