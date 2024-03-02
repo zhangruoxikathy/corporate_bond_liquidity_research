@@ -79,7 +79,7 @@ def clean_merged_data(start_date, end_date):
 
 
 ##############################################################
-# Panel A: Individual Bonds
+# Panel A: Individual Bonds, Daily Data
 ##############################################################
 
 
@@ -185,40 +185,9 @@ def calc_annual_illiquidity_table_daily(df):
 
 
 
-
 ##############################################################
-# Panel C: Implied Gamma/illiquidity by Quoted Bid-Ask Spreads
+# Panel B: Bond Portfolios
 ##############################################################
-
-
-def calc_annual_illiquidity_table_spd(df):
-    """Calculate mean and median gamma implied by quoted bid-ask spreads by year.
-    """
-    df_unique = df.groupby(['cusip', 'month_year'])['t_spread'].first().reset_index()
-    df_unique['year'] = df_unique['month_year'].dt.year  
-    df_unique = df_unique.sort_values(by='month_year')
-
-    Illiq_mean_table = df_unique.groupby('year')['t_spread'].mean()
-    overall_illiq_mean = df_unique['t_spread'].mean()
-    overall_illiq_median = df_unique['t_spread'].median()
-    
-    table2_spd = pd.DataFrame({
-        'Year': Illiq_mean_table.index,
-        'Mean implied gamma': df_unique.groupby('year')['t_spread'].mean(),
-        'Median implied gamma': df_unique.groupby('year')['t_spread'].median(),
-    }).reset_index(drop=True)
-    
-    overall_data = pd.DataFrame({
-        'Year': ['Full'],
-        'Mean implied gamma': [overall_illiq_mean],
-        'Median implied gamma': [overall_illiq_median]
-    })
-    
-    table2_spd = pd.concat([table2_spd, overall_data], ignore_index=True)
-    
-    return table2_spd
-
-
 
 def calc_annual_illiquidity_table_portfolio(df):
     """Calculate illiquidity by using equal weighted and issurance weighted portfolios for each year.
@@ -293,18 +262,18 @@ def calc_annual_illiquidity_table_portfolio(df):
 
     table2_port = pd.DataFrame({
         'Year': Illiq_port_vw['year'],
-        'Equal-weighted': Illiq_port_ew['Equal-weighted'],
-        'EW t-stat': Illiq_port_ew['EW t-stat'],
-        'Issuance-weighted': Illiq_port_vw['Issuance-weighted'],
-        'IW t-stat': Illiq_port_vw['IW t-stat']
+        'Equal weighted': Illiq_port_ew['Equal-weighted'],
+        'EW t stat': Illiq_port_ew['EW t-stat'],
+        'Issuance weighted': Illiq_port_vw['Issuance-weighted'],
+        'IW t stat': Illiq_port_vw['IW t-stat']
     }).reset_index(drop=True)
     
     overall_data = pd.DataFrame({
         'Year': ['Full'],
-        'Equal-weighted': Illiq_port_ew_full,
-        'EW t-stat': ew_full_t_stat,
-        'Issuance-weighted': Illiq_port_vw_full,
-        'IW t-stat': iw_full_t_stat
+        'Equal weighted': Illiq_port_ew_full,
+        'EW t stat': ew_full_t_stat,
+        'Issuance weighted': Illiq_port_vw_full,
+        'IW t stat': iw_full_t_stat
     })
 
     table2_port = pd.concat([table2_port, overall_data], ignore_index=True)
@@ -312,18 +281,77 @@ def calc_annual_illiquidity_table_portfolio(df):
     return table2_port
 
 
+##############################################################
+# Panel C: Implied Gamma/illiquidity by Quoted Bid-Ask Spreads
+##############################################################
+
+
+def calc_annual_illiquidity_table_spd(df):
+    """Calculate mean and median gamma implied by quoted bid-ask spreads by year.
+    """
+    df_unique = df.groupby(['cusip', 'month_year'])['t_spread'].first().reset_index()
+    df_unique['year'] = df_unique['month_year'].dt.year  
+    df_unique = df_unique.sort_values(by='month_year')
+
+    Illiq_mean_table = df_unique.groupby('year')['t_spread'].mean()
+    overall_illiq_mean = df_unique['t_spread'].mean()
+    overall_illiq_median = df_unique['t_spread'].median()
+    
+    table2_spd = pd.DataFrame({
+        'Year': Illiq_mean_table.index,
+        'Mean implied gamma': df_unique.groupby('year')['t_spread'].mean(),
+        'Median implied gamma': df_unique.groupby('year')['t_spread'].median(),
+    }).reset_index(drop=True)
+    
+    overall_data = pd.DataFrame({
+        'Year': ['Full'],
+        'Mean implied gamma': [overall_illiq_mean], 
+        'Median implied gamma': [overall_illiq_median]
+    })
+    
+    table2_spd = pd.concat([table2_spd, overall_data], ignore_index=True)
+    
+    return table2_spd
+
+
 
 def main():
+    
+    today = datetime.today().date()
 
-    cleaned_df = clean_merged_data('2003-04-14', '2009-06-30')
-    df = calc_deltaprc(cleaned_df)
+    cleaned_df_paper = clean_merged_data('2003-04-14', '2009-06-30')
+    df_paper = calc_deltaprc(cleaned_df_paper)
     # unique_cusip = np.unique(df['cusip'])
     # df_unique_cusip = pd.DataFrame(unique_cusip, columns=['CUSIP'])
     # df_unique_cusip.to_csv("../data/unique_cusips.csv", index=True)
-    illiq_daily, table2_daily = calc_annual_illiquidity_table_daily(df)
-    table2_spd = calc_annual_illiquidity_table_spd(df)  # by multiplying these values by 5, we get approximately the same result as the one in the paper
-    table2_port = calc_annual_illiquidity_table_portfolio(df)
-
+    illiq_daily_paper, table2_daily_paper = calc_annual_illiquidity_table_daily(df_paper)
+    illiq_daily_summary_paper = illiq_daily_paper.describe()
+    table2_port_paper = calc_annual_illiquidity_table_portfolio(df_paper)
+    table2_spd_paper = calc_annual_illiquidity_table_spd(df_paper)
+    
+    illiq_daily_summary_paper.to_csv(OUTPUT_DIR / "illiq_summary_paper.csv", index=True)
+    table2_daily_paper.to_csv(OUTPUT_DIR / "table2_daily_paper.csv", index=False)
+    table2_port_paper.to_csv(OUTPUT_DIR / "table2_port_paper.csv", index=False)
+    table2_spd_paper.to_csv(OUTPUT_DIR / "table2_spd_paper.csv", index=False)
+    
+    cleaned_df_new = clean_merged_data('2003-04-14', '2009-06-30')
+    df_new = calc_deltaprc(cleaned_df_new)
+    # unique_cusip = np.unique(df['cusip'])
+    # df_unique_cusip = pd.DataFrame(unique_cusip, columns=['CUSIP'])
+    # df_unique_cusip.to_csv("../data/unique_cusips.csv", index=True)
+    illiq_daily_new, table2_daily_new = calc_annual_illiquidity_table_daily(df_new)
+    illiq_daily_summary_new = illiq_daily_new.describe()
+    table2_port_new = calc_annual_illiquidity_table_portfolio(df_new)
+    table2_spd_new = calc_annual_illiquidity_table_spd(df_new)
+    
+    illiq_daily_summary_new.to_csv(OUTPUT_DIR / "illiq_summary_new.csv", index=True)
+    table2_daily_new.to_csv(OUTPUT_DIR / "table2_daily_new.csv", index=False)
+    table2_port_new.to_csv(OUTPUT_DIR / "table2_port_new.csv", index=False)
+    table2_spd_new.to_csv(OUTPUT_DIR / "table2_spd_new.csv", index=False)
+    
+    
+    # df.to_parquet(OUTPUT_DIR / "table2_daily.csv")
+    
 
 
 if __name__ == "__main__":
