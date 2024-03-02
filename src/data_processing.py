@@ -1,3 +1,13 @@
+'''
+this file designs two function to propcess the data for producing table 1 and and 2
+
+1) all_trace_data_merge function: it merges the daily TRARCE opensource data downloaded from https://openbondassetpricing.com/  
+    with the montly Bondret data from WRDS based the same on cusip and time 
+
+2) sample_selection function: this function selects samples to be included in paper following the exact steps as outlined in the paper 
+
+'''
+
 import pandas as pd
 
 
@@ -5,7 +15,7 @@ def all_trace_data_merge(df_daily, df_bondret, start_date = '2003-04-14', end_da
     
     """
     this function merges the daily TRARCE opensource data downloaded from https://openbondassetpricing.com/  
-    with the montly Bondret data from WRDS
+    with the montly Bondret data from WRDS based the same on cusip and time 
     """
 
     # keep only the portion within select time
