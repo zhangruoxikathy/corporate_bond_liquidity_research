@@ -18,6 +18,7 @@ Requirements
 import pandas as pd
 from tqdm import tqdm
 import numpy as np
+from datetime import datetime
 from scipy import stats
 from pandas.tseries.holiday import USFederalHolidayCalendar
 from pandas.tseries.offsets import CustomBusinessDay
@@ -133,13 +134,13 @@ def calc_annual_illiquidity_table_daily(df):
     overall_illiq_median = Illiq_month['illiq'].median()
 
     # Calculate t-statistics for each cusip in each year
-    Illiq_month['t_stat'] = Illiq_month.groupby(['cusip', 'year'])['illiq'].transform(
+    Illiq_month['t stat'] = Illiq_month.groupby(['cusip', 'year'])['illiq'].transform(
         lambda x: (x.mean() / x.sem()) if x.sem() > 0 else np.nan)
 
     # Identify the entries with t-stat >= 1.96 and calculate the percentage of significant t-stats for each year
-    Illiq_month['significant'] = Illiq_month['t_stat'] >= 1.96
+    Illiq_month['significant'] = Illiq_month['t stat'] >= 1.96
     percent_significant = Illiq_month.groupby('year')['significant'].mean() * 100
-    Illiq_month = Illiq_month.dropna(subset=['illiq', 't_stat'])
+    Illiq_month = Illiq_month.dropna(subset=['illiq', 't stat'])
     overall_percent_significant = Illiq_month['significant'].mean() * 100
     
     # Calculate robust t-stat for each year
@@ -182,6 +183,23 @@ def calc_annual_illiquidity_table_daily(df):
     table2_daily = pd.concat([table2_daily, overall_data], ignore_index=True)
 
     return Illiq_month, table2_daily
+
+
+def create_summary_stats(illiq_daily):
+    """Calculate relevant summary statistics of the illiquidity daily data."""
+    
+    summary_stats = illiq_daily.groupby('year').agg({
+    'illiq': ['min', 'mean', lambda x: x.quantile(0.25), 'median',
+              lambda x: x.quantile(0.75), 'max', 'std'],
+    't stat': 'mean'
+    })
+    
+    summary_stats.columns = ['min illiq', 'mean illiq', 'q1 0.25', 'median',
+                             'q3 0.75', 'max illiq', 'std illiq', 'mean t stat']
+    
+    summary_stats.reset_index(inplace=True)
+
+    return summary_stats
 
 
 
@@ -317,7 +335,7 @@ def calc_annual_illiquidity_table_spd(df):
 
 def main():
     
-    today = datetime.today().date()
+    today = datetime.today().strftime('%Y-%m-%d')
 
     cleaned_df_paper = clean_merged_data('2003-04-14', '2009-06-30')
     df_paper = calc_deltaprc(cleaned_df_paper)
@@ -325,33 +343,28 @@ def main():
     # df_unique_cusip = pd.DataFrame(unique_cusip, columns=['CUSIP'])
     # df_unique_cusip.to_csv("../data/unique_cusips.csv", index=True)
     illiq_daily_paper, table2_daily_paper = calc_annual_illiquidity_table_daily(df_paper)
-    illiq_daily_summary_paper = illiq_daily_paper.describe()
+    illiq_daily_summary_paper = create_summary_stats(illiq_daily_paper)
     table2_port_paper = calc_annual_illiquidity_table_portfolio(df_paper)
     table2_spd_paper = calc_annual_illiquidity_table_spd(df_paper)
     
-    illiq_daily_summary_paper.to_csv(OUTPUT_DIR / "illiq_summary_paper.csv", index=True)
+    illiq_daily_summary_paper.to_csv(OUTPUT_DIR / "illiq_summary_paper.csv", index=False)
     table2_daily_paper.to_csv(OUTPUT_DIR / "table2_daily_paper.csv", index=False)
     table2_port_paper.to_csv(OUTPUT_DIR / "table2_port_paper.csv", index=False)
     table2_spd_paper.to_csv(OUTPUT_DIR / "table2_spd_paper.csv", index=False)
     
-    cleaned_df_new = clean_merged_data('2003-04-14', '2009-06-30')
+    cleaned_df_new = clean_merged_data('2003-04-14', today)
     df_new = calc_deltaprc(cleaned_df_new)
-    # unique_cusip = np.unique(df['cusip'])
-    # df_unique_cusip = pd.DataFrame(unique_cusip, columns=['CUSIP'])
-    # df_unique_cusip.to_csv("../data/unique_cusips.csv", index=True)
+
     illiq_daily_new, table2_daily_new = calc_annual_illiquidity_table_daily(df_new)
-    illiq_daily_summary_new = illiq_daily_new.describe()
+    illiq_daily_summary_new = create_summary_stats(illiq_daily_new)
     table2_port_new = calc_annual_illiquidity_table_portfolio(df_new)
     table2_spd_new = calc_annual_illiquidity_table_spd(df_new)
     
-    illiq_daily_summary_new.to_csv(OUTPUT_DIR / "illiq_summary_new.csv", index=True)
+    illiq_daily_summary_new.to_csv(OUTPUT_DIR / "illiq_summary_new.csv", index=False)
     table2_daily_new.to_csv(OUTPUT_DIR / "table2_daily_new.csv", index=False)
     table2_port_new.to_csv(OUTPUT_DIR / "table2_port_new.csv", index=False)
     table2_spd_new.to_csv(OUTPUT_DIR / "table2_spd_new.csv", index=False)
-    
-    
-    # df.to_parquet(OUTPUT_DIR / "table2_daily.csv")
-    
+
 
 
 if __name__ == "__main__":
