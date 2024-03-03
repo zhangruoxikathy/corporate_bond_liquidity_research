@@ -247,3 +247,7 @@ src/data/temp\.csv
 drafts/draft_bp.pdf
 
 *.vrb
+
+/venv
+/.vscode
+/.idea
