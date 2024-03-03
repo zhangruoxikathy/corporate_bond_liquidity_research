@@ -98,7 +98,7 @@ def main():
     
     
     # Update table to the present
-    cleaned_df_new = calc_illiquidity.clean_merged_data('2003-04-14', today)
+    cleaned_df_new = calc_illiquidity.clean_merged_data(end_date, today)
     df_new = calc_illiquidity.calc_deltaprc(cleaned_df_new)
 
     illiq_daily_new, table2_daily_new = calc_illiquidity.calc_annual_illiquidity_table_daily(df_new)
@@ -107,7 +107,7 @@ def main():
     plot_illiquidity(illiq_daily_new, illiq_daily_summary_new, "2003-2023")
     
     # Using MMN corrected data
-    mmn_new, table2_daily_mmn_new = calc_illiquidity.calc_illiq_w_mmn_corrected(start_date, end_date,
+    mmn_new, table2_daily_mmn_new = calc_illiquidity.calc_illiq_w_mmn_corrected(end_date, today,
                                                                cleaned_df_new)
     illiq_daily_summary_mmn_new = calc_illiquidity.create_summary_stats(mmn_new)
     

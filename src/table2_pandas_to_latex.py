@@ -31,7 +31,7 @@ import misc_tools
 import load_wrds_bondret
 import load_opensource
 import data_processing as data
-import table2_calc_illiquilidy as illiq
+import table2_calc_illiquidity as illiq
 
 pd.set_option('display.float_format', lambda x: '%.4f' % x)
 
@@ -71,7 +71,7 @@ def produce_table2_latex(panel_string):
         f.write(latex_panel)
     
     return latex_panel
-    
+
 
 def main():
     
