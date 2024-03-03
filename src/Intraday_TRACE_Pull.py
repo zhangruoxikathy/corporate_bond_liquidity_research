@@ -154,12 +154,7 @@ def _get_filter_parameters():
             contents = json.load(f)
         if contents:
             return (contents['cusips'], contents['mindt'], contents['maxdt'])
-        else:
-            raise Exception(f"{filters_path} contains no filters")
-    raise FileNotFoundError(f"{filters_path} not found")
 
-
-def _compile_filter_parameters():
     df_daily = load_opensource.load_daily_bond(data_dir=DATA_DIR)
     df_bondret = load_wrds_bondret.load_bondret(data_dir=DATA_DIR)
     merged_df = data.all_trace_data_merge(df_daily, df_bondret)
@@ -181,7 +176,6 @@ def compile_TRACE():
     return df
 
 
-if __name__ == "__main__":
-    pull_TRACE()
+if __name__ == '__main__':
     df = compile_TRACE()
-    df.to_parquet(config.DATA_DIR.joinpath('pulled/intraday_TRACE.parquet'))
+    print("done")
