@@ -107,7 +107,7 @@ def calc_deltaprc(df):
     df['deltap_lag'] = df['deltap_lag'] * 100
 
     # Drop NAs in deltap, deltap_lag and bonds < 10 observations of the paired price changes
-    df_final = df.dropna(subset=['deltap', 'deltap_lag', 'prclean'])  # 'offering_date', 'price_ldm', 'offering_price', 'amount_outstanding'])
+    df_final = df.dropna(subset=['deltap', 'deltap_lag', 'prclean'])
 
     return df_final
 
@@ -187,12 +187,14 @@ def calc_annual_illiquidity_table_daily(df):
     return Illiq_month, table2_daily
 
 
+
+
 def calc_illiq_w_mmn_corrected(start_date, end_date, cleaned_df):
     """Use clean merged cusips to filter out mmn corrected monthly data to generate illiquidity table."""
 
-    mmn  = pd.read_csv\
-        ('../data/pulled/WRDS_MMN_Corrected_Data.csv.gzip',
-        compression='gzip')
+    mmn  = load_opensource.load_mmn_corrected_bond(data_dir=DATA_DIR)
+    # pd.read_csv('../data/pulled/WRDS_MMN_Corrected_Data.csv.gzip',
+    #     compression='gzip')
     
     # Filter out corrected data using cleaned cusips and dates
     mmn = mmn[(mmn['date'] >= start_date) & (mmn['date'] <= end_date)]
@@ -209,6 +211,10 @@ def calc_illiq_w_mmn_corrected(start_date, end_date, cleaned_df):
     return mmn, table2_daily
 
 
+##############################################################
+# Summary Statistics Compilation Using Daily Illiquidity Data
+##############################################################
+
 
 def create_summary_stats(illiq_daily):
     """Calculate relevant summary statistics of the illiquidity daily data."""
@@ -218,10 +224,8 @@ def create_summary_stats(illiq_daily):
               lambda x: x.quantile(0.75), 'max', 'std'],
     't stat': 'mean'
     })
-    
     summary_stats.columns = ['min illiq', 'mean illiq', 'q1 0.25', 'median',
                              'q3 0.75', 'max illiq', 'std illiq', 'mean t stat']
-    
     summary_stats.reset_index(inplace=True)
 
     return summary_stats
@@ -372,6 +376,7 @@ def main():
     illiq_daily_summary_paper = create_summary_stats(illiq_daily_paper)
     table2_port_paper = calc_annual_illiquidity_table_portfolio(df_paper)
     table2_spd_paper = calc_annual_illiquidity_table_spd(df_paper)
+    
     
     illiq_daily_summary_paper.to_csv(OUTPUT_DIR / "illiq_summary_paper.csv", index=False)
     table2_daily_paper.to_csv(OUTPUT_DIR / "table2_daily_paper.csv", index=False)

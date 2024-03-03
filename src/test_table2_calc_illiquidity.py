@@ -5,10 +5,10 @@ import config
 OUTPUT_DIR = config.OUTPUT_DIR
 DATA_DIR = config.DATA_DIR
 
-import table2_calc_illiquilidy
+import table2_calc_illiquidity
 
 
-cleaned_df = table2_calc_illiquilidy.clean_merged_data('2003-04-14', '2009-06-30')
+cleaned_df = table2_calc_illiquidity.clean_merged_data('2003-04-14', '2009-06-30')
 
 
 
@@ -31,7 +31,7 @@ def test_clean_merged_data():
 
 
 def test_calc_deltaprc():
-    df = table2_calc_illiquilidy.calc_deltaprc(cleaned_df)
+    df = table2_calc_illiquidity.calc_deltaprc(cleaned_df)
     output = df[['prclean', 'deltap', 'deltap_lag']].describe().to_string().replace(" ", "").replace("\n", "") 
 
     expected_output = """
@@ -51,8 +51,8 @@ def test_calc_deltaprc():
 
 
 def test_calc_annual_illiquidity_table_daily():
-    df = table2_calc_illiquilidy.calc_deltaprc(cleaned_df)
-    illiq_daily, table2_daily = table2_calc_illiquilidy.calc_annual_illiquidity_table_daily(df)
+    df = table2_calc_illiquidity.calc_deltaprc(cleaned_df)
+    illiq_daily, table2_daily = table2_calc_illiquidity.calc_annual_illiquidity_table_daily(df)
 
     # Key trends in mean illiq
     mean_illiq_trend = (
@@ -91,9 +91,9 @@ def test_calc_annual_illiquidity_table_daily():
     
 
 def test_calc_annual_illiquidity_table_spd():
-    df = table2_calc_illiquilidy.calc_deltaprc(cleaned_df)
-    illiq_daily, table2_daily = table2_calc_illiquilidy.calc_annual_illiquidity_table_daily(df)
-    table2_spd = table2_calc_illiquilidy.calc_annual_illiquidity_table_spd(df)
+    df = table2_calc_illiquidity.calc_deltaprc(cleaned_df)
+    illiq_daily, table2_daily = table2_calc_illiquidity.calc_annual_illiquidity_table_daily(df)
+    table2_spd = table2_calc_illiquidity.calc_annual_illiquidity_table_spd(df)
 
     # Both mean and median follow first increasing and then decreasing trends
     mean_decreasing_trend = (
