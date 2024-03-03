@@ -107,7 +107,7 @@ def calc_deltaprc(df):
     df['deltap_lag'] = df['deltap_lag'] * 100
 
     # Drop NAs in deltap, deltap_lag and bonds < 10 observations of the paired price changes
-    df_final = df.dropna(subset=['deltap', 'deltap_lag', 'prclean'])  # 'offering_date', 'price_ldm', 'offering_price', 'amount_outstanding'])
+    df_final = df.dropna(subset=['deltap', 'deltap_lag', 'prclean'])
 
     return df_final
 
@@ -190,9 +190,9 @@ def calc_annual_illiquidity_table_daily(df):
 def calc_illiq_w_mmn_corrected(start_date, end_date, cleaned_df):
     """Use clean merged cusips to filter out mmn corrected monthly data to generate illiquidity table."""
 
-    mmn  = pd.read_csv\
-        ('../data/pulled/WRDS_MMN_Corrected_Data.csv.gzip',
-        compression='gzip')
+    mmn  = load_opensource.load_mmn_corrected_bond(data_dir=DATA_DIR)
+    # pd.read_csv('../data/pulled/WRDS_MMN_Corrected_Data.csv.gzip',
+    #     compression='gzip')
     
     # Filter out corrected data using cleaned cusips and dates
     mmn = mmn[(mmn['date'] >= start_date) & (mmn['date'] <= end_date)]

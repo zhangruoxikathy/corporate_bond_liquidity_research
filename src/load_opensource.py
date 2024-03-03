@@ -49,6 +49,19 @@ def pull_daily_bond_file():
     return df
 
 
+def pull_mmn_corrected_bond_file():
+    url = "https://openbondassetpricing.com/wp-content/uploads/2023/10/WRDS_MMN_Corrected_Data.csv.zip"
+    response = requests.get(url)
+    zip_file = zipfile.ZipFile(io.BytesIO(response.content))
+    zip_file.extractall()
+    gzip_file = zip_file.namelist()[0]
+
+    with gzip.open(gzip_file, "rb") as f:
+        df = pd.read_csv(f, parse_dates=["date"])
+    df = df.drop(columns=["Unnamed: 0"])
+    return df
+
+
 def load_daily_bond(data_dir=DATA_DIR):
     path = data_dir / "pulled" / "BondDailyPublic.parquet"
     if not path.exists():
@@ -57,12 +70,24 @@ def load_daily_bond(data_dir=DATA_DIR):
     return df
 
 
+def load_mmn_corrected_bond(data_dir=DATA_DIR):
+    path = data_dir / "pulled" / "WRDS_MMN_Corrected_Data.csv.gzip"
+    if not path.exists():
+        path = data_dir / "manual" / "WRDS_MMN_Corrected_Data.csv.gzip"
+    df = pd.read_csv(path, compression='gzip')
+    return df
+
+
 def _demo():
     df = load_daily_bond(data_dir=DATA_DIR)
+    df_mmn = load_mmn_corrected_bond(data_dir=DATA_DIR)
 
 
 if __name__ == "__main__":
     df = pull_daily_bond_file()
+    df_mmn = pull_mmn_corrected_bond_file()
     folder_path = DATA_DIR
     folder_path.mkdir(parents=True, exist_ok=True)
     df.to_parquet(DATA_DIR / "pulled" / "BondDailyPublic.parquet")
+    df_mmn.to_csv(DATA_DIR / "pulled" / "WRDS_MMN_Corrected_Data.csv.gzip",
+                  compression='gzip')
