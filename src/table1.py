@@ -3,7 +3,6 @@ import numpy as np
 import config
 import load_wrds_bondret
 import load_opensource
-import load_intraday
 import data_processing
 import datetime
 
@@ -18,26 +17,17 @@ DATA_DIR = config.DATA_DIR
 # in final case, we can comment the following two lines and use the above two lines to load the raw data
 df_bondret = pd.read_parquet(DATA_DIR / "pulled" / "Bondret.parquet")
 df_daily = pd.read_csv('/Users/adair/Desktop/FinancialTool/Group_Project/BondDailyPublic.csv')
-df_intraday = pd.read_parquet(DATA_DIR / "pulled" / load_intraday.FILE_NAME)
+
 
 # pre-processing the data
-df_all = data_processing.all_trace_data_merge(df_daily, df_bondret, end_date = datetime.today().strftime('%Y-%m-%d'))   #this is the dataset for panel B in table 1 
-df_sample = data_processing.sample_selection(df_all, end_date = datetime.today().strftime('%Y-%m-%d')) # this is the dataset for panel A in table 1
+df_all = data_processing.all_trace_data_merge(df_daily, df_bondret)   #this is the dataset for panel B in table 1 
+df_sample = data_processing.sample_selection(df_all) # this is the dataset for panel A in table 1
 
-# Give df_all and df_sample a month column
-df_all['month'] = df_all['date'].dt.month
-df_sample['month'] = df_sample['date'].dt.month
+df_all_uptodate = data_processing.all_trace_data_merge(df_daily, df_bondret, start_date='2009-06-30', end_date = datetime.datetime.today().strftime('%Y-%m-%d'))   #this is the dataset for panel B in table 1 
+df_sample_uptodate = data_processing.sample_selection(df_all, start_date='2009-06-30', end_date = datetime.datetime.today().strftime('%Y-%m-%d')) # this is the dataset for panel A in table 1
 
-# merge the df_intraday_grouped with df_sample and df_all by year, month and cusip, only keep the #trade column
-df_intraday.rename(columns={'cusip_id': 'cusip'}, inplace=True)
-df_intraday['trd_exctn_dt'] = pd.to_datetime(df_intraday['trd_exctn_dt'])
-df_intraday['year'] = df_intraday['trd_exctn_dt'].dt.year
-df_intraday['month'] = df_intraday['trd_exctn_dt'].dt.month
-df_intraday_grouped = df_intraday.groupby(['year', 'month', 'cusip'])['trd_exctn_dt'].count().reset_index(name='#trade')
+df_intraday = pd.read_parquet(DATA_DIR / "pulled" / 'intraday_clean_v2.parquet')
 
-df_sample = pd.merge(df_sample, df_intraday_grouped, how='left', on=['year', 'month', 'cusip'])
-
-df_all = pd.merge(df_all, df_intraday_grouped, how='left', on=['year', 'month', 'cusip'])
 
 def cal_avrage(dataframe, column):
     """
@@ -106,7 +96,23 @@ def cal_count(dataframe, column='cusip'):
     count.set_index('year', inplace=True)
     return count
 
-def calculation(df_sample, df_all):
+def calculation(df_sample, df_all, df_intraday):
+
+    # Give df_all and df_sample a month column
+    df_all['month'] = df_all['date'].dt.month
+    df_sample['month'] = df_sample['date'].dt.month
+
+    # merge the df_intraday_grouped with df_sample and df_all by year, month and cusip, only keep the #trade column
+    df_intraday.rename(columns={'cusip_id': 'cusip'}, inplace=True)
+    df_intraday['trd_exctn_dt'] = pd.to_datetime(df_intraday['trd_exctn_dt'])
+    df_intraday['year'] = df_intraday['trd_exctn_dt'].dt.year
+    df_intraday['month'] = df_intraday['trd_exctn_dt'].dt.month
+    df_intraday_grouped = df_intraday.groupby(['year', 'month', 'cusip'])['trd_exctn_dt'].count().reset_index(name='#trade')
+
+    df_sample = pd.merge(df_sample, df_intraday_grouped, how='left', on=['year', 'month', 'cusip'])
+
+    df_all = pd.merge(df_all, df_intraday_grouped, how='left', on=['year', 'month', 'cusip'])
+
     # Calculate the number of unique cusips in df_sample and df_all
     df_sample_cusip = cal_count(df_sample)
     df_all_cusip = cal_count(df_all)
@@ -233,29 +239,27 @@ def calculation(df_sample, df_all):
     df_all_size = pd.concat([cal_avrage(df_all_month, 'trade_size'), \
                         cal_median(df_all_month, 'trade_size'), cal_std(df_all_month, 'trade_size')], axis=1)
 
-    return df_sample_cusip, df_sample_issuance, df_sample_moody, df_sample_maturity, df_sample_coupon, \
-            df_sample_age, df_sample_turnover, df_sample_size, df_sample_trade, df_sample_return, df_sample_vol, df_sample_price, \
-            df_all_cusip, df_all_issuance, df_all_moody, df_all_maturity, df_all_coupon, \
-            df_all_age, df_all_turnover, df_all_size, df_all_trade, df_all_return, df_all_vol, df_all_price
 
 
-df_sample_cusip, df_sample_issuance, df_sample_moody, df_sample_maturity, df_sample_coupon, \
-df_sample_age, df_sample_turnover, df_sample_size, df_sample_trade, df_sample_return, df_sample_vol, df_sample_price, \
-df_all_cusip, df_all_issuance, df_all_moody, df_all_maturity, df_all_coupon, \
-df_all_age, df_all_turnover, df_all_size, df_all_trade, df_all_return, df_all_vol, df_all_price = calculation(df_sample, df_all)
+    # concat all results of df_sample and df_all
+    df_sample_result = pd.concat([df_sample_cusip, df_sample_issuance, df_sample_moody, df_sample_maturity, df_sample_coupon, \
+                        df_sample_age, df_sample_turnover, df_sample_size, df_sample_trade, df_sample_return, df_sample_vol, df_sample_price], axis=1)
 
+    df_all_result = pd.concat([df_all_cusip, df_all_issuance, df_all_moody, df_all_maturity, df_all_coupon, \
+                        df_all_age, df_all_turnover, df_all_size, df_all_trade, df_all_return, df_all_vol, df_all_price], axis=1)
+    # transform the df_sample_result, make its index as column
+    df_sample_result = df_sample_result.T
+    df_all_result = df_all_result.T
 
-# concat all results of df_sample and df_all
-df_sample_result = pd.concat([df_sample_cusip, df_sample_issuance, df_sample_moody, df_sample_maturity, df_sample_coupon, \
-                    df_sample_age, df_sample_turnover, df_sample_size, df_sample_trade, df_sample_return, df_sample_vol, df_sample_price], axis=1)
-
-df_all_result = pd.concat([df_all_cusip, df_all_issuance, df_all_moody, df_all_maturity, df_all_coupon, \
-                    df_all_age, df_all_turnover, df_all_size, df_all_trade, df_all_return, df_all_vol, df_all_price], axis=1)
-# transform the df_sample_result, make its index as column
-df_sample_result = df_sample_result.T
-df_all_result = df_all_result.T
+    return df_sample_result, df_all_result
 
 if __name__ == "__main__":
-    df_sample_result.to_csv(OUTPUT_DIR / 'table1_panelA.csv')
-    df_all_result.to_csv(OUTPUT_DIR / 'table1_panelB.csv')
+    df_sample_result, df_all_result = calculation(df_sample, df_all, df_intraday)
+    df_sample_result.to_csv(OUTPUT_DIR / "table1_panelA.csv")
+    df_all_result.to_csv(OUTPUT_DIR / "table1_panelB.csv")
+
+    # df_sample_result_uptodate, df_all_result_uptodate = calculation(df_sample_uptodate, df_all_uptodate)
+    # df_sample_result_uptodate.to_csv(OUTPUT_DIR / "table1_panelA_uptodate.csv")
+    # df_all_result_uptodate.to_csv(OUTPUT_DIR / "table1_panelB_uptodate.csv")
+
 
