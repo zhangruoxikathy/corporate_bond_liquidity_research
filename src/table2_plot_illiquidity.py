@@ -28,14 +28,14 @@ def plot_illiquidity(illiquidity_df, summary_df, title):
         A plot with two subplots: one displaying all data and the other displaying
         zoomed-in illiquidity without outliers.
     """
-    
+
     # Prepare time series for plot
     illiquidity_df = illiquidity_df.dropna(subset=['illiq'])
     if 'date' in list(illiquidity_df.columns):
         illiquidity_df['date'] = pd.to_datetime(illiquidity_df['date'])
         illiquidity_df['month'] = illiquidity_df['date'].dt.month
-        summary_df['year'] = summary_df['year'].dt.year.astype(int)
     else:
+        illiquidity_df['month_year'] = pd.to_datetime(illiquidity_df['month_year'], format='%Y-%m')
         illiquidity_df['month'] = illiquidity_df['month_year'].dt.month
     
     illiquidity_df['yearmonth'] = illiquidity_df['year'].astype(
@@ -83,38 +83,6 @@ def main():
     today = datetime.today().strftime('%Y-%m-%d')
     start_date = '2003-04-14'
     end_date = '2009-06-30' 
-    
-    # Replicate table 2 in the paper
-    cleaned_df_paper = calc_illiquidity.clean_merged_data(start_date, end_date)
-    df_paper = calc_illiquidity.calc_deltaprc(cleaned_df_paper)
-    illiq_daily_paper, table2_daily_paper = calc_illiquidity.calc_annual_illiquidity_table_daily(df_paper)
-    illiq_daily_summary_paper = calc_illiquidity.create_summary_stats(illiq_daily_paper)
-    
-    plot_illiquidity(illiq_daily_paper, illiq_daily_summary_paper, "2003-2009")
-
-    # Using MMN corrected data
-    mmn_paper, table2_daily_mmn_paper = calc_illiquidity.calc_illiq_w_mmn_corrected(start_date, end_date,
-                                                                   cleaned_df_paper)
-    illiq_daily_summary_mmn_paper = calc_illiquidity.create_summary_stats(mmn_paper)
-    
-    plot_illiquidity(mmn_paper, illiq_daily_summary_mmn_paper, "MMN_Corrected, 2003-2009")
-    
-    
-    # Update table to the present
-    cleaned_df_new = calc_illiquidity.clean_merged_data(end_date, today)
-    df_new = calc_illiquidity.calc_deltaprc(cleaned_df_new)
-
-    illiq_daily_new, table2_daily_new = calc_illiquidity.calc_annual_illiquidity_table_daily(df_new)
-    illiq_daily_summary_new = calc_illiquidity.create_summary_stats(illiq_daily_new)
-
-    plot_illiquidity(illiq_daily_new, illiq_daily_summary_new, "2009-2023")
-    
-    # Using MMN corrected data
-    mmn_new, table2_daily_mmn_new = calc_illiquidity.calc_illiq_w_mmn_corrected(end_date, today,
-                                                               cleaned_df_new)
-    illiq_daily_summary_mmn_new = calc_illiquidity.create_summary_stats(mmn_new)
-    
-    plot_illiquidity(mmn_new, illiq_daily_summary_mmn_new, "MMN_Corrected, 2009-2023")
 
     illiq_daily_paper = pd.read_csv(OUTPUT_DIR / "illiq_daily_paper.csv")
     illiq_daily_summary_paper = pd.read_csv(OUTPUT_DIR / "illiq_daily_summary_paper.csv")
@@ -127,8 +95,8 @@ def main():
     
     plot_illiquidity(illiq_daily_paper, illiq_daily_summary_paper, "2003-2009")
     plot_illiquidity(mmn_paper, illiq_daily_summary_mmn_paper, "MMN_Corrected, 2003-2009")
-    plot_illiquidity(illiq_daily_new, illiq_daily_summary_new, "2009-2023")
-    plot_illiquidity(mmn_new, illiq_daily_summary_mmn_new, "MMN_Corrected, 2009-2023")
+    plot_illiquidity(illiq_daily_new, illiq_daily_summary_new, "2003-2023")
+    plot_illiquidity(mmn_new, illiq_daily_summary_mmn_new, "MMN_Corrected, 2003-2023")
 
 
 

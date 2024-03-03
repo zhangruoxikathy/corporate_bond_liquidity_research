@@ -1,14 +1,33 @@
 '''
 Overview
 -------------
-This Python script aims to calculate illiquidity based on methodology in
-The Illiquidity of Corporate Bonds, Bao, Pan, and Wang (2010).
+This Python script aims to calculate Table 2: Measure of Illiquidity
+based on methodology in The Illiquidity of Corporate Bonds, Bao, Pan, and Wang (2010).
+
+Table 2 Measure of Illiquidity:
+- Panel A Individual Bonds (The mean and average monthly illiquidity per bond per year)
+    - Using trade-by-trade data
+    - Using daily data
+        - Using our cleaned original data
+        - Using our cleaned MMN corrected data
+- Panel B Bond Portfolio
+    - Equal-weighted: Consider a daily portfolio composed of all bonds, with equally weighted bond
+                      returns used to calculate annual illiquidity
+    - Issuance-weighted: Consider a daily portfolio composed of all bonds, with issuance weighted
+                         bond returns used to calculate annual illiquidity
+- Panel C Implied by quoted bid-ask spread
+    - Mean and median monthly bond bid-ask spread per year
+
+The script also produces summary statistics of monthly per bond illiquidity using both
+original daily data and MMN corrected monthly data.
+
  
 Requirements
 -------------
 
 ../data/pulled/Bondret.parquet resulting from load_wrds_bondret.py
-../data/pulled/BondDailyPublic resulting from load_opensource.py
+../data/pulled/BondDailyPublic.parquet resulting from load_opensource.py
+../data/pulled/WRDS_MMN_Corrected_Data.csv.gzip resulting from load_opensource.py
 
 '''
 
@@ -378,10 +397,10 @@ def main():
     table2_spd_paper = calc_annual_illiquidity_table_spd(df_paper)
     
     illiq_daily_paper.to_csv(OUTPUT_DIR / "illiq_daily_paper.csv", index=False)
-    illiq_daily_summary_paper.to_csv(OUTPUT_DIR / "illiq_summary_paper.csv", index=False)
-    table2_daily_paper.to_csv(OUTPUT_DIR / "table2_daily_paper.csv", index=False)
-    table2_port_paper.to_csv(OUTPUT_DIR / "table2_port_paper.csv", index=False)
-    table2_spd_paper.to_csv(OUTPUT_DIR / "table2_spd_paper.csv", index=False)
+    illiq_daily_summary_paper.to_csv(OUTPUT_DIR / "illiq_daily_summary_paper.csv", index=False)
+    table2_daily_paper.to_csv(OUTPUT_DIR / "table2_panelA_daily_paper.csv", index=False)
+    table2_port_paper.to_csv(OUTPUT_DIR / "table2_panelB_paper.csv", index=False)
+    table2_spd_paper.to_csv(OUTPUT_DIR / "table2_panelC_paper.csv", index=False)
     
     # Using MMN corrected data
     mmn_paper, table2_daily_mmn_paper = calc_illiq_w_mmn_corrected(start_date, end_date,
@@ -389,11 +408,11 @@ def main():
     mmn_paper.to_csv(OUTPUT_DIR / "mmn_paper.csv", index=False)
     illiq_daily_summary_mmn_paper = create_summary_stats(mmn_paper)
     illiq_daily_summary_mmn_paper.to_csv(OUTPUT_DIR / "illiq_daily_summary_mmn_paper.csv", index=False)
-    table2_daily_mmn_paper.to_csv(OUTPUT_DIR / "table2_daily_mmn_paper.csv", index=False)
+    table2_daily_mmn_paper.to_csv(OUTPUT_DIR / "table2_panelA_daily_mmn_paper.csv", index=False)
     
     
     # Update table to the present
-    cleaned_df_new = clean_merged_data(end_date, today)
+    cleaned_df_new = clean_merged_data(start_date, today)
     df_new = calc_deltaprc(cleaned_df_new)
 
     illiq_daily_new, table2_daily_new = calc_annual_illiquidity_table_daily(df_new)
@@ -403,17 +422,17 @@ def main():
     
     illiq_daily_new.to_csv(OUTPUT_DIR / "illiq_daily_new.csv", index=False)
     illiq_daily_summary_new.to_csv(OUTPUT_DIR / "illiq_summary_new.csv", index=False)
-    table2_daily_new.to_csv(OUTPUT_DIR / "table2_daily_new.csv", index=False)
-    table2_port_new.to_csv(OUTPUT_DIR / "table2_port_new.csv", index=False)
-    table2_spd_new.to_csv(OUTPUT_DIR / "table2_spd_new.csv", index=False)
+    table2_daily_new.to_csv(OUTPUT_DIR / "table2_panelA_daily_new.csv", index=False)
+    table2_port_new.to_csv(OUTPUT_DIR / "table2_panelB_new.csv", index=False)
+    table2_spd_new.to_csv(OUTPUT_DIR / "table2_panelC_new.csv", index=False)
     
     # Using MMN corrected data
-    mmn_new, table2_daily_mmn_new = calc_illiq_w_mmn_corrected(end_date, today,
+    mmn_new, table2_daily_mmn_new = calc_illiq_w_mmn_corrected(start_date, today,
                                                                cleaned_df_new)
     mmn_new.to_csv(OUTPUT_DIR / "mmn_new.csv", index=False)
     illiq_daily_summary_mmn_new = create_summary_stats(mmn_new)
     illiq_daily_summary_mmn_new.to_csv(OUTPUT_DIR / "illiq_daily_summary_mmn_new.csv", index=False)
-    table2_daily_mmn_new.to_csv(OUTPUT_DIR / "table2_daily_mmn_new.csv", index=False)
+    table2_daily_mmn_new.to_csv(OUTPUT_DIR / "table2_panelA_daily_mmn_new.csv", index=False)
 
 
 
