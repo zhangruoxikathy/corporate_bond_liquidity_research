@@ -9,6 +9,7 @@ Requirements
 
 ../data/pulled/Bondret.parquet resulting from load_wrds_bondret.py
 ../data/pulled/BondDailyPublic resulting from load_opensource.py
+../data/pulled/IntradayTRACE.parquet resulting from load_intraday.py
 
 '''
 
@@ -34,6 +35,7 @@ DATA_DIR = config.DATA_DIR
 import misc_tools
 import load_wrds_bondret
 import load_opensource
+import load_intraday
 import data_processing as data
 
 
@@ -77,6 +79,28 @@ def clean_merged_data(start_date, end_date):
     return df
 
 
+def clean_intraday(start_date, end_date):
+    """Load pre-cleaned and pre-filtered intraday corporate bond data for a given time interval.
+    """
+    df = load_intraday.load_intraday_TRACE(start_date, end_date)
+
+    df['trd_exctn_dt'] = pd.to_datetime(df['trd_exctn_dt'])
+    df['trd_exctn_tm'] = pd.to_datetime(df['trd_exctn_tm'], format='%H:%M:%S').dt.time
+    df['trd_tmstamp'] = pd.to_datetime(
+        df['trd_exctn_dt'].dt.strftime('%Y-%m-%d') + ' ' + df['trd_exctn_tm'].astype(str))
+
+    # dickerson clean
+    df = df[(df['days_to_sttl_ct'] <= 2.0) | (df['days_to_sttl_ct'] == None) | (df['days_to_sttl_ct'] == np.NAN)]
+    df = df[df['wis_fl'] != 'Y']
+    df = df[(df['lckd_in_ind'] != 'Y')]
+    df = df[(df['sale_cndtn_cd'] == 'None') | (df['sale_cndtn_cd'] == '@')]
+    df = df[df['entrd_vol_qt'] >= 10000]
+    df = df[((df['rptd_pr'] > 5) & (df['rptd_pr'] < 1000))]
+
+    df['month_year'] = df['trd_exctn_dt'].dt.to_period('M')
+    df.rename(columns={'rptd_pr': 'prclean', 'cusip_id': 'cusip'}, inplace=True)
+    df.sort_values(by=['cusip', 'trd_tmstamp'], inplace=True)
+    return df
 
 ##############################################################
 # Panel A: Individual Bonds, Daily Data
@@ -185,6 +209,23 @@ def calc_annual_illiquidity_table_daily(df):
     Illiq_month, table2_daily = create_annual_illiquidity_table(Illiq_month)
     
     return Illiq_month, table2_daily
+
+
+def calc_annual_illiquidity_table_intraday(df):
+    """Calculate illiquidity = -cov(deltap, deltap_lag) using daily data, by month."""
+
+    tqdm.pandas()
+
+    Illiq_month = df.groupby(['cusip', 'month_year'])[['deltap', 'deltap_lag']] \
+                      .progress_apply(lambda x: x.cov().iloc[0, 1]) * -1
+    Illiq_month = Illiq_month.reset_index()
+    Illiq_month.columns = ['cusip', 'month_year', 'illiq']
+    Illiq_month['year'] = Illiq_month['month_year'].dt.year
+    Illiq_month = Illiq_month.dropna(subset=['illiq'])
+    # Illiq_month = Illiq_month[Illiq_month['illiq'] < 2000]  # for outliers
+    Illiq_month, table2_intraday = create_annual_illiquidity_table(Illiq_month)
+
+    return Illiq_month, table2_intraday
 
 
 
@@ -366,16 +407,28 @@ def main():
     # Define dates
     today = datetime.today().strftime('%Y-%m-%d')
     start_date = '2003-04-14'
-    end_date = '2009-06-30' 
+    end_date = '2009-06-30'
+
+    # Replicate table 2 Trade-by-Trade Data in the paper
+    cleaned_tbt_df_paper = clean_intraday(start_date, end_date)
+    tbt_df_paper = calc_deltaprc(cleaned_tbt_df_paper)
+
+    illiq_tbt_paper, table2_tbt_paper = calc_annual_illiquidity_table_daily(tbt_df_paper)
+
+    table2_tbt_paper.to_csv(OUTPUT_DIR / "table2_tbt_paper.csv", index=False)
+
+    # Free memory
+    del cleaned_tbt_df_paper
+    del tbt_df_paper
     
-    # Replicate table 2 in the paper
-    cleaned_df_paper = clean_merged_data(start_date, end_date)
-    df_paper = calc_deltaprc(cleaned_df_paper)
+    # Replicate table 2 Daily Data in the paper
+    cleaned_daily_df_paper = clean_merged_data(start_date, end_date)
+    daily_df_paper = calc_deltaprc(cleaned_daily_df_paper)
     
-    illiq_daily_paper, table2_daily_paper = calc_annual_illiquidity_table_daily(df_paper)
+    illiq_daily_paper, table2_daily_paper = calc_annual_illiquidity_table_daily(daily_df_paper)
     illiq_daily_summary_paper = create_summary_stats(illiq_daily_paper)
-    table2_port_paper = calc_annual_illiquidity_table_portfolio(df_paper)
-    table2_spd_paper = calc_annual_illiquidity_table_spd(df_paper)
+    table2_port_paper = calc_annual_illiquidity_table_portfolio(daily_df_paper)
+    table2_spd_paper = calc_annual_illiquidity_table_spd(daily_df_paper)
     
     
     illiq_daily_summary_paper.to_csv(OUTPUT_DIR / "illiq_summary_paper.csv", index=False)
@@ -385,20 +438,35 @@ def main():
     
     # Using MMN corrected data
     mmn_paper, table2_daily_mmn_paper = calc_illiq_w_mmn_corrected(start_date, end_date,
-                                                                   cleaned_df_paper)
+                                                                   cleaned_daily_df_paper)
     illiq_daily_summary_mmn_paper = create_summary_stats(mmn_paper)
     illiq_daily_summary_mmn_paper.to_csv(OUTPUT_DIR / "illiq_daily_summary_mmn_paper.csv", index=False)
     table2_daily_mmn_paper.to_csv(OUTPUT_DIR / "table2_daily_mmn_paper.csv", index=False)
-    
-    
-    # Update table to the present
-    cleaned_df_new = clean_merged_data('2003-04-14', today)
-    df_new = calc_deltaprc(cleaned_df_new)
 
-    illiq_daily_new, table2_daily_new = calc_annual_illiquidity_table_daily(df_new)
+    # Free memory
+    del cleaned_daily_df_paper
+    del daily_df_paper
+
+    # Update table 2 Trade-by-Trade Data to the present
+    cleaned_tbt_df_new = clean_intraday(end_date, today)
+    tbt_df_new = calc_deltaprc(cleaned_tbt_df_new)
+
+    illiq_tbt_new, table2_tbt_new = calc_annual_illiquidity_table_daily(tbt_df_new)
+
+    table2_tbt_new.to_csv(OUTPUT_DIR / "table2_tbt_new.csv", index=False)
+
+    # Free memory
+    del cleaned_tbt_df_new
+    del tbt_df_new
+
+    # Update table 2 Daily Data to the present
+    cleaned_daily_df_new = clean_merged_data(end_date, today)
+    daily_df_new = calc_deltaprc(cleaned_daily_df_new)
+
+    illiq_daily_new, table2_daily_new = calc_annual_illiquidity_table_daily(daily_df_new)
     illiq_daily_summary_new = create_summary_stats(illiq_daily_new)
-    table2_port_new = calc_annual_illiquidity_table_portfolio(df_new)
-    table2_spd_new = calc_annual_illiquidity_table_spd(df_new)
+    table2_port_new = calc_annual_illiquidity_table_portfolio(daily_df_new)
+    table2_spd_new = calc_annual_illiquidity_table_spd(daily_df_new)
     
     illiq_daily_summary_new.to_csv(OUTPUT_DIR / "illiq_summary_new.csv", index=False)
     table2_daily_new.to_csv(OUTPUT_DIR / "table2_daily_new.csv", index=False)
@@ -407,7 +475,7 @@ def main():
     
     # Using MMN corrected data
     mmn_new, table2_daily_mmn_new = calc_illiq_w_mmn_corrected(start_date, end_date,
-                                                               cleaned_df_new)
+                                                               cleaned_daily_df_new)
     illiq_daily_summary_mmn_new = create_summary_stats(mmn_new)
     illiq_daily_summary_mmn_new.to_csv(OUTPUT_DIR / "illiq_daily_summary_mmn_new.csv", index=False)
     table2_daily_mmn_new.to_csv(OUTPUT_DIR / "table2_daily_mmn_new.csv", index=False)
