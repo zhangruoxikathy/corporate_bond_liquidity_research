@@ -1,0 +1,70 @@
+
+\documentclass{article}
+\usepackage{booktabs}
+\usepackage{geometry} % For setting margins
+\geometry{a4paper, margin=1in} % Set appropriate margins
+
+\begin{document}
+
+\section*{Summary Statistics: Monthly Illiquidity Using Daily Data}
+\begin{center}
+\begin{tabular}{rrrrrrrrr}
+\toprule
+year & min illiq & mean illiq & q1 0.25 & median & q3 0.75 & max illiq & std illiq & mean t stat \\
+\midrule
+2003 & -129.0095 & 1.0124 & 0.0307 & 0.1186 & 0.4168 & 1127.4809 & 15.9260 & 2.9252 \\
+2004 & -6.9843 & 1.0549 & 0.0140 & 0.0610 & 0.2430 & 718.6896 & 17.5463 & 3.0400 \\
+2005 & -12.6456 & 0.8511 & 0.0094 & 0.0409 & 0.1718 & 2116.8092 & 29.7287 & 3.1092 \\
+2006 & -20.1519 & 0.4090 & 0.0079 & 0.0364 & 0.1617 & 787.2365 & 9.3278 & 3.4375 \\
+2007 & -9.3454 & 1.1160 & 0.0153 & 0.0650 & 0.2402 & 1764.1170 & 26.6052 & 3.2489 \\
+2008 & -830.6648 & 13.2716 & 0.0595 & 0.2328 & 1.1329 & 5836.7472 & 190.9861 & 2.5173 \\
+2009 & -202.0453 & 17.9805 & 0.0706 & 0.3345 & 2.0137 & 8571.4286 & 233.0594 & 2.6543 \\
+\bottomrule
+\end{tabular}
+
+\end{center}
+
+\section*{Panel A: Individual Bonds, Daily Data}
+\begin{center}
+\begin{tabular}{l|rrrrrrrr}
+\toprule
+Year & 2003 & 2004 & 2005 & 2006 & 2007 & 2008 & 2009 & Full \\
+\midrule
+Mean illiq & 1.0124 & 1.0549 & 0.8511 & 0.4090 & 1.1160 & 13.2716 & 17.9805 & 3.1199 \\
+Median illiq & 0.1186 & 0.0610 & 0.0409 & 0.0364 & 0.0650 & 0.2328 & 0.3345 & 0.0726 \\
+Per t greater 1.96 & 77.2839 & 77.3770 & 80.2972 & 87.9141 & 87.3263 & 67.4085 & 69.0074 & 79.6793 \\
+Robust t stat & 2.5416 & 10.1838 & 4.0673 & 6.7154 & 1.8154 & 20.7878 & 1.1863 & 17.0572 \\
+\bottomrule
+\end{tabular}
+
+\end{center}
+
+\section*{Panel B: Bond Portfolios}
+\begin{center}
+\begin{tabular}{l|rrrrrrrr}
+\toprule
+Year & 2003 & 2004 & 2005 & 2006 & 2007 & 2008 & 2009 & Full \\
+\midrule
+Equal weighted & -0.0061 & -0.0048 & -0.0031 & -0.0012 & 0.0035 & -0.0698 & -0.0899 & -0.0211 \\
+EW t stat & -0.2949 & -0.3310 & -0.2492 & -0.1467 & 0.3611 & -1.3389 & -1.8185 & -2.0477 \\
+Issuance weighted & -0.0095 & -0.0058 & -0.0032 & -0.0008 & 0.0008 & -0.0611 & -0.0508 & -0.0165 \\
+IW t stat & -0.4326 & -0.3887 & -0.3222 & -0.0913 & 0.0846 & -1.6082 & -1.6578 & -2.0871 \\
+\bottomrule
+\end{tabular}
+
+\end{center}
+
+\section*{Panel C: Implied by Quoted Bid-Ask Spreads}
+\begin{center}
+\begin{tabular}{l|rrrrrrrr}
+\toprule
+Year & 2003 & 2004 & 2005 & 2006 & 2007 & 2008 & 2009 & Full \\
+\midrule
+Mean implied gamma & 0.0066 & 0.0054 & 0.0047 & 0.0043 & 0.0057 & 0.0124 & 0.0159 & 0.0066 \\
+Median implied gamma & 0.0045 & 0.0036 & 0.0033 & 0.0031 & 0.0044 & 0.0090 & 0.0123 & 0.0042 \\
+\bottomrule
+\end{tabular}
+
+\end{center}
+
+\end{document}
