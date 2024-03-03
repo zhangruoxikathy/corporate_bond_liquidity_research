@@ -377,6 +377,7 @@ def main():
     table2_port_paper = calc_annual_illiquidity_table_portfolio(df_paper)
     table2_spd_paper = calc_annual_illiquidity_table_spd(df_paper)
     
+    illiq_daily_paper.to_csv(OUTPUT_DIR / "illiq_daily_paper.csv", index=False)
     illiq_daily_summary_paper.to_csv(OUTPUT_DIR / "illiq_summary_paper.csv", index=False)
     table2_daily_paper.to_csv(OUTPUT_DIR / "table2_daily_paper.csv", index=False)
     table2_port_paper.to_csv(OUTPUT_DIR / "table2_port_paper.csv", index=False)
@@ -385,6 +386,7 @@ def main():
     # Using MMN corrected data
     mmn_paper, table2_daily_mmn_paper = calc_illiq_w_mmn_corrected(start_date, end_date,
                                                                    cleaned_df_paper)
+    mmn_paper.to_csv(OUTPUT_DIR / "mmn_paper.csv", index=False)
     illiq_daily_summary_mmn_paper = create_summary_stats(mmn_paper)
     illiq_daily_summary_mmn_paper.to_csv(OUTPUT_DIR / "illiq_daily_summary_mmn_paper.csv", index=False)
     table2_daily_mmn_paper.to_csv(OUTPUT_DIR / "table2_daily_mmn_paper.csv", index=False)
@@ -399,6 +401,7 @@ def main():
     table2_port_new = calc_annual_illiquidity_table_portfolio(df_new)
     table2_spd_new = calc_annual_illiquidity_table_spd(df_new)
     
+    illiq_daily_new.to_csv(OUTPUT_DIR / "illiq_daily_new.csv", index=False)
     illiq_daily_summary_new.to_csv(OUTPUT_DIR / "illiq_summary_new.csv", index=False)
     table2_daily_new.to_csv(OUTPUT_DIR / "table2_daily_new.csv", index=False)
     table2_port_new.to_csv(OUTPUT_DIR / "table2_port_new.csv", index=False)
@@ -407,6 +410,7 @@ def main():
     # Using MMN corrected data
     mmn_new, table2_daily_mmn_new = calc_illiq_w_mmn_corrected(end_date, today,
                                                                cleaned_df_new)
+    mmn_new.to_csv(OUTPUT_DIR / "mmn_new.csv", index=False)
     illiq_daily_summary_mmn_new = create_summary_stats(mmn_new)
     illiq_daily_summary_mmn_new.to_csv(OUTPUT_DIR / "illiq_daily_summary_mmn_new.csv", index=False)
     table2_daily_mmn_new.to_csv(OUTPUT_DIR / "table2_daily_mmn_new.csv", index=False)
