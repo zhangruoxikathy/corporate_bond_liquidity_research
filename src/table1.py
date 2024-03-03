@@ -16,7 +16,7 @@ DATA_DIR = config.DATA_DIR
 # in final case, we can comment the following two lines and use the above two lines to load the raw data
 df_bondret = pd.read_parquet(DATA_DIR / "pulled" / "Bondret.parquet")
 df_daily = pd.read_csv('/Users/adair/Desktop/FinancialTool/Group_Project/BondDailyPublic.csv')
-df_intraday = pd.read_parquet(DATA_DIR / "pulled" / "intraday_clean.parquet")
+df_intraday = pd.read_parquet(DATA_DIR / "pulled" / "intraday_clean_v2.parquet")
 
 # pre-processing the data
 df_all = data_processing.all_trace_data_merge(df_daily, df_bondret)   #this is the dataset for panel B in table 1 
@@ -235,10 +235,10 @@ df_all_size = pd.concat([cal_avrage(df_all_month, 'trade_size'), \
 
 # concat all results of df_sample and df_all
 df_sample_result = pd.concat([df_sample_cusip, df_sample_issuance, df_sample_moody, df_sample_maturity, df_sample_coupon, \
-                    df_sample_age, df_sample_turnover, df_sample_size, df_sample_return, df_sample_vol, df_sample_price], axis=1)
+                    df_sample_age, df_sample_turnover, df_sample_size, df_sample_trade, df_sample_return, df_sample_vol, df_sample_price], axis=1)
 
 df_all_result = pd.concat([df_all_cusip, df_all_issuance, df_all_moody, df_all_maturity, df_all_coupon, \
-                    df_all_age, df_all_turnover, df_all_size, df_all_return, df_all_vol, df_all_price], axis=1)
+                    df_all_age, df_all_turnover, df_all_size, df_all_trade, df_all_return, df_all_vol, df_all_price], axis=1)
 # transform the df_sample_result, make its index as column
 df_sample_result = df_sample_result.T
 df_all_result = df_all_result.T
