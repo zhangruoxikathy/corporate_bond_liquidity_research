@@ -39,20 +39,26 @@ we get very similar trend for Avg Return, though the eaxct number are somewhat d
 import pandas as pd
 import numpy as np
 import config
-import table1
 
-from table1 import df_sample_result
 
 from pathlib import Path
 
 
+DATA_DIR = Path(config.DATA_DIR)
+OUTPUT_DIR = Path(config.OUTPUT_DIR)
+
+OUTPUT_DIR = config.OUTPUT_DIR
+DATA_DIR = config.DATA_DIR
+
+
 pd.set_option('display.max_columns', None)
 
-
-output_data = df_sample_result
-
+output_data = pd.read_csv(OUTPUT_DIR / "table1_panelA.csv")
 output_data = output_data.T
 
+new_header = output_data.iloc[0]  # grab the second row for the header
+output_data = output_data[1:]     # take the data less the header row
+output_data.columns = new_header  # set the header row as the df header
 
 def test_total_bond_number(output_data):
     '''
@@ -74,7 +80,7 @@ def test_total_bond_number(output_data):
     }
 
     for year, expected_count in paper_total_bond_number.items():
-        actual_count = total_bond_number.loc[year]
+        actual_count = total_bond_number.loc[str(year)]
         lower_bound = expected_count * (1 - tolerance_percent)  
         upper_bound = expected_count * (1 + tolerance_percent)  
         assert lower_bound <= actual_count <= upper_bound, f"Total bond number for {year} is {actual_count}, which is not within "f"{tolerance*100}% of the expected {expected_count}"
@@ -104,7 +110,7 @@ def test_issuance_data(output_data):
 
     for year, metrics in paper_issuance.items():
         for metric, expected_value in metrics.items():
-            actual_value = issuance.loc[year, metric]
+            actual_value = issuance.loc[str(year), metric]
             lower_bound = expected_value * (1 - tolerance_percent)
             upper_bound = expected_value * (1 + tolerance_percent)
             if not (lower_bound <= actual_value <= upper_bound):
@@ -141,7 +147,7 @@ def test_rating_data(output_data):
 
     for year, metrics in paper_ratings.items():
         for metric, expected_value in metrics.items():
-            actual_value = ratings.loc[year, metric] 
+            actual_value = ratings.loc[str(year), metric] 
             lower_bound = expected_value * (1-tolerance) 
             upper_bound = expected_value * (1+tolerance) 
             if not lower_bound <= actual_value <= upper_bound:
@@ -180,7 +186,7 @@ def test_maturity_data(output_data):
 
     for year, metrics in paper_maturities.items():
         for metric, expected_value in metrics.items():
-            actual_value = maturities.loc[year, metric]  
+            actual_value = maturities.loc[str(year), metric]  
             lower_bound = expected_value * (1 - tolerance)
             upper_bound = expected_value * (1 + tolerance)
             if not lower_bound <= actual_value <= upper_bound:
@@ -218,7 +224,7 @@ def test_coupon_data(output_data):
 
     for year, metrics in paper_coupons.items():
         for metric, expected_value in metrics.items():
-            actual_value = coupon.loc[year, metric]
+            actual_value = coupon.loc[str(year), metric]
             lower_bound = expected_value * (1 - tolerance)
             upper_bound = expected_value * (1 + tolerance)
             if not lower_bound <= actual_value <= upper_bound:
@@ -253,7 +259,7 @@ def test_age_data(output_data):
 
     for year, metrics in paper_ages.items():
         for metric, expected_value in metrics.items():
-            actual_value = ages.loc[year, metric]
+            actual_value = ages.loc[str(year), metric]
             lower_bound = expected_value * (1 - tolerance)
             upper_bound = expected_value * (1 + tolerance)
             if not lower_bound <= actual_value <= upper_bound:
@@ -289,7 +295,7 @@ def test_turnover_data(output_data):
 
     for year, metrics in paper_turnover.items():
         for metric, expected_value in metrics.items():
-            actual_value = turnover_stats.loc[year, metric]
+            actual_value = turnover_stats.loc[str(year), metric]
             lower_bound = expected_value * (1 - tolerance)
             upper_bound = expected_value * (1 + tolerance)
             if not lower_bound <= actual_value <= upper_bound:
@@ -323,7 +329,7 @@ def test_num_trade_data(output_data):
 
     for year, metrics in paper_trades.items():
         for metric, expected_value in metrics.items():
-            actual_value = trades.loc[year, metric]
+            actual_value = trades.loc[str(year), metric]
             lower_bound = expected_value * (1 - tolerance)
             upper_bound = expected_value * (1 + tolerance)
             if not lower_bound <= actual_value <= upper_bound:
@@ -358,7 +364,7 @@ def test_trade_size_data(output_data):
 
     for year, metrics in paper_trade_sizes.items():
         for metric, expected_value in metrics.items():
-            actual_value = trade_sizes.loc[year, metric]
+            actual_value = trade_sizes.loc[str(year), metric]
             lower_bound = expected_value * (1 - tolerance)
             upper_bound = expected_value * (1 + tolerance)
             if not lower_bound <= actual_value <= upper_bound:
@@ -395,8 +401,8 @@ def test_avg_return_data(output_data):
     for year in paper_data.keys():
         paper_mean = paper_data[year]['Avg_return_avg']
         paper_median = paper_data[year]['Avg_return_median']
-        output_mean = output_data.loc[year, 'Avg_return_avg']
-        output_median = output_data.loc[year, 'Avg_return_median']
+        output_mean = output_data.loc[str(year), 'Avg_return_avg']
+        output_median = output_data.loc[str(year), 'Avg_return_median']
         
         differences_mean.append((paper_mean - output_mean))
         differences_median.append((paper_median - output_median))
@@ -435,7 +441,7 @@ def test_volatility_data(output_data):
 
     for year, metrics in paper_volatility.items():
         for metric, expected_value in metrics.items():
-            actual_value = volatility_stats.loc[year, metric]
+            actual_value = volatility_stats.loc[str(year), metric]
             lower_bound = expected_value * (1 - tolerance)
             upper_bound = expected_value * (1 + tolerance)
             
@@ -476,7 +482,7 @@ def test_price_data(output_data):
     for year, metrics in paper_price.items():
         for metric, expected_value in metrics.items():
            
-            actual_value = price_stats.loc[year, metric.replace('price_', 'prclean_')]
+            actual_value = price_stats.loc[str(year), metric.replace('price_', 'prclean_')]
             
             lower_bound = expected_value * (1 - tolerance)
             upper_bound = expected_value * (1 + tolerance)
