@@ -3,6 +3,7 @@ import numpy as np
 import config
 import load_wrds_bondret
 import load_opensource
+import load_intraday
 import data_processing
 
 OUTPUT_DIR = config.OUTPUT_DIR
@@ -16,7 +17,7 @@ DATA_DIR = config.DATA_DIR
 # in final case, we can comment the following two lines and use the above two lines to load the raw data
 df_bondret = pd.read_parquet(DATA_DIR / "pulled" / "Bondret.parquet")
 df_daily = pd.read_csv('/Users/adair/Desktop/FinancialTool/Group_Project/BondDailyPublic.csv')
-df_intraday = pd.read_parquet(DATA_DIR / "pulled" / "intraday_clean_v2.parquet")
+df_intraday = pd.read_parquet(DATA_DIR / "pulled" / load_intraday.FILE_NAME)
 
 # pre-processing the data
 df_all = data_processing.all_trace_data_merge(df_daily, df_bondret)   #this is the dataset for panel B in table 1 
