@@ -187,6 +187,8 @@ def calc_annual_illiquidity_table_daily(df):
     return Illiq_month, table2_daily
 
 
+
+
 def calc_illiq_w_mmn_corrected(start_date, end_date, cleaned_df):
     """Use clean merged cusips to filter out mmn corrected monthly data to generate illiquidity table."""
 
@@ -209,6 +211,10 @@ def calc_illiq_w_mmn_corrected(start_date, end_date, cleaned_df):
     return mmn, table2_daily
 
 
+##############################################################
+# Summary Statistics Compilation Using Daily Illiquidity Data
+##############################################################
+
 
 def create_summary_stats(illiq_daily):
     """Calculate relevant summary statistics of the illiquidity daily data."""
@@ -218,10 +224,8 @@ def create_summary_stats(illiq_daily):
               lambda x: x.quantile(0.75), 'max', 'std'],
     't stat': 'mean'
     })
-    
     summary_stats.columns = ['min illiq', 'mean illiq', 'q1 0.25', 'median',
                              'q3 0.75', 'max illiq', 'std illiq', 'mean t stat']
-    
     summary_stats.reset_index(inplace=True)
 
     return summary_stats
