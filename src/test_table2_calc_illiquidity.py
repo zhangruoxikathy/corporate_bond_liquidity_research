@@ -117,7 +117,7 @@ def test_calc_deltaprc():
 ##############################################################
 
 
-def test_table2_panela_daily_within_tolerance(df):
+def test_table2_panela_daily_within_tolerance():
     """Test if table 2 Panel A illiquidity results using daily data are within +-40% tolerance
     of the results in the paper."""
     
@@ -191,7 +191,7 @@ def test_table2_panela_daily_trend():
 ##############################################################
 
 
-def test_table2_panelb_port_within_tolerance(df):
+def test_table2_panelb_port_within_tolerance():
     """Test if table 2 Panel B equal weighted illiquidity results are within +-0.05 tolerance, 
     issuance weighted illiquidity results are within +-0.07 tolerance of the results in the paper."""
     
@@ -244,7 +244,7 @@ def test_table2_panelb_port_within_tolerance(df):
 ##############################################################
 
 
-def test_table2_panelc_spd_within_tolerance(df):
+def test_table2_panelc_spd_within_tolerance():
     """Test if table 2 Panel C bid-ask spread mean and median results are within +-40% tolerance
     of the results in the paper."""
 
@@ -299,7 +299,7 @@ def test_table2_panelc_spd_within_tolerance(df):
 
     
     
-def test_table2_panelc_spd_trend(df):
+def test_table2_panelc_spd_trend():
     """Test if table 2 Panel C bid-ask spread mean and median results follow the trend in the paper."""
 
     table2_spd = table2_calc_illiquidity.calc_annual_illiquidity_table_spd(df)

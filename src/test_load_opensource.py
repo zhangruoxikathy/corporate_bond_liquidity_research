@@ -16,6 +16,7 @@ Requirements
 
 import pandas as pd
 import numpy as np
+import pytest
 import config
 
 OUTPUT_DIR = config.OUTPUT_DIR
@@ -27,14 +28,35 @@ df_daily = load_opensource.load_daily_bond(data_dir=DATA_DIR)
 df_mmn = load_opensource.load_mmn_corrected_bond(data_dir=DATA_DIR)
 
 
-def test_load_daily_bond(df_daily):
-    """Test one year of summary statisticas of daily bond data loaded from Open Source Bond Asset Pricing."""
+def test_load_daily_bond_functionality():
+    """Test the functionality of daily bond data loaded from Open Source Bond Asset Pricing."""
 
+    # Test if the function returns a pandas DataFrame
+    assert isinstance(df_daily, pd.DataFrame)
+
+    # Test if the DataFrame has the expected columns
+    expected_columns = ['cusip_id', 'trd_exctn_dt', 'prclean', 'qvolume']
+    assert all(col in df_daily.columns for col in expected_columns)
+
+    # Test if the function raises an error when given an invalid data directory
+    with pytest.raises(FileNotFoundError):
+        load_opensource.load_daily_bond(data_dir="invalid_directory")
+
+
+def test_load_daily_bond_data_validity():
+    """Test the validity of daily bond data loaded from Open Source Bond Asset Pricing."""
+
+    # Test if the default date range has the expected start date and end date
+    assert df_daily['trd_exctn_dt'].min() == pd.Timestamp('2002-07-01')
+    assert df_daily['trd_exctn_dt'].max() >= pd.Timestamp('2022-12-01')
+
+    # Test one year of summary statisticas of daily bond data
     df_daily['trd_exctn_dt'] = pd.to_datetime(df_daily['trd_exctn_dt'])
     df_daily['year'] = df_daily['trd_exctn_dt'].dt.year
     df_daily_sample = df_daily[df_daily['year'] == 2005]
     
     output_shape = df_daily_sample.shape
+    expected_shape = (826209, 17)
 
     output = df_daily_sample[['cusip_id', 'trd_exctn_dt', 'prclean', 'qvolume']].\
         describe().to_string().replace(" ", "").replace("\n", "") 
@@ -49,14 +71,37 @@ def test_load_daily_bond(df_daily):
     max              2005-12-30 00:00:00    1116.249977  1.263632e+10
     std                              NaN      12.156334  4.755138e+07
     '''
-    
-    expected_shape = (826209, 17)
+
     assert (output == expected_output.replace(" ", "").replace("\n", "")) and \
         (output_shape == expected_shape)
 
 
-def test_load_mmn_corrected_bond(df_mmn):
-    """Test one year of summary statisticas of MMN corrected monthly bond data loaded from Open Source Bond Asset Pricing."""
+def test_load_mmn_corrected_bond_functionality():
+    """Test the functionality of MMN corrected monthly bond data loaded from Open Source Bond Asset Pricing."""
+
+    # Test if the function returns a pandas DataFrame
+    assert isinstance(df_mmn, pd.DataFrame)
+
+    # Test if the DataFrame has the expected columns
+    expected_columns = ['date', 'cusip', 'bond_ret', 'exretn', 'rating',
+       'bond_yield', 'bond_amount_out', 'offering_amt', 'bondprc', 
+       'tmt', 'BOND_RET', 'ILLIQ', 'n_trades_month', 'BONDPRC', 'PRFULL',
+       'bond_value', 'BOND_VALUE']
+    assert all(col in df_mmn.columns for col in expected_columns)
+
+    # Test if the function raises an error when given an invalid data directory
+    with pytest.raises(FileNotFoundError):
+        load_opensource.load_mmn_corrected_bond(data_dir="invalid_directory")
+
+
+
+def test_load_mmn_corrected_bond_validity(df_mmn):
+    """Test the validity of MMN corrected monthly bond data loaded from Open Source Bond Asset Pricing."""
+    
+    # Test if the default date range has the expected start date and end date
+    assert df_mmn['date'].min() == '2002-08-31'
+    assert df_mmn['date'].max() >= '2022-09-01'
+    
     df_mmn_ = df_mmn.copy()
     df_mmn_sample = df_mmn_[(df_mmn_['date'] >= '2005-01-01') & (df_mmn_['date'] <= '2005-12-31')]
     
