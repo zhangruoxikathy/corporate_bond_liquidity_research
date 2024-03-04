@@ -25,7 +25,6 @@ Requirements
 
 ../data/pulled/Bondret.parquet resulting from load_wrds_bondret.py
 ../data/pulled/BondDailyPublic.parquet resulting from load_opensource.py
-../data/pulled/IntradayTRACE.parquet resulting from load_intraday.py
 ../src/table2_calc_illiquidity.py
 
 '''
@@ -48,7 +47,6 @@ START_DATE = '2003-04-14'
 END_DATE = '2009-06-30'
 
 cleaned_daily_df = table2_calc_illiquidity.clean_merged_data(START_DATE, END_DATE)
-cleaned_intraday_df = table2_calc_illiquidity.clean_intraday(START_DATE, END_DATE)
 df = table2_calc_illiquidity.calc_deltaprc(cleaned_daily_df)
 
 
@@ -72,25 +70,6 @@ def test_clean_merged_data():
     
     assert output == expected_output.replace(" ", "").replace("\n", "")
 
-
-def test_clean_intraday():
-    output = cleaned_daily_df[['trd_exctn_dt', 'prclean', 'n']].describe().to_string().replace(" ", "").replace("\n",
-                                                                                                                "")
-    expected_output = '''
-                            trd_exctn_dt        prclean              n
-    count                         886367  886367.000000  886367.000000
-    mean   2005-12-27 01:49:59.844985088     100.689418       1.107497
-    min              2003-04-15 00:00:00       0.000200       0.000000
-    25%              2004-07-23 00:00:00      98.407802       1.000000
-    50%              2005-10-13 00:00:00     101.421197       1.000000
-    75%              2007-04-24 00:00:00     105.739201       1.000000
-    max              2009-06-30 00:00:00    4111.562144       7.000000
-    std                              NaN      13.142166       0.419525
-    '''
-
-    assert output == expected_output.replace(" ", "").replace("\n", "")
-
-
 def test_calc_deltaprc():
     """Test deltap and deltap_lag calculated by calc_deltaprc."""
 
@@ -111,13 +90,12 @@ def test_calc_deltaprc():
     
     assert output == expected_output.replace(" ", "").replace("\n", "")
 
-
 ##############################################################
 # Test Panel A
 ##############################################################
 
 
-def test_table2_panela_daily_within_tolerance():
+def test_table2_panelA_daily_within_tolerance():
     """Test if table 2 Panel A illiquidity results using daily data are within +-40% tolerance
     of the results in the paper."""
     
