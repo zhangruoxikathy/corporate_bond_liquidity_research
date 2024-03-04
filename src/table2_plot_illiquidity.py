@@ -1,14 +1,37 @@
-import load_fred
+'''
+Overview
+-------------
+This Python script aims to plot monthly bond illiquidity using summary statistics of
+monthly per bond illiquidity and cleaned monthly per bond illiquidity files.
+
+Requirements
+-------------
+
+../output: csv tables produced in table2_calc_illiquidity.py
+    - illiq_daily_xxx.csv
+    - illiq_daily_summary_xxx.csv
+    - mmn_xxx.csv
+    - illiq_daily_summary_mmn_xxx.csv
+
+'''
+
+#* ************************************** */
+#* Libraries                              */
+#* ************************************** */
+
+import numpy as np
+import pandas as pd
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
+import plotly.express as px
+from datetime import datetime
+from matplotlib import pyplot as plt
+import seaborn as sns
+
 import config
 from pathlib import Path
 DATA_DIR = Path(config.DATA_DIR)
 OUTPUT_DIR = Path(config.OUTPUT_DIR)
-
-import numpy as np
-import pandas as pd
-from datetime import datetime
-from matplotlib import pyplot as plt
-import seaborn as sns
 
 import table2_calc_illiquidity as calc_illiquidity
 
@@ -77,13 +100,10 @@ def plot_illiquidity(illiquidity_df, summary_df, title):
     plt.show()
     
 
+
 def main():
     
-    # Define dates
-    today = datetime.today().strftime('%Y-%m-%d')
-    start_date = '2003-04-14'
-    end_date = '2009-06-30' 
-
+    # Import data
     illiq_daily_paper = pd.read_csv(OUTPUT_DIR / "illiq_daily_paper.csv")
     illiq_daily_summary_paper = pd.read_csv(OUTPUT_DIR / "illiq_daily_summary_paper.csv")
     mmn_paper = pd.read_csv(OUTPUT_DIR / "mmn_paper.csv")
@@ -93,6 +113,7 @@ def main():
     mmn_new = pd.read_csv(OUTPUT_DIR / "mmn_new.csv")
     illiq_daily_summary_mmn_new = pd.read_csv(OUTPUT_DIR / "illiq_daily_summary_mmn_new.csv")
     
+    # Outpot plots
     plot_illiquidity(illiq_daily_paper, illiq_daily_summary_paper, "2003-2009")
     plot_illiquidity(mmn_paper, illiq_daily_summary_mmn_paper, "MMN_Corrected, 2003-2009")
     plot_illiquidity(illiq_daily_new, illiq_daily_summary_new, "2003-2023")

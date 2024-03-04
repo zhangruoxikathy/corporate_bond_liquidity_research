@@ -7,11 +7,11 @@ is designed in a way to compare trends in illiquidity and sometimes with a perce
 or absolute value of tolerance accepted. Moreover, the first two tests are conducted to
 ensure the data are loaded and cleaned as expected.
 
-Here is a list of tests done on table 2, including 
+Here is a list of tests done on table 2, including:
 
 - Panel A Individual Bonds (The mean and average monthly illiquidity per bond per year)
-    - Using trade-by-trade data
-    - mean illiquidity using daily data: +- 40% & trend test
+    - Mean illiquidity using trade-by-trade data: 
+    - Mean illiquidity using daily data: +- 40% & trend test
 - Panel B Bond Portfolio
     - Equal-weighted mean illiquidity: +- 0.05
     - Issuance-weighted mean illiquidity: +- 0.07
@@ -25,6 +25,7 @@ Requirements
 
 ../data/pulled/Bondret.parquet resulting from load_wrds_bondret.py
 ../data/pulled/BondDailyPublic.parquet resulting from load_opensource.py
+../data/pulled/IntradayTRACE.parquet resulting from load_intraday.py
 ../src/table2_calc_illiquidity.py
 
 '''
@@ -41,7 +42,6 @@ OUTPUT_DIR = config.OUTPUT_DIR
 DATA_DIR = config.DATA_DIR
 
 import table2_calc_illiquidity
-
 
 # Test on the same time period in the paper
 START_DATE = '2003-04-14'
@@ -117,7 +117,7 @@ def test_calc_deltaprc():
 ##############################################################
 
 
-def test_table2_panela_daily_within_tolerance(df):
+def test_table2_panela_daily_within_tolerance():
     """Test if table 2 Panel A illiquidity results using daily data are within +-40% tolerance
     of the results in the paper."""
     
@@ -191,7 +191,7 @@ def test_table2_panela_daily_trend():
 ##############################################################
 
 
-def test_table2_panelb_port_within_tolerance(df):
+def test_table2_panelb_port_within_tolerance():
     """Test if table 2 Panel B equal weighted illiquidity results are within +-0.05 tolerance, 
     issuance weighted illiquidity results are within +-0.07 tolerance of the results in the paper."""
     
@@ -244,7 +244,7 @@ def test_table2_panelb_port_within_tolerance(df):
 ##############################################################
 
 
-def test_table2_panelc_spd_within_tolerance(df):
+def test_table2_panelc_spd_within_tolerance():
     """Test if table 2 Panel C bid-ask spread mean and median results are within +-40% tolerance
     of the results in the paper."""
 
@@ -299,7 +299,7 @@ def test_table2_panelc_spd_within_tolerance(df):
 
     
     
-def test_table2_panelc_spd_trend(df):
+def test_table2_panelc_spd_trend():
     """Test if table 2 Panel C bid-ask spread mean and median results follow the trend in the paper."""
 
     table2_spd = table2_calc_illiquidity.calc_annual_illiquidity_table_spd(df)
