@@ -103,11 +103,7 @@ def plot_illiquidity(illiquidity_df, summary_df, title):
 
 def main():
     
-    # Define dates
-    today = datetime.today().strftime('%Y-%m-%d')
-    start_date = '2003-04-14'
-    end_date = '2009-06-30' 
-
+    # Import data
     illiq_daily_paper = pd.read_csv(OUTPUT_DIR / "illiq_daily_paper.csv")
     illiq_daily_summary_paper = pd.read_csv(OUTPUT_DIR / "illiq_daily_summary_paper.csv")
     mmn_paper = pd.read_csv(OUTPUT_DIR / "mmn_paper.csv")
@@ -117,6 +113,7 @@ def main():
     mmn_new = pd.read_csv(OUTPUT_DIR / "mmn_new.csv")
     illiq_daily_summary_mmn_new = pd.read_csv(OUTPUT_DIR / "illiq_daily_summary_mmn_new.csv")
     
+    # Outpot plots
     plot_illiquidity(illiq_daily_paper, illiq_daily_summary_paper, "2003-2009")
     plot_illiquidity(mmn_paper, illiq_daily_summary_mmn_paper, "MMN_Corrected, 2003-2009")
     plot_illiquidity(illiq_daily_new, illiq_daily_summary_new, "2003-2023")
