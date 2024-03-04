@@ -26,13 +26,9 @@ Requirements
 -------------
 
 ../data/pulled/Bondret.parquet resulting from load_wrds_bondret.py
-<<<<<<< HEAD
 ../data/pulled/BondDailyPublic resulting from load_opensource.py
 ../data/pulled/IntradayTRACE.parquet resulting from load_intraday.py
-=======
-../data/pulled/BondDailyPublic.parquet resulting from load_opensource.py
 ../data/pulled/WRDS_MMN_Corrected_Data.csv.gzip resulting from load_opensource.py
->>>>>>> 8f0bce8f5f7578edd9181ccda6e7c6b9a20b337a
 
 '''
 

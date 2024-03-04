@@ -1,3 +1,38 @@
+'''
+Overview
+-------------
+This Python script designs the unit test for table 2. Since based on table 1,
+our data have discrepancies with that used in the paper, the below unit tests
+is designed in a way to compare trends in illiquidity and sometimes with a percentage
+or absolute value of tolerance accepted. Moreover, the first two tests are conducted to
+ensure the data are loaded and cleaned as expected.
+
+Here is a list of tests done on table 2, including 
+
+- Panel A Individual Bonds (The mean and average monthly illiquidity per bond per year)
+    - Using trade-by-trade data
+    - mean illiquidity using daily data: +- 40% & trend test
+- Panel B Bond Portfolio
+    - Equal-weighted mean illiquidity: +- 0.05
+    - Issuance-weighted mean illiquidity: +- 0.07
+- Panel C Implied by quoted bid-ask spread
+    - Bid-ask spread mean x 5: +- 40% & trend test
+    - Bid-ask spread median x 5: +- 40% & trend test
+
+ 
+Requirements
+-------------
+
+../data/pulled/Bondret.parquet resulting from load_wrds_bondret.py
+../data/pulled/BondDailyPublic.parquet resulting from load_opensource.py
+../src/table2_calc_illiquidity.py
+
+'''
+
+
+#* ************************************** */
+#* Libraries                              */
+#* ************************************** */ 
 import pandas as pd
 import numpy as np
 import config
@@ -5,16 +40,24 @@ import config
 OUTPUT_DIR = config.OUTPUT_DIR
 DATA_DIR = config.DATA_DIR
 
-import table2_calc_illiquilidy
+import table2_calc_illiquidity
 
+
+# Test on the same time period in the paper
 START_DATE = '2003-04-14'
 END_DATE = '2009-06-30'
 
-cleaned_daily_df = table2_calc_illiquilidy.clean_merged_data(START_DATE, END_DATE)
-cleaned_intraday_df = table2_calc_illiquilidy.clean_intraday(START_DATE, END_DATE)
+cleaned_daily_df = table2_calc_illiquidity.clean_merged_data(START_DATE, END_DATE)
+cleaned_intraday_df = table2_calc_illiquidity.clean_intraday(START_DATE, END_DATE)
+df = table2_calc_illiquidity.calc_deltaprc(cleaned_daily_df)
 
+
+# Test data are handled as expected
 def test_clean_merged_data():
-    output = cleaned_daily_df[['trd_exctn_dt', 'prclean', 'n']].describe().to_string().replace(" ", "").replace("\n", "")
+    """Test summary statisticas of the df produced by clean_merged_data."""
+
+    output = cleaned_daily_df[['trd_exctn_dt', 'prclean', 'n']].describe().to_string().replace(
+        " ", "").replace("\n", "") 
     expected_output = '''
                             trd_exctn_dt        prclean              n
     count                         886367  886367.000000  886367.000000
@@ -49,8 +92,10 @@ def test_clean_intraday():
 
 
 def test_calc_deltaprc():
-    df = table2_calc_illiquilidy.calc_deltaprc(cleaned_daily_df)
-    output = df[['prclean', 'deltap', 'deltap_lag']].describe().to_string().replace(" ", "").replace("\n", "") 
+    """Test deltap and deltap_lag calculated by calc_deltaprc."""
+
+    output = df[['prclean', 'deltap', 'deltap_lag']].describe().to_string().replace(
+        " ", "").replace("\n", "") 
 
     expected_output = """
                 prclean         deltap     deltap_lag
@@ -67,84 +112,217 @@ def test_calc_deltaprc():
     assert output == expected_output.replace(" ", "").replace("\n", "")
 
 
+##############################################################
+# Test Panel A
+##############################################################
 
-def test_calc_annual_illiquidity_table_daily():
-    df = table2_calc_illiquilidy.calc_deltaprc(cleaned_daily_df)
-    illiq_daily, table2_daily = table2_calc_illiquilidy.calc_annual_illiquidity_table_daily(df)
 
-    # Key trends in mean illiq
-    mean_illiq_trend = (
-        table2_daily.loc[table2_daily['Year'] == 2005, 'Mean illiq'].values[0] < 0.9 * table2_daily.loc[table2_daily['Year'] == 2003, 'Mean illiq'].values[0] and
-        table2_daily.loc[table2_daily['Year'] == 2006, 'Mean illiq'].values[0] < 0.9 * table2_daily.loc[table2_daily['Year'] == 2005, 'Mean illiq'].values[0] and
-        table2_daily.loc[table2_daily['Year'] == 2007, 'Mean illiq'].values[0] > 1.3 * table2_daily.loc[table2_daily['Year'] == 2006, 'Mean illiq'].values[0] and
-        table2_daily.loc[table2_daily['Year'] == 2008, 'Mean illiq'].values[0] > 3 * table2_daily.loc[table2_daily['Year'] == 2003, 'Mean illiq'].values[0] and
-        table2_daily.loc[table2_daily['Year'] == 2008, 'Mean illiq'].values[0] > 1.3 * table2_daily.loc[table2_daily['Year'] == 2007, 'Mean illiq'].values[0]
-    )
-
-    # First increasing and then decreasing trends in median illiq， since median better captures the trend compared to the mean being less affected by
-    # positive outliers
-    decreasing_trend = (
-        table2_daily.loc[table2_daily['Year'] == 2004, 'Median illiq'].values[0] < table2_daily.loc[table2_daily['Year']== 2003, 'Median illiq'].values[0] and
-        table2_daily.loc[table2_daily['Year'] == 2005, 'Median illiq'].values[0] < table2_daily.loc[table2_daily['Year'] == 2004, 'Median illiq'].values[0] and
-        table2_daily.loc[table2_daily['Year'] == 2006, 'Median illiq'].values[0] < table2_daily.loc[table2_daily['Year'] == 2005, 'Median illiq'].values[0]
-    )
-
-    increasing_trend = (
-        table2_daily.loc[table2_daily['Year'] == 2007, 'Median illiq'].values[0] > table2_daily.loc[table2_daily['Year'] == 2006, 'Median illiq'].values[0] and
-        table2_daily.loc[table2_daily['Year'] == 2008, 'Median illiq'].values[0] > table2_daily.loc[table2_daily['Year'] == 2007, 'Median illiq'].values[0] and
-        table2_daily.loc[table2_daily['Year'] == 2009, 'Median illiq'].values[0] > table2_daily.loc[table2_daily['Year'] == 2008, 'Median illiq'].values[0]
-    )
-
-    median_illiq_trend = decreasing_trend and increasing_trend
+def test_table2_panela_daily_within_tolerance(df):
+    """Test if table 2 Panel A illiquidity results using daily data are within +-40% tolerance
+    of the results in the paper."""
     
+    results_mean = {}
+    results_median = {}
+    
+    illiq_daily, table2_daily = table2_calc_illiquidity.calc_annual_illiquidity_table_daily(df)
+
+    tolerance_mean = 0.4
+
+    paper_illiq_daily_mean = {     
+        2003: 0.99,
+        2004: 0.82,
+        2005: 0.77,
+        2006: 0.57,
+        2007: 0.80,
+        2008: 3.21, # much higher with outliers
+        2009: 5.40, # much higher with outliers
+        'Full': 1.18 # much higher with outliers
+    }
+
+    for year, expected_mean in paper_illiq_daily_mean.items():
+        if year not in [2008, 2009, 'Full']:
+            actual_mean = table2_daily.loc[table2_daily['Year'] == year, 'Mean illiq'].values[0]
+            # Check if the actual mean is within the lower and upper bounds based on the tolerance
+            lower_bound = expected_mean * (1 - tolerance_mean)
+            upper_bound = expected_mean * (1 + tolerance_mean)
+            results_mean[year] = lower_bound <= actual_mean <= upper_bound
+
+    assert results_mean, "Table 2 Panel A tolerance test failed"
+
+
+
+def test_table2_panela_daily_trend():
+    """Test if table 2 Panel A illiquidity results using daily data follow the trend in the paper."""
+    
+    illiq_daily, table2_daily = table2_calc_illiquidity.calc_annual_illiquidity_table_daily(df)
+    
+    table2_daily['Year'] = table2_daily['Year'].astype(str)
+    mean_illiq_series = table2_daily.set_index('Year')['Mean illiq']
+    median_illiq_series = table2_daily.set_index('Year')['Median illiq']
+
+    years = mean_illiq_series.index[:-1]  # Exclude'Full'
+    full_year = 'Full'
+
+    # Check mean and median illiq trend
+    mean_illiq_trend = all(
+        mean_illiq_series[str(year)] > mean_illiq_series[str(year + 1)]
+        for year in [2004, 2005]) and all(
+        mean_illiq_series[str(year)] > mean_illiq_series[str(year - 1)]
+        for year in [2007, 2008, 2009])
+
+    median_illiq_trend = all(
+        median_illiq_series[str(year)] > median_illiq_series[str(year + 1)]
+        for year in [2003, 2004, 2005]) and all(
+        median_illiq_series[str(year)] > median_illiq_series[str(year - 1)]
+        for year in [2007, 2008, 2009])
+
+    # Check 'Full' year specific conditions
     full_trend = (
-        table2_daily.loc[table2_daily['Year'] == 'Full', 'Mean illiq'].values[0] > table2_daily.loc[table2_daily['Year'] == 2007, 'Mean illiq'].values[0] and
-        table2_daily.loc[table2_daily['Year'] == 'Full', 'Mean illiq'].values[0] < table2_daily.loc[table2_daily['Year'] == 2008, 'Mean illiq'].values[0] and
-        table2_daily.loc[table2_daily['Year'] == 'Full', 'Median illiq'].values[0] > table2_daily.loc[table2_daily['Year'] == 2007, 'Median illiq'].values[0] and
-        table2_daily.loc[table2_daily['Year'] == 'Full', 'Robust t stat'].values[0] > 10
-    )
+        mean_illiq_series[full_year] > mean_illiq_series['2007'] and
+        mean_illiq_series[full_year] < mean_illiq_series['2008'] and
+        median_illiq_series[full_year] > median_illiq_series['2007'] and
+        table2_daily.loc[table2_daily['Year'] == full_year, 'Robust t stat'].values[0] > 10)
     
-    assert (mean_illiq_trend and median_illiq_trend and full_trend)
-    
+    assert mean_illiq_trend and median_illiq_trend and full_trend, "Table 2 Panel A trend test failed"
     
 
-def test_calc_annual_illiquidity_table_spd():
-    df = table2_calc_illiquilidy.calc_deltaprc(cleaned_daily_df)
-    illiq_daily, table2_daily = table2_calc_illiquilidy.calc_annual_illiquidity_table_daily(df)
-    table2_spd = table2_calc_illiquilidy.calc_annual_illiquidity_table_spd(df)
+##############################################################
+# Test Panel B
+##############################################################
 
-    # Both mean and median follow first increasing and then decreasing trends
-    mean_decreasing_trend = (
-        table2_spd.loc[table2_spd['Year'] == 2004, 'Mean implied gamma'].values[0] < table2_spd.loc[table2_spd['Year'] == 2003, 'Mean implied gamma'].values[0] and
-        table2_spd.loc[table2_spd['Year'] == 2005, 'Mean implied gamma'].values[0] < table2_spd.loc[table2_spd['Year'] == 2004, 'Mean implied gamma'].values[0] and
-        table2_spd.loc[table2_spd['Year'] == 2006, 'Mean implied gamma'].values[0] < table2_spd.loc[table2_spd['Year'] == 2005, 'Mean implied gamma'].values[0]
-    )
 
-    mean_increasing_trend = (
-        table2_spd.loc[table2_spd['Year'] == 2007, 'Mean implied gamma'].values[0] > table2_spd.loc[table2_spd['Year'] == 2006, 'Mean implied gamma'].values[0] and
-        table2_spd.loc[table2_spd['Year'] == 2008, 'Mean implied gamma'].values[0] > table2_spd.loc[table2_spd['Year'] == 2007, 'Mean implied gamma'].values[0] and
-        table2_spd.loc[table2_spd['Year'] == 2009, 'Mean implied gamma'].values[0] > table2_spd.loc[table2_spd['Year'] == 2008, 'Mean implied gamma'].values[0]
-    )
+def test_table2_panelb_port_within_tolerance(df):
+    """Test if table 2 Panel B equal weighted illiquidity results are within +-0.05 tolerance, 
+    issuance weighted illiquidity results are within +-0.07 tolerance of the results in the paper."""
     
-    median_decreasing_trend = (
-        table2_spd.loc[table2_spd['Year'] == 2004, 'Median implied gamma'].values[0] < table2_spd.loc[table2_spd['Year'] == 2003, 'Median implied gamma'].values[0] and
-        table2_spd.loc[table2_spd['Year'] == 2005, 'Median implied gamma'].values[0] < table2_spd.loc[table2_spd['Year'] == 2004, 'Median implied gamma'].values[0] and
-        table2_spd.loc[table2_spd['Year'] == 2006, 'Median implied gamma'].values[0] < table2_spd.loc[table2_spd['Year'] == 2005, 'Median implied gamma'].values[0]
-    )
+    table2_port = table2_calc_illiquidity.calc_annual_illiquidity_table_portfolio(df)
+    
+    results_ew = {}
+    results_iw = {}
 
-    median_increasing_trend = (
-        table2_spd.loc[table2_spd['Year'] == 2007, 'Median implied gamma'].values[0] > table2_spd.loc[table2_spd['Year'] == 2006, 'Median implied gamma'].values[0] and
-        table2_spd.loc[table2_spd['Year'] == 2008, 'Median implied gamma'].values[0] > table2_spd.loc[table2_spd['Year'] == 2007, 'Median implied gamma'].values[0] and
-        table2_spd.loc[table2_spd['Year'] == 2009, 'Median implied gamma'].values[0] > table2_spd.loc[table2_spd['Year'] == 2008, 'Median implied gamma'].values[0]
-    )
+    tolerance_ew = 0.05
+    tolerance_iw = 0.07
+
+    paper_ew = {     
+        2003: -0.0014,
+        2004: -0.0043,
+        2005: -0.0008,
+        2006: 0.0001,
+        2007: 0.0023,
+        2008: -0.0112,
+        2009: -0.0301,
+        'Full': -0.0050}             
     
-    median_trend = median_decreasing_trend and median_increasing_trend
-    median_illiq_trend = mean_decreasing_trend and mean_increasing_trend
+    paper_iw = {            
+        2003: 0.0018,
+        2004: -0.0042,
+        2005: -0.0003,
+        2006: 0.0007,
+        2007: 0.0034,
+        2008: 0.0030,
+        2009: -0.0280,
+        'Full': -0.0017}          
+
+    for year, expected_ew in paper_ew.items():
+        actual_ew = table2_port.loc[table2_port['Year'] == 2003, 'Equal weighted'].values[0]
+        lower_bound = expected_ew - tolerance_ew
+        upper_bound = expected_ew + tolerance_ew
+        results_ew[year] = lower_bound <= actual_ew <= upper_bound
+            
+    for year, expected_iw in paper_iw.items():
+        actual_iw = table2_port.loc[table2_port['Year'] == year, 'Issuance weighted'].values[0]
+        lower_bound = expected_iw - tolerance_iw
+        upper_bound = expected_iw + tolerance_iw
+        results_iw[year] = lower_bound <= actual_iw <= upper_bound
+
+
+    assert all(results_ew.values()) and all(results_iw.values()), "Table 2 Panel B tolerance test failed"
+
+
+##############################################################
+# Test Panel C
+##############################################################
+
+
+def test_table2_panelc_spd_within_tolerance(df):
+    """Test if table 2 Panel C bid-ask spread mean and median results are within +-40% tolerance
+    of the results in the paper."""
+
+    table2_spd = table2_calc_illiquidity.calc_annual_illiquidity_table_spd(df)
     
-    # All means are slightly higher than median, indicates positively skewed data for all years
+    results_mean = {}
+    results_median = {}
+
+    adj = 5
+    tolerance_mean = 0.4
+    tolerance_median = 0.4
+    
+    table2_spd['Mean implied gamma adj'] = table2_spd['Mean implied gamma']*adj
+    table2_spd['Median implied gamma adj'] = table2_spd['Median implied gamma']*adj
+
+    paper_spd_mean = {     
+        2003: 0.035,
+        2004: 0.031,
+        2005: 0.034,
+        2006: 0.028,
+        2007: 0.031,
+        2008: 0.050,
+        2009: 0.070,
+        'Full': 0.034
+    }      
+    
+    paper_spd_median = {            
+        2003: 0.031,
+        2004: 0.025,
+        2005: 0.023,
+        2006: 0.018,
+        2007: 0.021,
+        2008: 0.045,
+        2009: 0.059,
+        'Full': 0.026
+    }   
+
+    for year, expected_mean in paper_spd_mean.items():
+        actual_mean_adj = table2_spd.loc[table2_spd['Year'] == year, 'Mean implied gamma adj'].values[0]
+        lower_bound = expected_mean * (1 - tolerance_mean)
+        upper_bound = expected_mean * (1 + tolerance_mean)
+        results_mean[year] = lower_bound <= actual_mean_adj <= upper_bound
+            
+    for year, expected_median in paper_spd_median.items():
+        actual_median_adj = table2_spd.loc[table2_spd['Year'] == year, 'Median implied gamma adj'].values[0]
+        lower_bound = expected_median * (1 - tolerance_median)
+        upper_bound = expected_median * (1 + tolerance_median)
+        results_median[year] = lower_bound <= actual_median_adj <= upper_bound
+
+
+    assert all(results_mean.values()) and all(results_median.values()), "Table 2 Panel C tolerance test failed"
+
+    
+    
+def test_table2_panelc_spd_trend(df):
+    """Test if table 2 Panel C bid-ask spread mean and median results follow the trend in the paper."""
+
+    table2_spd = table2_calc_illiquidity.calc_annual_illiquidity_table_spd(df)
+
+    table2_spd['Year'] = table2_spd['Year'].astype(str)
+
+    # Define the trends for mean and median implied gamma
+    trends = {
+        'mean_decreasing': (2003, 2004, 2005, 2006),
+        'mean_increasing': (2006, 2007, 2008, 2009),
+        'median_decreasing': (2003, 2004, 2005, 2006),
+        'median_increasing': (2006, 2007, 2008, 2009)
+    }
+
+    trend_results = {}
+    for trend_name, years in trends.items():
+        trend_results[trend_name] = all(
+            table2_spd.loc[table2_spd['Year'] == str(years[i+1]), 'Mean implied gamma'].values[0] > 
+            table2_spd.loc[table2_spd['Year'] == str(years[i]), 'Median implied gamma'].values[0]
+            for i in range(len(years) - 1)
+        )
+
+    # Check if all means are slightly higher than median, indicating positively skewed data
     all_means_higher = (table2_spd['Mean implied gamma'] > table2_spd['Median implied gamma']).all()
 
-    # Spread implied γ are more than one order of magnitude smaller than the empirically observed γ for individual bonds.
-    spdilliq_lower_than_dailyilliq = (table2_spd['Mean implied gamma'] < 0.1 * table2_daily['Mean illiq']).all()
-    
-    assert (median_trend and median_illiq_trend and all_means_higher and spdilliq_lower_than_dailyilliq)
+    assert all(trend_results.values()) and all_means_higher, "Table 2 Panel C trend test failed"
