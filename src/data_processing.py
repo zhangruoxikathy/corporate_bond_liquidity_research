@@ -65,7 +65,7 @@ def sample_selection(df, start_date = '2003-04-14', end_date = '2009-06-30'):
     # drop all bonds that only exist after the date of phase 3: Feb 7 2005
     cutoff_date = pd.Timestamp('2005-02-07')
     df = df.groupby('cusip').filter(lambda x: x['trd_exctn_dt'].min() <= cutoff_date)
-    
+
     # make sure a cusip trade on at least 75% of its relevant business days
     periods = df.groupby('cusip')['trd_exctn_dt'].agg(['max', 'min'])
     periods['max_period'] = (periods['max'] - periods['min']).dt.days # maximum calendar days for exsitence
