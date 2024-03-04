@@ -1,28 +1,40 @@
-r"""
-You can test out the latex code in the following minimal working
-example document:
+'''
+Overview
+-------------
+This Python script aims to produce latex documents for Table 2: Measure of Illiquidity
+based on methodology in The Illiquidity of Corporate Bonds, Bao, Pan, and Wang (2010).
 
-\documentclass{article}
-\usepackage{booktabs}
-\begin{document}
-First document. This is a simple example, with no 
-extra parameters or packages included.
+Table 2 Measure of Illiquidity:
+- Panel A Individual Bonds (The mean and average monthly illiquidity per bond per year)
+    - Using trade-by-trade data
+    - Using daily data
+        - Using our cleaned original data
+        - Using our cleaned MMN corrected data
+- Panel B Bond Portfolio
+    - Equal-weighted
+    - Issuance-weighted
+- Panel C Implied by quoted bid-ask spread
+    - Mean and median monthly bond bid-ask spread per year
 
-\begin{table}
-\centering
-YOUR LATEX TABLE CODE HERE
-%\input{example_table.tex}
-\end{table}
-\end{document}
+The script also produces latex for summary statistics of monthly per bond illiquidity using both
+original daily data and MMN corrected monthly data.
 
-"""
+ 
+Requirements
+-------------
+
+../output: csv tables produced in table2_calc_illiquidity.py
+
+'''
+
+#* ************************************** */
+#* Libraries                              */
+#* ************************************** */ 
 import pandas as pd
 import numpy as np
 
 import config
 from pathlib import Path
-DATA_DIR = Path(config.DATA_DIR)
-OUTPUT_DIR = Path(config.OUTPUT_DIR)
 
 OUTPUT_DIR = config.OUTPUT_DIR
 DATA_DIR = config.DATA_DIR
@@ -37,7 +49,14 @@ pd.set_option('display.float_format', lambda x: '%.4f' % x)
 
 
 def produce_illiq_latex(summary_string):
-    """Load and process per cusip monthly illiquidity summary stats table, output to latex."""
+    """Load and process per cusip monthly illiquidity summary stats table, output to latex.
+    
+    Parameters:
+        summary_string (str): Name of the summary csv file for importing.
+
+    Returns:
+        Summary latex table.
+    """
 
     summary = pd.read_csv(OUTPUT_DIR / f"{summary_string}.csv")
 
@@ -55,7 +74,14 @@ def produce_illiq_latex(summary_string):
 
 
 def produce_table2_latex(panel_string):
-    """Load and process panels in table 2, output to latex."""
+    """Load and process panels in table 2, output to latex.
+    
+    Parameters:
+        summary_string (str): Name of the table 2 csv file for importing.
+
+    Returns:
+        Table 2 panel x latex table.
+    """
 
     panel = pd.read_csv(OUTPUT_DIR / f"{panel_string}.csv").T
     panel.columns = panel.iloc[0]
@@ -76,16 +102,21 @@ def produce_table2_latex(panel_string):
 def main():
     
     # Produce latex tables for time frames in the paper
-    latex_illiq_daily_summary_paper = produce_illiq_latex("illiq_summary_paper")
-    latex_table2_daily_paper = produce_table2_latex("table2_daily_paper")
-    latex_table2_port_paper = produce_table2_latex("table2_port_paper")
-    latex_table2_spd_paper = produce_table2_latex("table2_spd_paper")
+    latex_illiq_daily_summary_paper = produce_illiq_latex("illiq_daily_summary_paper")
+    latex_table2_daily_paper = produce_table2_latex("table2_panelA_daily_paper")
+    latex_table2_port_paper = produce_table2_latex("table2_panelB_paper")
+    latex_table2_spd_paper = produce_table2_latex("table2_panelC_paper")
+    latex_illiq_daily_summary_mmn_paper = produce_table2_latex("illiq_daily_summary_mmn_paper")
+    latex_table2_panelA_daily_mmn_paper = produce_table2_latex("table2_panelA_daily_mmn_paper")
+    
 
     # Produce latex tables using up-to-date data
-    latex_illiq_daily_summary_new = produce_illiq_latex("illiq_summary_new")
-    latex_table2_daily_new = produce_table2_latex("table2_daily_new")
-    latex_table2_port_new = produce_table2_latex("table2_port_new")
-    latex_table2_spd_new = produce_table2_latex("table2_spd_new")
+    latex_illiq_daily_summary_new = produce_illiq_latex("illiq_daily_summary_new")
+    latex_table2_daily_new = produce_table2_latex("table2_panelA_daily_new")
+    latex_table2_port_new = produce_table2_latex("table2_panelB_new")
+    latex_table2_spd_new = produce_table2_latex("table2_panelC_new")
+    latex_illiq_daily_summary_mmn_new = produce_table2_latex("illiq_daily_summary_mmn_new")
+    latex_table2_panelA_daily_mmn_new = produce_table2_latex("table2_panelA_daily_mmn_new")
 
 
     # LaTeX document content
