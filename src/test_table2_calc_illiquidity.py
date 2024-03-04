@@ -40,17 +40,22 @@ import config
 OUTPUT_DIR = config.OUTPUT_DIR
 DATA_DIR = config.DATA_DIR
 
-import table2_calc_illiquilidy
+import table2_calc_illiquidity
 
+
+# Test on the same time period in the paper
 START_DATE = '2003-04-14'
 END_DATE = '2009-06-30'
-cleaned_daily_df = table2_calc_illiquilidy.clean_merged_data(START_DATE, END_DATE)
-cleaned_intraday_df = table2_calc_illiquilidy.clean_intraday(START_DATE, END_DATE)
+cleaned_daily_df = table2_calc_illiquidity.clean_merged_data(START_DATE, END_DATE)
+cleaned_intraday_df = table2_calc_illiquidity.clean_intraday(START_DATE, END_DATE)
+df = table2_calc_illiquidity.calc_deltaprc(cleaned_daily_df)
 
+
+# Test data are handled as expected
 def test_clean_merged_data():
     """Test summary statisticas of the df produced by clean_merged_data."""
 
-    output = cleaned_df[['trd_exctn_dt', 'prclean', 'n']].describe().to_string().replace(
+    output = cleaned_daily_df[['trd_exctn_dt', 'prclean', 'n']].describe().to_string().replace(
         " ", "").replace("\n", "") 
     expected_output = '''
                             trd_exctn_dt        prclean              n
@@ -65,6 +70,7 @@ def test_clean_merged_data():
     '''
     
     assert output == expected_output.replace(" ", "").replace("\n", "")
+
 
 def test_clean_intraday():
     output = cleaned_daily_df[['trd_exctn_dt', 'prclean', 'n']].describe().to_string().replace(" ", "").replace("\n",
@@ -104,10 +110,6 @@ def test_calc_deltaprc():
     
     assert output == expected_output.replace(" ", "").replace("\n", "")
 
-
-##############################################################
-# Test Panel A
-##############################################################
 
 ##############################################################
 # Test Panel A
