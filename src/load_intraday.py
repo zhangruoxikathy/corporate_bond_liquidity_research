@@ -24,7 +24,7 @@ def load_intraday_TRACE(start_date, end_date, data_dir=DATA_DIR):
 
 
 def _demo():
-    df = load_intraday_TRACE(data_dir=DATA_DIR)
+    df = load_intraday_TRACE('01-01-2003', '12-31-2009', data_dir=DATA_DIR)
 
 
 if __name__ == '__main__':
