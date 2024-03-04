@@ -15,11 +15,13 @@ def pull_intraday_TRACE():
 
 
 def load_intraday_TRACE(start_date, end_date, data_dir=DATA_DIR):
+    start_date = pd.Timestamp(start_date) if type(start_date) == str else start_date
+    end_date = pd.Timestamp(end_date) if type(end_date) == str else end_date
     path = data_dir.joinpath(f"pulled/{FILE_NAME}")
     if not path.exists():
         path = data_dir.joinpath(f"manual/{FILE_NAME}")
     df = pd.read_parquet(path)
-    df = df[(df['trd_exctn_dt'] >= start_date) & (df['trd_exctn_dt'] <= end_date)]
+    df = df[(df['trd_exctn_dt'] >= start_date.date()) & (df['trd_exctn_dt'] <= end_date.date())]
     return df
 
 
