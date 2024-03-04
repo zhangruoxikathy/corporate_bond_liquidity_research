@@ -9,6 +9,7 @@ import table2_calc_illiquilidy
 
 START_DATE = '2003-04-14'
 END_DATE = '2009-06-30'
+
 cleaned_daily_df = table2_calc_illiquilidy.clean_merged_data(START_DATE, END_DATE)
 cleaned_intraday_df = table2_calc_illiquilidy.clean_intraday(START_DATE, END_DATE)
 
