@@ -7,11 +7,11 @@ is designed in a way to compare trends in illiquidity and sometimes with a perce
 or absolute value of tolerance accepted. Moreover, the first two tests are conducted to
 ensure the data are loaded and cleaned as expected.
 
-Here is a list of tests done on table 2, including 
+Here is a list of tests done on table 2, including:
 
 - Panel A Individual Bonds (The mean and average monthly illiquidity per bond per year)
-    - Using trade-by-trade data
-    - mean illiquidity using daily data: +- 40% & trend test
+    - Mean illiquidity using trade-by-trade data: 
+    - Mean illiquidity using daily data: +- 40% & trend test
 - Panel B Bond Portfolio
     - Equal-weighted mean illiquidity: +- 0.05
     - Issuance-weighted mean illiquidity: +- 0.07
@@ -25,6 +25,7 @@ Requirements
 
 ../data/pulled/Bondret.parquet resulting from load_wrds_bondret.py
 ../data/pulled/BondDailyPublic.parquet resulting from load_opensource.py
+../data/pulled/IntradayTRACE.parquet resulting from load_intraday.py
 ../src/table2_calc_illiquidity.py
 
 '''
