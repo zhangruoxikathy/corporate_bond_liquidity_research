@@ -81,7 +81,6 @@ def _pull_trace_data_from_wrds(db, chunk, start_date, end_date):
             f"FROM trace.trace_enhanced "
             f"WHERE cusip_id in %(cusip_id)s AND trd_exctn_dt >= %(start_date)s AND trd_exctn_dt <= %(end_date)s",
             params=parm)
-        logging.info(f"Pulled and saved cusip chunk {chunk[0]} from wrds")
         return trace
     except Exception as e:
         logging.exception(f"Error pulling chunk {chunk[0]}")
@@ -99,6 +98,7 @@ def _pull_and_save_trace_data(chunk, db, start_date, end_date):
     df = _pull_trace_data_from_wrds(db, chunk[1], start_date, end_date)
     if not _save_trace_data(chunk[0], df):
         logging.info(f"Chunk {chunk[0]} contained no data")
+    logging.info(f"Pulled and saved cusip chunk {chunk[0]} from wrds")
 
 
 def _pull_TRACE_sequential(db, cusip_chunks, start_date, end_date):
@@ -130,7 +130,9 @@ def _chunk_cusips(cusips, n=100):
 
 def pull_TRACE():
     """ Pulls and saves TRACE data from WRDS into chunks"""
-    cusips, start_date, end_date = _get_filter_parameters()
+    cusips = _get_cusips_from_monthly()
+    start_date = '01-01-2003'
+    end_date = '12-31-2023'
     cusip_chunks = _chunk_cusips(cusips)
     with wrds.Connection(wrds_username=config.WRDS_USERNAME) as db:
         if config.RUN_TRACE_IN_PARALLEL:
@@ -146,23 +148,21 @@ def pull_TRACE():
 
 
 # TODO: need a dodo task to generate a filters.json file
-def _get_filter_parameters():
-    filters_path = config.DATA_DIR.joinpath('pulled/temp/filters.json')
+def _get_cusips_from_monthly():
+    filters_path = config.DATA_DIR.joinpath('pulled/filters.json')
     if filters_path.exists():
         contents = ""
         with open(filters_path, 'r') as f:
             contents = json.load(f)
         if contents:
-            return (contents['cusips'], contents['mindt'], contents['maxdt'])
+            return contents['cusips']
 
-    df_daily = load_opensource.load_daily_bond(data_dir=DATA_DIR)
-    df_bondret = load_wrds_bondret.load_bondret(data_dir=DATA_DIR)
+    df_daily = load_opensource.load_daily_bond(data_dir=config.DATA_DIR)
+    df_bondret = load_wrds_bondret.load_bondret(data_dir=config.DATA_DIR)
     merged_df = data.all_trace_data_merge(df_daily, df_bondret)
     merged_df = data.sample_selection(merged_df)
 
-    return (merged_df['cusip'].unique(),
-            merged_df['trd_exctn_dt'].min(),
-            merged_df['trd_exctn_dt'].max())
+    return merged_df['cusip'].unique()
 
 def compile_TRACE():
     path = config.DATA_DIR.joinpath('pulled/temp/intraday_[0-9]*.parquet')
@@ -174,8 +174,3 @@ def compile_TRACE():
 
     df = pd.concat(dfs, ignore_index=True)
     return df
-
-
-if __name__ == '__main__':
-    df = compile_TRACE()
-    print("done")
