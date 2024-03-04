@@ -102,7 +102,7 @@ def test_table2_panelA_daily_within_tolerance():
     results_mean = {}
     results_median = {}
     
-    illiq_daily, table2_daily = table2_calc_illiquidity.calc_annual_illiquidity_table_daily(df)
+    illiq_daily, table2_daily = table2_calc_illiquidity.calc_annual_illiquidity_table(df)
 
     tolerance_mean = 0.4
 
@@ -132,7 +132,7 @@ def test_table2_panelA_daily_within_tolerance():
 def test_table2_panela_daily_trend():
     """Test if table 2 Panel A illiquidity results using daily data follow the trend in the paper."""
     
-    illiq_daily, table2_daily = table2_calc_illiquidity.calc_annual_illiquidity_table_daily(df)
+    illiq_daily, table2_daily = table2_calc_illiquidity.calc_annual_illiquidity_table(df)
     
     table2_daily['Year'] = table2_daily['Year'].astype(str)
     mean_illiq_series = table2_daily.set_index('Year')['Mean illiq']

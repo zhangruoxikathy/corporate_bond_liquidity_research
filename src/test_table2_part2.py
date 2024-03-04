@@ -93,7 +93,7 @@ def test_table2_panelA_intraday_within_tolerance():
     results_mean = {}
     results_median = {}
 
-    _, table2_tbt = table2_calc_illiquidity.calc_annual_illiquidity_table_daily(df_deltapr)
+    _, table2_tbt = table2_calc_illiquidity.calc_annual_illiquidity_table(df_deltapr)
 
     tolerance_mean = 0.4
 
@@ -122,7 +122,7 @@ def test_table2_panelA_intraday_within_tolerance():
 def test_table2_panelA_intraday_trend():
     """Test if table 2 Panel A illiquidity results using intraday data follow the trend in the paper."""
 
-    _, table2_tbt = table2_calc_illiquidity.calc_annual_illiquidity_table_daily(df_deltapr)
+    _, table2_tbt = table2_calc_illiquidity.calc_annual_illiquidity_table(df_deltapr)
 
     table2_tbt['Year'] = table2_tbt['Year'].astype(str)
     mean_illiq_series = table2_daily.set_index('Year')['Mean illiq']
