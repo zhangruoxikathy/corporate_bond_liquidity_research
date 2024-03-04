@@ -4,9 +4,6 @@ Overview
 This Python script aims to plot monthly bond illiquidity using summary statistics of
 monthly per bond illiquidity and cleaned monthly per bond illiquidity files.
 
-The first plot function uses seaborn, while the second uses plotly to make interactive
-plot, designed for jupyter notebook.
-
 Requirements
 -------------
 
@@ -26,6 +23,7 @@ import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
+import plotly.express as px
 from datetime import datetime
 from matplotlib import pyplot as plt
 import seaborn as sns
@@ -101,57 +99,6 @@ def plot_illiquidity(illiquidity_df, summary_df, title):
     plt.savefig(OUTPUT_DIR/f"illiq_plot_{title}.png")
     plt.show()
     
-
-def plot_illiquidity_plotly(illiquidity_df, summary_df, title):
-    """Plot monthly illiquidity per bond and average & median illiquidity by year using plotly.
-    
-    Parameters:
-        illiquidity_df (pandas.DataFrame): Monthly illiquidity per bond dataframe.
-        summary_df (pandas.DataFrame): Summary stats for illiquidity per year. 
-        title (str): Desired plot title.
-
-    Returns:
-        Interactive plotly plot to visualize illiquidity
-    
-    """
-
-    # Prepare time series for plot
-    illiquidity_df = illiquidity_df.dropna(subset=['illiq'])
-    if 'date' in list(illiquidity_df.columns):
-        illiquidity_df['date'] = pd.to_datetime(illiquidity_df['date'])
-        illiquidity_df['month'] = illiquidity_df['date'].dt.month
-    else:
-        illiquidity_df['month_year'] = pd.to_datetime(illiquidity_df['month_year'], format='%Y-%m')
-        illiquidity_df['month'] = illiquidity_df['month_year'].dt.month
-    
-    illiquidity_df['yearmonth'] = illiquidity_df['year'].astype(
-            str) + '-' + illiquidity_df['month'].astype(str).str.zfill(2)
-    illiquidity_df['yearmonth'] = pd.to_datetime(illiquidity_df['yearmonth'], format='%Y-%m')
-    summary_df['year'] = pd.to_datetime(summary_df['year'], format='%Y')
-
-    fig = make_subplots(rows=1, cols=1, subplot_titles=(f'Illiquidity by Year with Mean Illiquidity, {title}'))
-
-    # First subplot with all data
-    fig.add_trace(go.Scatter(x=illiquidity_df['yearmonth'], y=illiquidity_df['illiq'],
-                            mode='markers', name='Illiquidity', marker=dict(color='rgba(135, 206, 250, 0.5)')),
-                row=1, col=1)
-
-    fig.add_trace(go.Scatter(x=summary_df['year'], y=summary_df['mean illiq'],
-                            mode='lines', name='Mean Illiquidity', line=dict(color='red')),
-                row=1, col=1)
-
-    fig.add_trace(go.Scatter(x=summary_df['year'], y=summary_df['median'],
-                            mode='lines', name='Median Illiquidity', line=dict(color='purple')),
-                row=1, col=1)
-    
-    # Update x/y-axis properties
-    fig.update_xaxes(title_text='Year', row=1, col=1)
-    fig.update_yaxes(title_text='Illiquidity', row=1, col=1)
-
-    fig.update_layout(height=1200, showlegend=True, title_text=f"Illiquidity Analysis: 2003-2009")
-
-    fig.show()
-
 
 
 def main():
