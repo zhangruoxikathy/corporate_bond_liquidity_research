@@ -420,7 +420,7 @@ def main():
 
     illiq_tbt_paper, table2_tbt_paper = calc_annual_illiquidity_table(tbt_df_paper)
 
-    table2_tbt_paper.to_csv(OUTPUT_DIR / "table2_tbt_paper.csv", index=False)
+    table2_tbt_paper.to_csv(OUTPUT_DIR / "table2_panelA_trade_by_trade_paper.csv", index=False)
 
     # Free memory
     del cleaned_tbt_df_paper
@@ -437,7 +437,7 @@ def main():
 
     illiq_daily_paper.to_csv(OUTPUT_DIR / "illiq_daily_paper.csv", index=False)
     illiq_daily_summary_paper.to_csv(OUTPUT_DIR / "illiq_summary_paper.csv", index=False)
-    table2_daily_paper.to_csv(OUTPUT_DIR / "table2_daily_paper.csv", index=False)
+    table2_daily_paper.to_csv(OUTPUT_DIR / "table2_panelA_daily_paper.csv", index=False)
     table2_port_paper.to_csv(OUTPUT_DIR / "table2_port_paper.csv", index=False)
     table2_spd_paper.to_csv(OUTPUT_DIR / "table2_spd_paper.csv", index=False)
     
@@ -470,7 +470,7 @@ def main():
 
     illiq_tbt_new, table2_tbt_new = calc_annual_illiquidity_table(tbt_df_new)
 
-    table2_tbt_new.to_csv(OUTPUT_DIR / "table2_tbt_new.csv", index=False)
+    table2_tbt_new.to_csv(OUTPUT_DIR / "table2_panelA_trade_by_trade_new.csv", index=False)
 
     # Free memory
     del cleaned_tbt_df_new

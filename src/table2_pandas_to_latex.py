@@ -42,6 +42,7 @@ DATA_DIR = config.DATA_DIR
 import misc_tools
 import load_wrds_bondret
 import load_opensource
+import load_intraday
 import data_processing as data
 import table2_calc_illiquidity as illiq
 
@@ -73,7 +74,7 @@ def produce_illiq_latex(summary_string):
 
 
 
-def produce_table2_latex(panel_string):
+def produce_table2_panel(panel_string):
     """Load and process panels in table 2, output to latex.
     
     Parameters:
@@ -99,29 +100,8 @@ def produce_table2_latex(panel_string):
     return latex_panel
 
 
-def main():
-    
-    # Produce latex tables for time frames in the paper
-    latex_illiq_daily_summary_paper = produce_illiq_latex("illiq_daily_summary_paper")
-    latex_table2_daily_paper = produce_table2_latex("table2_panelA_daily_paper")
-    latex_table2_port_paper = produce_table2_latex("table2_panelB_paper")
-    latex_table2_spd_paper = produce_table2_latex("table2_panelC_paper")
-    latex_illiq_daily_summary_mmn_paper = produce_table2_latex("illiq_daily_summary_mmn_paper")
-    latex_table2_panelA_daily_mmn_paper = produce_table2_latex("table2_panelA_daily_mmn_paper")
-    
-
-    # Produce latex tables using up-to-date data
-    latex_illiq_daily_summary_new = produce_illiq_latex("illiq_daily_summary_new")
-    latex_table2_daily_new = produce_table2_latex("table2_panelA_daily_new")
-    latex_table2_port_new = produce_table2_latex("table2_panelB_new")
-    latex_table2_spd_new = produce_table2_latex("table2_panelC_new")
-    latex_illiq_daily_summary_mmn_new = produce_table2_latex("illiq_daily_summary_mmn_new")
-    latex_table2_panelA_daily_mmn_new = produce_table2_latex("table2_panelA_daily_mmn_new")
-
-
-    # LaTeX document content
-
-    latex_document = f"""
+def produce_table2_latex_component(latex_panels):
+    latex_table_component = f"""
     \\documentclass{{article}}
     \\usepackage{{booktabs}}
     \\usepackage{{geometry}} % For setting margins
@@ -131,30 +111,69 @@ def main():
 
     \\section*{{Summary Statistics: Monthly Illiquidity Using Daily Data}}
     \\begin{{center}}
-    {latex_illiq_daily_summary_paper}
+    {latex_panels.get('latex_illiq_daily_summary')}
+    \\end{{center}}
+
+    \\section*{{Panel A: Individual Bonds, Trade-by-Trade Data}}
+    \\begin{{center}}
+    {latex_panels.get('latex_table2_trade_by_trade')}
     \\end{{center}}
 
     \\section*{{Panel A: Individual Bonds, Daily Data}}
     \\begin{{center}}
-    {latex_table2_daily_paper}
+    {latex_panels.get('latex_table2_daily')}
     \\end{{center}}
 
     \\section*{{Panel B: Bond Portfolios}}
     \\begin{{center}}
-    {latex_table2_port_paper}
+    {latex_panels.get('latex_table2_port')}
     \\end{{center}}
 
     \\section*{{Panel C: Implied by Quoted Bid-Ask Spreads}}
     \\begin{{center}}
-    {latex_table2_spd_paper}
+    {latex_panels.get('latex_table2_spd')}
     \\end{{center}}
 
     \\end{{document}}
     """
+    return latex_table_component
 
-    path = OUTPUT_DIR / f'pandas_to_latex_table2.tex'
+
+def main():
+
+    table2_paper = produce_table2_latex_component(latex_panels=
+        {
+            'latex_illiq_daily_summary': produce_illiq_latex("illiq_daily_summary_paper"),
+            'latex_table2_trade_by_trade': produce_table2_panel("table2_panelA_trade_by_trade_paper"),
+            'latex_table2_daily': produce_table2_panel("table2_panelA_daily_paper"),
+            'latex_table2_port': produce_table2_panel("table2_panelB_paper"),
+            'latex_table2_spd': produce_table2_panel("table2_panelC_paper"),
+            'latex_illiq_daily_summary_mmn': produce_table2_panel("illiq_daily_summary_mmn_paper"),
+            'latex_table2_panelA_daily_mmn': produce_table2_panel("table2_panelA_daily_mmn_paper")
+        }
+    )
+
+    path = OUTPUT_DIR / f'pandas_to_latex_table2_paper.tex'
     with open(path, "w") as text_file:
-        text_file.write(latex_document)
+        text_file.write(table2_paper)
+
+
+
+    table2_new = produce_table2_latex_component(latex_panels=
+        {
+            'latex_illiq_daily_summary': produce_illiq_latex("illiq_daily_summary_new"),
+            'latex_table2_trade_by_trade': produce_table2_panel("table2_panelA_trade_by_trade_new"),
+            'latex_table2_daily': produce_table2_panel("table2_panelA_daily_new"),
+            'latex_table2_port': produce_table2_panel("table2_panelB_new"),
+            'latex_table2_spd': produce_table2_panel("table2_panelC_new"),
+            'latex_illiq_daily_summary_mmn': produce_table2_panel("illiq_daily_summary_mmn_new"),
+            'latex_table2_panelA_daily_mmn': produce_table2_panel("table2_panelA_daily_mmn_new")
+        }
+    )
+
+    path = OUTPUT_DIR / f'pandas_to_latex_table2_new.tex'
+    with open(path, "w") as text_file:
+        text_file.write(table2_new)
 
 
 if __name__ == "__main__":
