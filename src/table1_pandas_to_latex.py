@@ -46,6 +46,8 @@ df_all['Unnamed: 0'] = df_all['Unnamed: 0'].str.replace('n_mr', 'rating')
 df_all['Unnamed: 0'] = df_all['Unnamed: 0'].str.replace('Avg_return', 'Avf Ret')
 df_all['Unnamed: 0'] = df_all['Unnamed: 0'].str.replace('trade_size', 'Trd Size')
 
+float_format_func = lambda x: '{:.2f}'.format(x)
+
 
 def transform_to_multi_index(df):
     """
@@ -105,7 +107,7 @@ latex_format = f'''
 \\centering
 \\caption{{Panel A: Bonds in Our Sample}}
 
-{multi_df_sample.to_latex(multirow=True, multicolumn=True, multicolumn_format='c')}
+{multi_df_sample.to_latex(multirow=True, multicolumn=True, multicolumn_format='c', float_format=float_format_func)}
 
 \\end{{table}}
 
@@ -113,7 +115,7 @@ latex_format = f'''
 \\centering
 \\caption{{Panel B: All Bonds Reported in TRACE}}
 
-{multi_df_all.to_latex(multirow=True, multicolumn=True, multicolumn_format='c')}
+{multi_df_all.to_latex(multirow=True, multicolumn=True, multicolumn_format='c', float_format=float_format_func)}
 
 \\end{{table}}
 
