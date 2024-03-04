@@ -109,7 +109,9 @@ def clean_intraday(start_date, end_date):
         df['trd_exctn_dt'].dt.strftime('%Y-%m-%d') + ' ' + df['trd_exctn_tm'].astype(str))
 
     # dickerson clean
-    df = df[(df['days_to_sttl_ct'] <= 2.0) | (df['days_to_sttl_ct'] == None) | (df['days_to_sttl_ct'] == np.NAN)]
+    # df = df[(df['days_to_sttl_ct'] <= 2.0) | (df['days_to_sttl_ct'] == None) | (df['days_to_sttl_ct'] == np.NAN)]
+    df = df[(df['days_to_sttl_ct'] == '002') | (df['days_to_sttl_ct'] == '000')\
+            | (df['days_to_sttl_ct'] == '001') | (df['days_to_sttl_ct'] == 'None') ]
     df = df[df['wis_fl'] != 'Y']
     df = df[(df['lckd_in_ind'] != 'Y')]
     df = df[(df['sale_cndtn_cd'] == 'None') | (df['sale_cndtn_cd'] == '@')]
