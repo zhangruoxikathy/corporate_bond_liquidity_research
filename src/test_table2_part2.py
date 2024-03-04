@@ -10,8 +10,7 @@ ensure the data are loaded and cleaned as expected.
 Here is a list of tests done on table 2, including:
 
 - Panel A Individual Bonds (The mean and average monthly illiquidity per bond per year)
-    - Mean illiquidity using trade-by-trade data:
-    - Mean illiquidity using daily data: +- 40% & trend test
+    - Mean illiquidity using trade-by-trade data: +- 40% & trend test
 
 
 Requirements
