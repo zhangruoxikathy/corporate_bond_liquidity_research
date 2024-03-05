@@ -34,6 +34,8 @@ from pathlib import Path
 
 OUTPUT_DIR = Path(config.OUTPUT_DIR)
 DATA_DIR = Path(config.DATA_DIR)
+BOND_DAILY_FILENAME = "BondDailyPublic.parquet"
+WRDS_MMN_FILENAME = "WRDS_MMN_Corrected_Data.parquet"
 
 
 def pull_daily_bond_file():
@@ -61,18 +63,18 @@ def pull_mmn_corrected_bond_file():
 
 
 def load_daily_bond(data_dir=DATA_DIR):
-    path = data_dir / "pulled" / "BondDailyPublic.parquet"
+    path = data_dir / "pulled" / BOND_DAILY_FILENAME
     if not path.exists():
-        path = data_dir / "manual" / "BondDailyPublic.parquet"
+        path = data_dir / "manual" / BOND_DAILY_FILENAME
     df = pd.read_parquet(path)
     return df
 
 
 def load_mmn_corrected_bond(data_dir=DATA_DIR):
-    path = data_dir / "pulled" / "WRDS_MMN_Corrected_Data.csv.gzip"
+    path = data_dir / "pulled" / WRDS_MMN_FILENAME
     if not path.exists():
-        path = data_dir / "manual" / "WRDS_MMN_Corrected_Data.csv.gzip"
-    df = pd.read_csv(path, compression='gzip')
+        path = data_dir / "manual" / WRDS_MMN_FILENAME
+    df = pd.read_parquet(path)
     return df
 
 
