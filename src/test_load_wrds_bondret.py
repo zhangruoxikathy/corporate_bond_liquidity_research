@@ -33,10 +33,11 @@ def test_load_daily_bond_functionality():
     assert isinstance(df_bondret, pd.DataFrame)
 
     # Test if the DataFrame has the expected columns
-    expected_columns = ['cusip', 'date', 'issue_id', 'bond_type', 't_spread',
-      'offering_date', 'offering_amt', 'offering_price', 'principal_amt',
-      'maturity', 'treasury_maturity', 'coupon', 'day_count_basis', 'dated_date',
-      'ncoups', 'amount_outstanding', 'n_mr', 'tmt']
+    expected_columns = ['cusip', 'date', 'price_eom', 'tmt',
+            't_volume', 't_dvolume', 't_spread',
+            'offering_amt', 'offering_price',
+            'principal_amt', 'maturity', 'coupon', 'ncoups',
+            'amount_outstanding', 'r_mr', 'n_mr']
     assert all(col in df_bondret.columns for col in expected_columns)
 
     # Test if the function raises an error when given an invalid data directory
@@ -55,7 +56,7 @@ def test_load_daily_bond_data_validity():
     df_bondret_sample = df_bondret[df_bondret['year'] == 2005]
     
     output_shape = df_bondret_sample.shape
-    expected_shape = (74828, 30)
+    expected_shape = (74828, 16)
 
     output = df_bondret_sample[['cusip', 'offering_amt', 'offering_price', 'n_mr']].\
         describe().to_string().replace(" ", "").replace("\n", "") 
