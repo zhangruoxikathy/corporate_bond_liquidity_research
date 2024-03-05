@@ -9,6 +9,7 @@ this file designs two function to propcess the data for producing table 1 and an
 '''
 
 import pandas as pd
+# import dask.dataframe as dd
 
 
 def all_trace_data_merge(df_daily, df_bondret, start_date = '2003-04-14', end_date = '2009-06-30'):
@@ -19,27 +20,33 @@ def all_trace_data_merge(df_daily, df_bondret, start_date = '2003-04-14', end_da
     """
 
     # keep only the portion within select time
-    df_daily = df_daily.copy()
+    # df_daily = df_daily.copy()
     start_date = pd.to_datetime(start_date)
     end_date = pd.to_datetime(end_date)
 
-    df_daily['trd_exctn_dt'] = pd.to_datetime(df_daily['trd_exctn_dt'])
+    df_daily = df_daily[['cusip_id', 'trd_exctn_dt', 'prclean']]
+
+    # df_daily['trd_exctn_dt'] = pd.to_datetime(df_daily['trd_exctn_dt'])
 
     df_daily = df_daily[(df_daily['trd_exctn_dt'] >= start_date) & (df_daily['trd_exctn_dt'] <= end_date)]
 
-    df_daily['trd_exctn_dt'] = pd.to_datetime(df_daily['trd_exctn_dt'])
+    # df_daily['trd_exctn_dt'] = pd.to_datetime(df_daily['trd_exctn_dt'])
     
     #create a new column "month_time" based on which we do the merge 
-    
+
+    # ddf_daily = dd.from_pandas(df_daily, npartitions=8)
+    # ddf_daily['month_time'] = ddf_daily['trd_exctn_dt'].dt.strftime('%Y-%m')
+    # df_daily = ddf_daily.compute()
     df_daily['month_time'] = df_daily['trd_exctn_dt'].dt.strftime('%Y-%m')
     
     df_daily.rename(columns={'cusip_id': 'cusip'}, inplace=True)
     
-    df_bondret['date'] = pd.to_datetime(df_bondret['date'])
+    # df_bondret['date'] = pd.to_datetime(df_bondret['date'])
     df_bondret['month_time'] = df_bondret['date'].dt.strftime('%Y-%m')
     
     #with this merge methodology, we need to assume that all time-dependent variables from bondret remains unchanged within each month
-    
+
+
     merged_df = pd.merge(df_daily, df_bondret, how='left', on=['cusip', 'month_time'])
     
     #adjust year based on trace data, replace the original 'year' column since it is from bondret and may contrain NA

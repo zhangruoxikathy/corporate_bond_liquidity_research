@@ -74,15 +74,23 @@ def pull_bondret(wrds_username=WRDS_USERNAME):
     Pull corporate bond returns data from WRDS.
     See description_bondret for a description of the variables.
     """
+
+    # original query fields
+    # cusip, date, price_eom, price_ldm, price_l5m,
+    # bsym, isin, company_symbol, bond_type, rating_cat, tmt,
+    # rating_class, t_date, t_volume, t_dvolume, t_spread,
+    # security_level, conv, offering_date, offering_amt, offering_price,
+    # principal_amt, maturity, treasury_maturity, coupon, day_count_basis,
+    # dated_date, first_interest_date, last_interest_date, ncoups,
+    # amount_outstanding, r_sp, r_mr, r_fr, n_sp, n_mr, n_fr, rating_num
+
     sql_query = """
         SELECT 
-            cusip, date, issue_id, bond_sym_id, price_eom, price_ldm, price_l5m,
-            bsym, isin, company_symbol, bond_type, rating_cat, tmt,
-            rating_class, t_date, t_volume, t_dvolume, t_spread,
-            security_level, conv, offering_date, offering_amt, offering_price,
-            principal_amt, maturity, treasury_maturity, coupon, day_count_basis,
-            dated_date, first_interest_date, last_interest_date, ncoups,
-            amount_outstanding, r_sp, r_mr, r_fr, n_sp, n_mr, n_fr, rating_num
+            cusip, date, price_eom, tmt,
+            t_volume, t_dvolume, t_spread,
+            offering_amt, offering_price,
+            principal_amt, maturity, coupon, ncoups,
+            amount_outstanding, r_mr, n_mr
         FROM 
             WRDSAPPS.BONDRET
         WHERE 

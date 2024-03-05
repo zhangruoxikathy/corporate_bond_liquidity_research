@@ -70,11 +70,12 @@ def clean_merged_data(start_date, end_date):
     df_bondret = load_wrds_bondret.load_bondret(data_dir=DATA_DIR)
     merged_df = data.all_trace_data_merge(df_daily, df_bondret,
                                           start_date = start_date, end_date = end_date)
-    merged_df = data.sample_selection(merged_df, start_date = start_date,
-                                      end_date = end_date)
 
     del df_daily
     del df_bondret
+
+    merged_df = data.sample_selection(merged_df, start_date = start_date,
+                                      end_date = end_date)
 
     # Clean data
     merged_df = merged_df.dropna(subset=['prclean'])
