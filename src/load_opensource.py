@@ -43,8 +43,7 @@ def pull_daily_bond_file():
     zip_file.extractall(DATA_DIR.joinpath("pulled/temp"))
     gzip_file = DATA_DIR.joinpath(f"pulled/temp/{zip_file.namelist()[0]}")
 
-    with gzip.open(gzip_file, "rb") as f:
-        df = pd.read_csv(f, parse_dates=["trd_exctn_dt"])
+    df = pd.read_csv(gzip_file, parse_dates=["trd_exctn_dt"], compression='gzip')
     df = df.drop(columns=["Unnamed: 0"])
     return df
 
@@ -56,8 +55,7 @@ def pull_mmn_corrected_bond_file():
     zip_file.extractall(DATA_DIR.joinpath("pulled/temp"))
     gzip_file = DATA_DIR.joinpath(f"pulled/temp/{zip_file.namelist()[0]}")
 
-    with gzip.open(gzip_file, "rb") as f:
-        df = pd.read_csv(f, parse_dates=["date"])
+    df = pd.read_csv(gzip_file, parse_dates=["date"], compression='gzip')
     df = df.drop(columns=["Unnamed: 0"])
     return df
 
@@ -84,10 +82,11 @@ def _demo():
 
 
 if __name__ == "__main__":
-    df = pull_daily_bond_file()
-    df_mmn = pull_mmn_corrected_bond_file()
     folder_path = DATA_DIR
     folder_path.mkdir(parents=True, exist_ok=True)
+    df = pull_daily_bond_file()
     df.to_parquet(DATA_DIR / "pulled" / "BondDailyPublic.parquet")
-    df_mmn.to_csv(DATA_DIR / "pulled" / "WRDS_MMN_Corrected_Data.csv.gzip",
-                  compression='gzip')
+    del df
+
+    df_mmn = pull_mmn_corrected_bond_file()
+    df_mmn.to_parquet(DATA_DIR / "pulled" / "WRDS_MMN_Corrected_Data.parquet")

@@ -25,10 +25,10 @@ original daily data and MMN corrected monthly data.
 Requirements
 -------------
 
-../data/pulled/Bondret.parquet resulting from load_wrds_bondret.py
+../data/pulled/Bondret resulting from load_wrds_bondret.py
 ../data/pulled/BondDailyPublic resulting from load_opensource.py
-../data/pulled/WRDS_MMN_Corrected_Data.csv.gzip resulting from load_opensource.pys
-../data/pulled/IntradayTRACE.parquet resulting from load_intraday.py
+../data/pulled/WRDS_MMN_Corrected_Data resulting from load_opensource.pys
+../data/pulled/IntradayTRACE resulting from load_intraday.py
 
 '''
 import logging
