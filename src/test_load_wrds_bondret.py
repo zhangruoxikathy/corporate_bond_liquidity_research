@@ -56,7 +56,7 @@ def test_load_daily_bond_data_validity():
     df_bondret_sample = df_bondret[df_bondret['year'] == 2005]
     
     output_shape = df_bondret_sample.shape
-    expected_shape = (74828, 16)
+    expected_shape = (74828, 17)
 
     output = df_bondret_sample[['cusip', 'offering_amt', 'offering_price', 'n_mr']].\
         describe().to_string().replace(" ", "").replace("\n", "") 
