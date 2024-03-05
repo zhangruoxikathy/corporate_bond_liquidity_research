@@ -248,6 +248,7 @@ drafts/draft_bp.pdf
 
 *.vrb
 
+/output
 /venv
 /.vscode
 /.idea

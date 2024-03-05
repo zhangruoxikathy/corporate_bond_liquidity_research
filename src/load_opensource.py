@@ -40,8 +40,8 @@ def pull_daily_bond_file():
     url = "https://openbondassetpricing.com/wp-content/uploads/2023/12/BondDailyPublicDec2023.csv.zip"
     response = requests.get(url)
     zip_file = zipfile.ZipFile(io.BytesIO(response.content))
-    zip_file.extractall()
-    gzip_file = zip_file.namelist()[0]
+    zip_file.extractall(DATA_DIR.joinpath("pulled/temp"))
+    gzip_file = DATA_DIR.joinpath(f"pulled/temp/{zip_file.namelist()[0]}")
 
     with gzip.open(gzip_file, "rb") as f:
         df = pd.read_csv(f, parse_dates=["trd_exctn_dt"])
@@ -53,8 +53,8 @@ def pull_mmn_corrected_bond_file():
     url = "https://openbondassetpricing.com/wp-content/uploads/2023/10/WRDS_MMN_Corrected_Data.csv.zip"
     response = requests.get(url)
     zip_file = zipfile.ZipFile(io.BytesIO(response.content))
-    zip_file.extractall()
-    gzip_file = zip_file.namelist()[0]
+    zip_file.extractall(DATA_DIR.joinpath("pulled/temp"))
+    gzip_file = DATA_DIR.joinpath(f"pulled/temp/{zip_file.namelist()[0]}")
 
     with gzip.open(gzip_file, "rb") as f:
         df = pd.read_csv(f, parse_dates=["date"])

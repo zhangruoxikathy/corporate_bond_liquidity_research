@@ -31,6 +31,7 @@ Requirements
 ../data/pulled/IntradayTRACE.parquet resulting from load_intraday.py
 
 '''
+import logging
 
 #* ************************************** */
 #* Libraries                              */
@@ -47,6 +48,8 @@ from statsmodels.regression.linear_model import OLS
 from statsmodels.stats.sandwich_covariance import cov_hac
 from statsmodels.tools.tools import add_constant
 import config
+import warnings
+warnings.filterwarnings("ignore")
 
 OUTPUT_DIR = config.OUTPUT_DIR
 DATA_DIR = config.DATA_DIR
@@ -70,6 +73,9 @@ def clean_merged_data(start_date, end_date):
     merged_df = data.sample_selection(merged_df, start_date = start_date,
                                       end_date = end_date)
 
+    del df_daily
+    del df_bondret
+
     # Clean data
     merged_df = merged_df.dropna(subset=['prclean'])
     merged_df = merged_df.sort_values(by='trd_exctn_dt')
@@ -92,7 +98,8 @@ def clean_merged_data(start_date, end_date):
     df = merged_df.merge(dfDC[['cusip', 'trd_exctn_dt', 'n']],
                          left_on = ['cusip','trd_exctn_dt'],
                          right_on = ['cusip','trd_exctn_dt'], how = "left")
-    del(dfDC)
+    del dfDC
+
     df = df[df.n <= 7]
 
     return df
@@ -285,31 +292,36 @@ def calc_annual_illiquidity_table_portfolio(df):
     """Calculate illiquidity by using equal weighted and issurance weighted portfolios for each year.
     """
     # Equal weighted
-    df_ew = df.groupby('trd_exctn_dt')[['deltap', 'deltap_lag']].mean().reset_index()
-    df_ew['year'] = df_ew['trd_exctn_dt'].dt.year
+    df_ew = df.groupby('trd_exctn_dt')[['deltap', 'deltap_lag', 'month_year']].mean().reset_index()
 
     tqdm.pandas()
 
-    Illiq_port_ew = df_ew.groupby(['year'] )[['deltap','deltap_lag']]\
-        .progress_apply(lambda x: x.cov().iloc[0,1]) * -1
+    Illiq_port_ew = df_ew.groupby(['month_year'])[['deltap', 'deltap_lag']] \
+                        .progress_apply(lambda x: x.cov().iloc[0, 1]) * -1
     Illiq_port_ew = Illiq_port_ew.reset_index()
-    Illiq_port_ew.columns = ['year','Equal-weighted']
+    Illiq_port_ew.columns = ['month_year', 'Equal-weighted']
+    Illiq_port_ew['year'] = Illiq_port_ew['month_year'].dt.year
     Illiq_port_ew = Illiq_port_ew.dropna(subset=['Equal-weighted'])
 
     # for full equal weighted porfolio illiquidity
-    df_ew['full'] = 1
-    Illiq_port_ew_full = df_ew.groupby(['full'] )[['deltap','deltap_lag']]\
-        .progress_apply(lambda x: x.cov().iloc[0,1]) * -1
+    Illiq_port_ew_full = np.median(Illiq_port_ew['Equal-weighted'])
 
-    # Calculate t-stat for equal-weighted illiquidity
-    Illiq_port_ew['EW t-stat'] = Illiq_port_ew.apply(
-        lambda row: row['Equal-weighted'] / (df_ew[df_ew['year'] == row['year']]['deltap'].std() /
-                                             (len(df_ew[df_ew['year'] == row['year']]) ** 0.5)), axis=1)
+    # Calculate t-stat
+    def calculate_t_statistic(group):
+        """Calculate t-stat for equal-weighted illiquidity."""
+        group_mean = group.mean()
+        group_std = group.std()
+        n = len(group)
+        t_statistic = group_mean / (group_std / np.sqrt(n))
+        return t_statistic
+
+    grouped = Illiq_port_ew.groupby('year')['Equal-weighted']
+    t_stat_ew = grouped.apply(calculate_t_statistic)
 
     # Calculate t-stat for full sample
-    ew_full_mean = Illiq_port_ew_full[1]
-    ew_full_std = df_ew['deltap'].std()
-    ew_full_size = len(df_ew)
+    ew_full_mean = np.mean(Illiq_port_ew['Equal-weighted'])
+    ew_full_std = Illiq_port_ew['Equal-weighted'].std()
+    ew_full_size = len(Illiq_port_ew)
     ew_full_t_stat = ew_full_mean / (ew_full_std / (ew_full_size ** 0.5))
 
     # Issurance weighted
@@ -321,43 +333,41 @@ def calc_annual_illiquidity_table_portfolio(df):
     df_vw = df.groupby('trd_exctn_dt').agg(
         total_value_weighted_deltap=pd.NamedAgg(column='value_weighted_deltap', aggfunc='sum'),
         total_value_weighted_deltap_lag=pd.NamedAgg(column='value_weighted_deltap_lag', aggfunc='sum'),
-        total_issurance=pd.NamedAgg(column='issurance', aggfunc='sum')
+        total_issurance=pd.NamedAgg(column='issurance', aggfunc='sum'),
+        month_year=pd.NamedAgg(column='month_year', aggfunc='mean')
     )
 
     # Calculate the average value-weighted deltap and deltap_lag
     df_vw['deltap_vw'] = df_vw['total_value_weighted_deltap'] / df_vw['total_issurance']
     df_vw['deltap_lag_vw'] = df_vw['total_value_weighted_deltap_lag'] / df_vw['total_issurance']
-    df_vw['year'] = df_vw.index.year
 
     tqdm.pandas()
-    Illiq_port_vw = df_vw.groupby(['year'])[['deltap_vw','deltap_lag_vw']]\
-        .progress_apply(lambda x: x.cov().iloc[0,1]) * -1
+    Illiq_port_vw = df_vw.groupby(['month_year'])[['deltap_vw', 'deltap_lag_vw']] \
+                        .progress_apply(lambda x: x.cov().iloc[0, 1]) * -1
     Illiq_port_vw = Illiq_port_vw.reset_index()
-    Illiq_port_vw.columns = ['year','Issuance-weighted']
+    Illiq_port_vw.columns = ['month_year', 'Issuance-weighted']
     Illiq_port_vw = Illiq_port_vw.dropna(subset=['Issuance-weighted'])
+    Illiq_port_vw['year'] = Illiq_port_vw['month_year'].dt.year
 
-    # for full equal weighted porfolio illiquidity
-    df_vw['full'] = 1
-    Illiq_port_vw_full = df_vw.groupby(['full'] )[['deltap_vw','deltap_lag_vw']]\
-        .progress_apply(lambda x: x.cov().iloc[0,1]) * -1
+    # for full issuance weighted porfolio illiquidity
+    Illiq_port_vw_full = np.median(Illiq_port_vw['Issuance-weighted'])
 
     # Calculate t-stat for issuance-weighted illiquidity
-    Illiq_port_vw['IW t-stat'] = Illiq_port_vw.apply(
-        lambda row: row['Issuance-weighted'] / (df_vw[df_vw['year'] == row['year']]['deltap_vw'].std() /
-                                                 (len(df_vw[df_vw['year'] == row['year']]) ** 0.5)), axis=1)
+    grouped = Illiq_port_vw.groupby('year')['Issuance-weighted']
+    t_stat_vw = grouped.apply(calculate_t_statistic)
 
     # Calculate t-stat for full sample
-    iw_full_mean = Illiq_port_vw_full[1]
-    iw_full_std = df_vw['deltap_vw'].std()
-    iw_full_size = len(df_vw)
-    iw_full_t_stat = iw_full_mean / (iw_full_std / (iw_full_size ** 0.5))
+    vw_full_mean = np.mean(Illiq_port_vw['Issuance-weighted'])
+    vw_full_std = Illiq_port_vw['Issuance-weighted'].std()
+    vw_full_size = len(Illiq_port_vw)
+    vw_full_t_stat = vw_full_mean / (vw_full_std / (vw_full_size ** 0.5))
 
     table2_port = pd.DataFrame({
-        'Year': Illiq_port_vw['year'],
-        'Equal weighted': Illiq_port_ew['Equal-weighted'],
-        'EW t stat': Illiq_port_ew['EW t-stat'],
-        'Issuance weighted': Illiq_port_vw['Issuance-weighted'],
-        'IW t stat': Illiq_port_vw['IW t-stat']
+        'Year': np.unique(Illiq_port_ew['year']),
+        'Equal weighted': Illiq_port_ew.groupby('year')['Equal-weighted'].median(),
+        'EW t stat': t_stat_ew,
+        'Issuance weighted': Illiq_port_vw.groupby('year')['Issuance-weighted'].median(),
+        'IW t stat': t_stat_vw
     }).reset_index(drop=True)
 
     overall_data = pd.DataFrame({
@@ -365,7 +375,7 @@ def calc_annual_illiquidity_table_portfolio(df):
         'Equal weighted': Illiq_port_ew_full,
         'EW t stat': ew_full_t_stat,
         'Issuance weighted': Illiq_port_vw_full,
-        'IW t stat': iw_full_t_stat
+        'IW t stat': vw_full_t_stat
     })
 
     table2_port = pd.concat([table2_port, overall_data], ignore_index=True)
@@ -406,106 +416,130 @@ def calc_annual_illiquidity_table_spd(df):
     return table2_spd
 
 
+def generate_table2_trade_by_trade_csv(start_date, end_date, paths):
+    if all([path.exists() for path in paths]):
+        logging.info(f"Already generated data trade-by-trade data")
+        return
+
+    cleaned_tbt_df = clean_intraday(start_date, end_date)
+    tbt_df = calc_deltaprc(cleaned_tbt_df)
+
+    illiq_tbt, table2_tbt = calc_annual_illiquidity_table(tbt_df)
+
+    table2_tbt.to_csv(paths[0], index=False)
+
+    # Free memory
+    del cleaned_tbt_df
+    del tbt_df
+
+
+def generate_table2_panelA_B_C(start_date, end_date, paths):
+    if all([path.exists() for path in paths]):
+        logging.info(f"Already generated data for panels A, B, and C")
+        return
+
+    cleaned_daily_df = clean_merged_data(start_date, end_date)
+    daily_df = calc_deltaprc(cleaned_daily_df)
+
+    del cleaned_daily_df
+
+    illiq_daily, table2_daily = calc_annual_illiquidity_table(daily_df)
+    illiq_daily_summary = create_summary_stats(illiq_daily)
+    table2_port = calc_annual_illiquidity_table_portfolio(daily_df)
+    table2_spd = calc_annual_illiquidity_table_spd(daily_df)
+
+    illiq_daily.to_csv(paths[0], index=False)
+    illiq_daily_summary.to_csv(paths[1], index=False)
+    table2_daily.to_csv(paths[2], index=False)
+    table2_port.to_csv(paths[3], index=False)
+    table2_spd.to_csv(paths[4], index=False)
+
+    # Free memory
+    del illiq_daily
+    del illiq_daily_summary
+    del table2_daily
+    del table2_port
+    del table2_spd
+
+
+def generate_table2_panelA_with_MMN_data(start_date, end_date, paths):
+    if all([path.exists() for path in paths]):
+        logging.info(f"Already generated data for panels A using MMN data")
+        return
+
+    cleaned_daily_df = clean_merged_data(start_date, end_date)
+    mmn, table2_daily_mmn = calc_illiq_w_mmn_corrected(start_date, end_date,
+                                                               cleaned_daily_df)
+    del cleaned_daily_df
+
+    illiq_daily_summary_mmn = create_summary_stats(mmn)
+
+    mmn.to_csv(paths[0], index=False)
+    illiq_daily_summary_mmn.to_csv(paths[1], index=False)
+    table2_daily_mmn.to_csv(paths[2], index=False)
+
+    # Free memory
+    del mmn
+    del illiq_daily_summary_mmn
+    del table2_daily_mmn
+
 
 def main():
 
-    # Define dates
-    today = datetime.today().strftime('%Y-%m-%d')
+    # Replicate Paper Data
     start_date = '2003-04-14'
     end_date = '2009-06-30'
 
-    # Replicate table 2 Panel A Trade-by-Trade Data in the paper
-    cleaned_tbt_df_paper = clean_intraday(start_date, end_date)
-    tbt_df_paper = calc_deltaprc(cleaned_tbt_df_paper)
-
-    illiq_tbt_paper, table2_tbt_paper = calc_annual_illiquidity_table(tbt_df_paper)
-
-    table2_tbt_paper.to_csv(OUTPUT_DIR / "table2_panelA_trade_by_trade_paper.csv", index=False)
-
-    # Free memory
-    del cleaned_tbt_df_paper
-    del tbt_df_paper
+    # Replicate table 2 Panel A Trade-by-Trade in the paper
+    fpaths = [OUTPUT_DIR.joinpath("table2_panelA_trade_by_trade_paper.csv")]
+    generate_table2_trade_by_trade_csv(start_date, end_date, fpaths)
 
     # Replicate table 2 Panel A Daily Data, Panel B, Panel C in the paper
-    cleaned_daily_df_paper = clean_merged_data(start_date, end_date)
-    daily_df_paper = calc_deltaprc(cleaned_daily_df_paper)
-
-    illiq_daily_paper, table2_daily_paper = calc_annual_illiquidity_table(daily_df_paper)
-    illiq_daily_summary_paper = create_summary_stats(illiq_daily_paper)
-    table2_port_paper = calc_annual_illiquidity_table_portfolio(daily_df_paper)
-    table2_spd_paper = calc_annual_illiquidity_table_spd(daily_df_paper)
-
-    illiq_daily_paper.to_csv(OUTPUT_DIR / "illiq_daily_paper.csv", index=False)
-    illiq_daily_summary_paper.to_csv(OUTPUT_DIR / "illiq_summary_paper.csv", index=False)
-    table2_daily_paper.to_csv(OUTPUT_DIR / "table2_panelA_daily_paper.csv", index=False)
-    table2_port_paper.to_csv(OUTPUT_DIR / "table2_port_paper.csv", index=False)
-    table2_spd_paper.to_csv(OUTPUT_DIR / "table2_spd_paper.csv", index=False)
-    
-    # Free memory
-    del illiq_daily_paper
-    del illiq_daily_summary_paper
-    del table2_daily_paper
-    del table2_port_paper
-    del table2_spd_paper
+    fpaths = [
+        OUTPUT_DIR.joinpath("illiq_daily_paper.csv"),
+        OUTPUT_DIR.joinpath("illiq_summary_paper.csv"),
+        OUTPUT_DIR.joinpath("table2_panelA_daily_paper.csv"),
+        OUTPUT_DIR.joinpath("table2_panelB_paper.csv"),
+        OUTPUT_DIR.joinpath("table2_panelC_paper.csv")
+    ]
+    generate_table2_panelA_B_C(start_date, end_date, fpaths)
 
     # Replicate table 2 Panel A Using MMN corrected data
-    mmn_paper, table2_daily_mmn_paper = calc_illiq_w_mmn_corrected(start_date, end_date,
-                                                                   cleaned_daily_df_paper)
-    illiq_daily_summary_mmn_paper = create_summary_stats(mmn_paper)
-
-    mmn_paper.to_csv(OUTPUT_DIR / "mmn_paper.csv", index=False)
-    illiq_daily_summary_mmn_paper.to_csv(OUTPUT_DIR / "illiq_daily_summary_mmn_paper.csv", index=False)
-    table2_daily_mmn_paper.to_csv(OUTPUT_DIR / "table2_daily_mmn_paper.csv", index=False)
-
-    # Free memory
-    del mmn_paper
-    del illiq_daily_summary_mmn_paper
-    del table2_daily_mmn_paper
+    fpaths = [
+        OUTPUT_DIR.joinpath("mmn_paper.csv"),
+        OUTPUT_DIR.joinpath("illiq_daily_summary_mmn_paper.csv"),
+        OUTPUT_DIR.joinpath("table2_daily_mmn_paper.csv")
+    ]
+    generate_table2_panelA_with_MMN_data(start_date, end_date, fpaths)
 
 
-    # Update table to the present
+    # Generate Recent Data: Update table to the present
+    start_date = start_date
+    end_date = datetime.today().strftime('%Y-%m-%d')
+
     # Update table 2 Panel A Trade-by-Trade Data to the present
-    cleaned_tbt_df_new = clean_intraday(end_date, today)
-    tbt_df_new = calc_deltaprc(cleaned_tbt_df_new)
+    fpaths = [OUTPUT_DIR.joinpath("table2_panelA_trade_by_trade_new.csv")]
+    generate_table2_trade_by_trade_csv(start_date, end_date, fpaths)
 
-    illiq_tbt_new, table2_tbt_new = calc_annual_illiquidity_table(tbt_df_new)
-
-    table2_tbt_new.to_csv(OUTPUT_DIR / "table2_panelA_trade_by_trade_new.csv", index=False)
-
-    # Free memory
-    del cleaned_tbt_df_new
-    del tbt_df_new
 
     # Update table 2 Panel A Daily Data, Panel B, Panel C to the present
-    cleaned_daily_df_new = clean_merged_data(end_date, today)
-    daily_df_new = calc_deltaprc(cleaned_daily_df_new)
+    fpaths = [
+        OUTPUT_DIR.joinpath("illiq_daily_new.csv"),
+        OUTPUT_DIR.joinpath("illiq_summary_new.csv"),
+        OUTPUT_DIR.joinpath("table2_panelA_daily_new.csv"),
+        OUTPUT_DIR.joinpath("table2_panelB_new.csv"),
+        OUTPUT_DIR.joinpath("table2_panelC_new.csv")
+    ]
+    generate_table2_panelA_B_C(start_date, end_date, fpaths)
 
-    illiq_daily_new, table2_daily_new = calc_annual_illiquidity_table(daily_df_new)
-    illiq_daily_summary_new = create_summary_stats(illiq_daily_new)
-    table2_port_new = calc_annual_illiquidity_table_portfolio(daily_df_new)
-    table2_spd_new = calc_annual_illiquidity_table_spd(daily_df_new)
-
-    illiq_daily_new.to_csv(OUTPUT_DIR / "illiq_daily_new.csv", index=False)
-    illiq_daily_summary_new.to_csv(OUTPUT_DIR / "illiq_summary_new.csv", index=False)
-    table2_daily_new.to_csv(OUTPUT_DIR / "table2_panelA_daily_new.csv", index=False)
-    table2_port_new.to_csv(OUTPUT_DIR / "table2_panelB_new.csv", index=False)
-    table2_spd_new.to_csv(OUTPUT_DIR / "table2_panelC_new.csv", index=False)
-    
-    # Free memory
-    del illiq_daily_new
-    del illiq_daily_summary_new
-    del table2_daily_new
-    del table2_port_new
-    del table2_spd_new
 
     # Using MMN corrected data
-    mmn_new, table2_daily_mmn_new = calc_illiq_w_mmn_corrected(start_date, today,
-                                                               cleaned_daily_df_new)
-    mmn_new.to_csv(OUTPUT_DIR / "mmn_new.csv", index=False)
-    illiq_daily_summary_mmn_new = create_summary_stats(mmn_new)
-    illiq_daily_summary_mmn_new.to_csv(OUTPUT_DIR / "illiq_daily_summary_mmn_new.csv", index=False)
-    table2_daily_mmn_new.to_csv(OUTPUT_DIR / "table2_panelA_daily_mmn_new.csv", index=False)
-
+    fpaths = [
+        OUTPUT_DIR.joinpath("mmn_new.csv"),
+        OUTPUT_DIR.joinpath("illiq_daily_summary_mmn_new.csv"),
+        OUTPUT_DIR.joinpath("table2_daily_mmn_new.csv")
+    ]
+    generate_table2_panelA_with_MMN_data(start_date, end_date, fpaths)
 
 
 if __name__ == "__main__":
