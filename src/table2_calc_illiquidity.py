@@ -21,7 +21,57 @@ Table 2 Measure of Illiquidity:
 The script also produces summary statistics of monthly per bond illiquidity using both
 original daily data and MMN corrected monthly data.
 
- 
+
+Methodology and Challenges
+--------------------------
+### Table 2 Panel A Daily Data
+During the period in the paper spanning from 2003 to 2009, the illiquidity metric
+γ exhibited a mean value of 3.12 and a median of 0.07, with a substantial t-statistic
+of 17.06 using daily data, compared to an average of 1.18 and a median of 0.56 observed
+in the paper. Our analysis successfully mirrored the initial decline followed by a subsequent
+rise in trends as documented in the original study. While other illiquidity metrics maintained
+a deviation within 40% when compared to the original findings, the illiquidity we recorded
+for 2008-2009 were significantly higher—by a factor of 3 to 4 times—potentially influenced
+by approximately six bonds exhibiting γ values exceeding 2000. The original study, however,
+did not specify an approach for managing outliers, leaving us uncertain whether these
+variations arise from outlier effects or inherent differences in data. In addition,
+our percentage of illiquidity significant at 95% level is much lower than what the
+paper has, suggesting that the authors might have handled outliers somewhat differently
+to maintain higher significance. 6 out of 8 robust t-stats are significant at 95% level
+in our analysis, with the overall robust t-stat = 17.6, close to the 16.53 in the paper,
+indicating the overall significance of the data. 
+
+
+### Table 2 Panel B Bond Portfolio
+For Panel B, we are trying to construct two sets of daily bond bond portfolios from the
+same cross-section of bonds and for the same sample period, one being equally weighted
+and the other being weighted by issuance. After obtaining the daily portfolio returns
+(using delta log bond price) and lag returns (using delta log bond price lag), we calculated
+the monthly illiquidity through negative covariance of the returns and lag returns and then
+found the median per year for two sets of portfolios. 
+
+The paper suggests that this measure implies that the transitory component extracted by
+the γ measure is idiosyncratic in nature and gets diversified away at the portfolio level,
+but a suspected systematic component is present when this aggregate illiquidity measure 
+comoves strongly with the aggregate market condition at the time. Similar to the paper,
+our peak in illiquidity appeared in ~2006-2007, and most of the portfolio illiquidity
+measures were not statistically significant. All measures replicate the paper within a
+tolerance of +-0.05 (equal-weighted), +-0.07(issuance-weighted).
+
+
+### Table 2 Panel C Bid-Ask Spread
+In Panel C, we computed the monthly average and median bid-ask spreads for each year,
+using these as proxies for implied illiquidity. The methodology involved utilizing the
+monthly bond return data available on WRDS to calculate the t-spreads, whereas the
+original authors derived their data from daily figures, potentially accounting for some
+differences in results. Despite these differences, by applying a factor of 5 to our findings,
+we were able to align our results with the original study's observed pattern of initial
+decline followed by an increase in illiquidity, with a tolerance level below 40%. It is
+noteworthy that the mean bid-ask spread for 2005 exhibited a slight increase in our table,
+although the median remained lower than that of the preceding year. This discrepancy
+underscores the influence of outliers on the mean and indicates a positive skew in the data.
+
+
 Requirements
 -------------
 

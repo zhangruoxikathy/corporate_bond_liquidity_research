@@ -19,7 +19,7 @@ Here is a list of tests done on table 2, including:
     - Bid-ask spread mean x 5: +- 40% & trend test
     - Bid-ask spread median x 5: +- 40% & trend test
 
- 
+
 Requirements
 -------------
 
