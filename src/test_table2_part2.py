@@ -42,6 +42,7 @@ df_deltapr = table2_calc_illiquidity.calc_deltaprc(cleaned_intraday_df)
 
 
 def test_clean_intraday():
+    """Test summary statisticas of the df produced by clean_intraday."""
     output = cleaned_intraday_df[['trd_exctn_dt', 'prclean']].describe().to_string().replace(" ", "").replace("\n",
                                                                                                               "")
     expected_output = '''

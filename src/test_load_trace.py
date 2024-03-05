@@ -28,7 +28,7 @@ END_DATE = '12-31-2023'
 df_intraday = load_intraday.load_intraday_TRACE(START_DATE, END_DATE, data_dir=DATA_DIR)
 
 def test_load_trace():
-    """ Test """
+    """Test the functionality of daily bond data loaded from WRDS TRACE."""
 
     expected_columns = [
         'cusip_id', 'bond_sym_id', 'trd_exctn_dt', 'trd_exctn_tm', 'days_to_sttl_ct', 'lckd_in_ind', 'wis_fl',

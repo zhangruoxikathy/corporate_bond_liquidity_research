@@ -10,6 +10,10 @@ FILE_NAME = 'IntradayTRACE.parquet'
 
 
 def pull_intraday_TRACE():
+    """
+    Pull corporate bond data from WRDS TRACE as chunks.
+    Compiles the chunks into data/pulled/IntradayTRACE.parquet
+    """
     pull_TRACE()
     return compile_TRACE()
 
