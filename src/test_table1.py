@@ -37,9 +37,8 @@ we get very similar trend for Avg Return, though the eaxct number are somewhat d
 
 Requirements
 ------------------------------------
-
-
-
+../src/table1.py
+../data/output/table1_panelA.csv
 
 '''
 
