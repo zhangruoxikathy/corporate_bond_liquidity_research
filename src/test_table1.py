@@ -1,4 +1,6 @@
 '''
+Overview 
+-----------------------------------------------------------------------------------------
 this file designs the unit test for table 1 
 since the exact same processing is applied to both sample and all bonds reported,
 the below unit tests only include those for the sample.
@@ -31,6 +33,12 @@ combining with the filters in our data prcoessing steps (essentially a combinati
 Such integration can introduce variations, justifying the observed differences in the data.
 
 we get very similar trend for Avg Return, though the eaxct number are somewhat different
+
+
+Requirements
+------------------------------------
+../src/table1.py
+../data/output/table1_panelA.csv
 
 '''
 
