@@ -144,11 +144,11 @@ def main():
     table2_paper = produce_table2_latex_component(latex_panels=
         {
             'latex_illiq_daily_summary': produce_illiq_latex("illiq_summary_paper"),
+            'latex_illiq_daily_summary_mmn': produce_illiq_latex("illiq_daily_summary_mmn_paper"),
             'latex_table2_trade_by_trade': produce_table2_panel("table2_panelA_trade_by_trade_paper"),
             'latex_table2_daily': produce_table2_panel("table2_panelA_daily_paper"),
             'latex_table2_port': produce_table2_panel("table2_panelB_paper"),
             'latex_table2_spd': produce_table2_panel("table2_panelC_paper"),
-            'latex_illiq_daily_summary_mmn': produce_table2_panel("illiq_daily_summary_mmn_paper"),
             'latex_table2_panelA_daily_mmn': produce_table2_panel("table2_panelA_daily_mmn_paper")
         }
     )
@@ -161,12 +161,12 @@ def main():
 
     table2_new = produce_table2_latex_component(latex_panels=
         {
-            'latex_illiq_daily_summary': produce_illiq_latex("illiq_daily_summary_new"),
+            'latex_illiq_daily_summary': produce_illiq_latex("illiq_summary_new"),
+            'latex_illiq_daily_summary_mmn': produce_illiq_latex("illiq_daily_summary_mmn_new"),
             'latex_table2_trade_by_trade': produce_table2_panel("table2_panelA_trade_by_trade_new"),
             'latex_table2_daily': produce_table2_panel("table2_panelA_daily_new"),
             'latex_table2_port': produce_table2_panel("table2_panelB_new"),
             'latex_table2_spd': produce_table2_panel("table2_panelC_new"),
-            'latex_illiq_daily_summary_mmn': produce_table2_panel("illiq_daily_summary_mmn_new"),
             'latex_table2_panelA_daily_mmn': produce_table2_panel("table2_panelA_daily_mmn_new")
         }
     )

@@ -561,7 +561,7 @@ def main():
     fpaths = [
         OUTPUT_DIR.joinpath("mmn_paper.csv"),
         OUTPUT_DIR.joinpath("illiq_daily_summary_mmn_paper.csv"),
-        OUTPUT_DIR.joinpath("table2_daily_mmn_paper.csv")
+        OUTPUT_DIR.joinpath("table2_panelA_daily_mmn_paper.csv")
     ]
     generate_table2_panelA_with_MMN_data(start_date, end_date, fpaths)
 
