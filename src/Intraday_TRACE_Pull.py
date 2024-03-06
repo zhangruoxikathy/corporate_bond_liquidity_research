@@ -143,16 +143,16 @@ def pull_TRACE():
     end_date = '12-31-2023'
     cusip_chunks = _chunk_cusips(cusips)
     with wrds.Connection(wrds_username=config.WRDS_USERNAME) as db:
-        if config.RUN_TRACE_IN_PARALLEL:
-            _pull_TRACE_parallel(db=db,
-                                 cusip_chunks=cusip_chunks,
-                                 start_date=start_date,
-                                 end_date=end_date)
-        else:
-            _pull_TRACE_sequential(db=db,
-                                   cusip_chunks=cusip_chunks,
-                                   start_date=start_date,
-                                   end_date=end_date)
+        # if config.RUN_TRACE_IN_PARALLEL:
+        #     _pull_TRACE_parallel(db=db,
+        #                          cusip_chunks=cusip_chunks,
+        #                          start_date=start_date,
+        #                          end_date=end_date)
+        # else:
+        _pull_TRACE_sequential(db=db,
+                               cusip_chunks=cusip_chunks,
+                               start_date=start_date,
+                               end_date=end_date)
 
 
 def _get_cusips_from_monthly():

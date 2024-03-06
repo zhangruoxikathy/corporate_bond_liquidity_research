@@ -26,11 +26,6 @@ DATA_DIR = config('DATA_DIR', default=(BASE_DIR / 'data'), cast=Path)
 OUTPUT_DIR = config('OUTPUT_DIR', default=(BASE_DIR / 'output'), cast=Path)
 LOG_DIR = config('LOG_DIR', default=(BASE_DIR) / 'logs', cast=Path)
 WRDS_USERNAME = config("WRDS_USERNAME", default="zhangruoxikathy")
-WRDS_PASSWORD = config("WRDS_PASSWORD", default="")
-START_DATE = config("START_DATE", default="01/01/2003")
-END_DATE = config("END_DATE", default="12/31/2009")
-RUN_TRACE_IN_PARALLEL = config("RUN_TRACE_IN_PARALLEL", default=True, cast=bool)
-NUM_WORKERS = config("NUM_WORKERS", default=8, cast=int)
 
 
 if __name__ == "__main__":
