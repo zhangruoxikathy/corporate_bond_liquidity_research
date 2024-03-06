@@ -7,6 +7,7 @@
 \usepackage{graphicx}
 \usepackage{longtable}
 \usepackage{float}
+\usepackage{multirow}
 \usepackage{setspace}
 \usepackage[colorlinks=true, allcolors=blue]{hyperref}
 \geometry{a4paper, margin=1in}
@@ -60,17 +61,70 @@ Updating the results to the current period revealed that the methodology's exclu
 
 \subsection{Table 1 Summary Statistics}
 
+Table 1 provides a detailed overview of the study's sample, comprising frequently traded Phase I and II bonds from April 2003 through June 2009. As detailed in Panel A, the sample includes approximately 800 bonds annually within the specified period, though the total number fluctuates year to year. The observed increase in bond numbers from 2003 to 2004 and 2005 is likely due to NASD's expanded coverage to include Phase III bonds, whereas the decline from 2004 to 2009 can be attributed to bonds maturing or being retired. This fluctuation mirrors the trends observed in the original data.
+
+The bonds featured in the sample are substantial, boasting a median issuance size of around \$750 million, and are predominantly investment grade, with a median Moody’s numeric rating between 5 and 6 throughout the years. In contrast, Panel B, covering all bonds in TRACE, presents a lower median issuance size and rating, as anticipated.
+
+With an average time to maturity of nearly 6 years and an average age of about 4 years, the sample shows a gradual decrease in maturity and an increase in age over time, a consequence of the sample selection criteria excluding bonds issued after February 7, 2005, marking the onset of Phase III.
+
+The criteria for selecting the bonds suggests they are traded more frequently than average. Notably, in 2008-2009, Panel B's average turnover ratio for a bond was higher, although the median was considerably lower, indicating outliers' influence on the mean. In terms of the number of trades, average trade size, and turnover ratio, the bonds in Panel A demonstrate slightly higher figures compared to Panel B, indicating enhanced liquidity.
+
+The average return of the bonds, according to our calculation, is lower than that reported in the original paper. However, the trend of average returns from 2003 to 2009 closely aligns with the original paper, showing a significant drop during the Global Financial Crisis in 2008, followed by a recovery in 2009. The volatility and price of the bonds in both Panel A and B closely resemble those in the original paper.
+
+
 \begin{figure}[hbt!]
 \centering
 \textbf{\large Table 1 from the paper}
 \includegraphics[width=0.75\textwidth]{\PathToAssets/table1_screenshot.jpg}
 \end{figure}
 
+
 \subsubsection{Replicate Tables 1 in the Paper, For period 2003/04-2009/06}
 \doublespacing
 
+
+\begin{table}[hbt!]
+\centering
+\textbf{\large Panel A: Bonds in Our Sample, 2003-2009}
+\resizebox{\textwidth}{!}{%
+    \input{\PathToOutput table1_panelA.tex}
+}
+\label{table:table1_panelA}
+\end{table}
+
+
+\begin{table}[hbt!]
+\centering
+\textbf{\large Panel B: All Bonds Reported in TRACE, 2003-2009}
+\resizebox{\textwidth}{!}{%
+    \input{\PathToOutput table1_panelB.tex}
+}
+\label{table:table1_panelB}
+\end{table}
+
+
 \subsubsection{Update Table 1 in the Paper, For period 2009/06-Present}
 \doublespacing
+
+\begin{table}[hbt!]
+\centering
+\textbf{\large Panel A: Bonds in Our Sample, 2003-Present}
+\resizebox{\textwidth}{!}{%
+    \input{\PathToOutput table1_panelA_uptodate.tex}
+}
+\label{table:  table1_panelA_uptodate}
+\end{table}
+
+
+\begin{table}[hbt!]
+\centering
+\textbf{\large Panel B: All Bonds Reported in TRACE, 2003-Present}
+\resizebox{\textwidth}{!}{%
+    \input{\PathToOutput table1_panelB_uptodate.tex}
+}
+\label{table:  table1_panelB_uptodate}
+\end{table}
+
 
 
 \subsection{Table 2 Measure of Illiquidity $ \gamma = -\text{Cov}(p_t - p_{t-1}, p_{t+1} - p_t) $ }
@@ -178,6 +232,11 @@ Updating the results to the current period revealed that the methodology's exclu
 
 \subsection{Monthly Bond Illiquidity Summary Statistics}
 
+By integrating the summary statistics and graphical representations of monthly bond illiquidity, we gain insight into the pronounced fluctuations in illiquidity, particularly during the 2008 sub-prime crisis. The summary statistics offer a comprehensive view of the annual distribution of illiquidity, highlighting extreme peaks of over 5000 in 2008 and over 8000 in 2009. In contrast, the third quartile remained between 1 and 2, indicating the presence of significant outliers, likely driven by a few bonds with gamma values surpassing 2000. Despite these spikes, the median values of 0.23 and 0.33 in 2008 and 2009, respectively, were considerably lower than the mean values of 13.27 and 17.98, suggesting a generally higher liquidity level during these years. Extending the analysis to 2023 revealed notable surges in illiquidity in 2018 and 2020.
+
+The scatter plots visualize monthly illiquidity for individual bonds, with the red and purple lines delineating the mean and median annual illiquidity, respectively. These plots uncover a declining trend in monthly bond illiquidity, succeeded by a rising trend leading up to 2009, marked by exceptionally high illiquidity instances reaching up to 8000. Closer examination of the subsequent plot, which zooms in on the data, shows most values clustering in the 0-200 range. Notably, the mean illiquidity consistently exceeds the median during 2007-2009, reflecting a positive skew in the data attributed to outliers. The period post-2010 is characterized by more stable fluctuations, possibly due to a decrease in bond numbers following phase III. The MMN-corrected dataset presents a more uniform distribution, reducing outlier impact while preserving the identified trends.
+
+
 \begin{table}[hbt!]
 \centering
 \textbf{\large Monthly Bond Illiquidity Summary Statistics Using Daily Data, 2003-2009}
@@ -216,7 +275,8 @@ Updating the results to the current period revealed that the methodology's exclu
 
 \section{Visualizations}
 
-\subsection{Monthly Illiquidity Per Bond and Average Illiquidity By Year}
+\subsection{Monthly Illiquidity Per Bond and Average Illiquidity By Year (See combined observations in the previous section)}
+
 
 \begin{figure}[hbt!]
 \centering
