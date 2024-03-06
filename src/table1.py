@@ -4,6 +4,7 @@ import config
 import load_wrds_bondret
 import load_opensource
 import data_processing
+import load_intraday
 import datetime
 
 OUTPUT_DIR = config.OUTPUT_DIR
@@ -26,7 +27,7 @@ df_sample = data_processing.sample_selection(df_all) # this is the dataset for p
 df_all_uptodate = data_processing.all_trace_data_merge(df_daily, df_bondret, start_date='2003-04-14', end_date = '2023-12-31')   #this is the dataset for panel B in table 1 
 df_sample_uptodate = data_processing.sample_selection(df_all_uptodate, start_date = '2003-04-14', end_date = '2023-12-31') # this is the dataset for panel A in table 1
 
-df_intraday = pd.read_parquet(DATA_DIR / "pulled" / 'IntradayTRACE.parquet')
+df_intraday = pd.read_parquet(DATA_DIR / "pulled" / load_intraday.FILE_NAME)
 
 
 def cal_avrage(dataframe, column):
