@@ -90,7 +90,7 @@ def pull_bondret(wrds_username=WRDS_USERNAME):
             t_volume, t_dvolume, t_spread,
             offering_amt, offering_price,
             principal_amt, maturity, coupon, ncoups,
-            amount_outstanding, r_mr, n_mr
+            amount_outstanding, r_mr, n_mr, offering_date
         FROM 
             WRDSAPPS.BONDRET
         WHERE 
