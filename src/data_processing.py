@@ -1,10 +1,33 @@
 '''
+Overview
+-------------------------------------------------------------------------------------
 this file designs two function to propcess the data for producing table 1 and and 2
 
-1) all_trace_data_merge function: it merges the daily TRARCE opensource data downloaded from https://openbondassetpricing.com/  
-    with the montly Bondret data from WRDS based the same on cusip and time 
+a) all_trace_data_merge function: 
 
-2) sample_selection function: this function selects samples to be included in paper following the exact steps as outlined in the paper 
+This function merge the TRARCE opensource pre-processed data downloaded from https://openbondassetpricing.com/ with the montly Bondret data from WRDS based on same CUSIP and time. 
+Given that the opensource pre-processed data is reported on a daily basis vs. Bondret data is reported on a monthly basis,
+to merge them together, we change opensource pre-processed data to montly basis, with the assumption that time-dependent variables from Bondret remains unchanged within an given month.
+    
+
+b) sample_selection function: this function selects samples to be included in paper following the exact steps as outlined in the paper 
+
+    1）select Phase I and II bonds from 2003-04-14 to 2009-6-30
+    
+    2）drop all bonds that only exist after the date of phase 3: Feb 7 2005
+    
+    3）make sure the bonds are traded on at least 75% of its relevant business days
+    
+    4）make sure the bonds are traded in more than 11 days to have 10 observations of (pt, p(t-1))
+    
+    5）make sure the bonds all exist for at least one full year
+    
+    6）drop all non investment-grade bonds using moody's rating
+
+Requirements 
+--------------------------------------------------------------------------------------
+NA  (this step is designed as functions to be applied in other files)
+
 
 '''
 
