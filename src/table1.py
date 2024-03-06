@@ -4,29 +4,11 @@ import config
 import load_wrds_bondret
 import load_opensource
 import data_processing
+import load_intraday
 import datetime
 
 OUTPUT_DIR = config.OUTPUT_DIR
 DATA_DIR = config.DATA_DIR
-
-# #loading raw data 
-df_bondret = load_wrds_bondret.load_bondret(data_dir = DATA_DIR)
-df_daily = load_opensource.load_daily_bond(data_dir=DATA_DIR)
-
-# loading raw data, since the data is too large, we can load the parquet file directly
-# in final case, we can comment the following two lines and use the above two lines to load the raw data
-#df_bondret = pd.read_parquet(DATA_DIR / "pulled" / "Bondret.parquet")
-#df_daily = pd.read_csv('/Users/adair/Desktop/FinancialTool/Group_Project/BondDailyPublic.csv')
-
-
-# pre-processing the data
-df_all = data_processing.all_trace_data_merge(df_daily, df_bondret)   #this is the dataset for panel B in table 1 
-df_sample = data_processing.sample_selection(df_all) # this is the dataset for panel A in table 1
-
-df_all_uptodate = data_processing.all_trace_data_merge(df_daily, df_bondret, start_date='2003-04-14', end_date = '2023-12-31')   #this is the dataset for panel B in table 1 
-df_sample_uptodate = data_processing.sample_selection(df_all_uptodate, start_date = '2003-04-14', end_date = '2023-12-31') # this is the dataset for panel A in table 1
-
-df_intraday = pd.read_parquet(DATA_DIR / "pulled" / 'IntradayTRACE.parquet')
 
 
 def cal_avrage(dataframe, column):
@@ -109,6 +91,8 @@ def calculation(df_sample, df_all, df_intraday):
     df_intraday['month'] = df_intraday['trd_exctn_dt'].dt.month
     df_intraday_grouped = df_intraday.groupby(['year', 'month', 'cusip'])['trd_exctn_dt'].count().reset_index(name='#trade')
 
+    del df_intraday
+
     df_sample = pd.merge(df_sample, df_intraday_grouped, how='left', on=['year', 'month', 'cusip'])
 
     df_all = pd.merge(df_all, df_intraday_grouped, how='left', on=['year', 'month', 'cusip'])
@@ -146,11 +130,11 @@ def calculation(df_sample, df_all, df_intraday):
                         cal_median(df_all, 'tmt'), cal_std(df_all, 'tmt')], axis=1)
 
     # Calculate the coupon of df_sample and df_all
-    df_sample_coupon = pd.concat([cal_avrage(df_sample, 'coupon_y'), \
-                        cal_median(df_sample, 'coupon_y'), cal_std(df_sample, 'coupon_y')], axis=1)
+    df_sample_coupon = pd.concat([cal_avrage(df_sample, 'coupon'), \
+                        cal_median(df_sample, 'coupon'), cal_std(df_sample, 'coupon')], axis=1)
 
-    df_all_coupon = pd.concat([cal_avrage(df_all, 'coupon_y'), \
-                        cal_median(df_all, 'coupon_y'), cal_std(df_all, 'coupon_y')], axis=1)
+    df_all_coupon = pd.concat([cal_avrage(df_all, 'coupon'), \
+                        cal_median(df_all, 'coupon'), cal_std(df_all, 'coupon')], axis=1)
 
     # Calculate the age where the gap between the issuance date and the trade date in years
     df_sample[['date', 'offering_date']] = df_sample[['date', 'offering_date']].apply(pd.to_datetime)
@@ -254,13 +238,38 @@ def calculation(df_sample, df_all, df_intraday):
     return df_sample_result, df_all_result
 
 if __name__ == "__main__":
+
+
+    # #loading raw data 
+    df_bondret = load_wrds_bondret.load_bondret(data_dir = DATA_DIR)
+    df_daily = load_opensource.load_daily_bond(data_dir=DATA_DIR)
+    df_intraday = load_intraday.load_intraday_TRACE(data_dir=DATA_DIR, start_date = '2003-04-14', end_date = '2009-06-30')
+
+    # pre-processing the data
+    df_all = data_processing.all_trace_data_merge(df_daily, df_bondret)   #this is the dataset for panel B in table 1 
+    del df_daily, df_bondret
+    df_sample = data_processing.sample_selection(df_all) # this is the dataset for panel A in table 1
+
     df_sample_result, df_all_result = calculation(df_sample, df_all, df_intraday)
     df_sample_result.to_csv(OUTPUT_DIR / "table1_panelA.csv")
     df_all_result.to_csv(OUTPUT_DIR / "table1_panelB.csv")
+    del df_sample_result, df_all_result, df_intraday, df_sample, df_all
 
+
+    # #loading raw data 
+    df_bondret = load_wrds_bondret.load_bondret(data_dir = DATA_DIR)
+    df_daily = load_opensource.load_daily_bond(data_dir=DATA_DIR)
+    df_intraday = load_intraday.load_intraday_TRACE(data_dir=DATA_DIR, start_date = '2003-04-14', end_date = '2023-12-31')
+
+    df_all_uptodate = data_processing.all_trace_data_merge(df_daily, df_bondret, start_date='2003-04-14', end_date = '2023-12-31')   #this is the dataset for panel B in table 1 
+    del df_daily, df_bondret
+    df_sample_uptodate = data_processing.sample_selection(df_all_uptodate, start_date = '2003-04-14', end_date = '2023-12-31') # this is the dataset for panel A in table 1
+
+    
     df_sample_result_uptodate, df_all_result_uptodate = calculation(df_sample_uptodate, df_all_uptodate, df_intraday)
     df_sample_result_uptodate.to_csv(OUTPUT_DIR / "table1_panelA_uptodate.csv")
     df_all_result_uptodate.to_csv(OUTPUT_DIR / "table1_panelB_uptodate.csv")
+    del df_sample_result_uptodate, df_all_result_uptodate, df_intraday, df_sample_uptodate, df_all_uptodate
 
 
 

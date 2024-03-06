@@ -30,24 +30,27 @@ DATA_DIR = config.DATA_DIR
 
 df_sample = pd.read_csv(OUTPUT_DIR / "table1_panelA.csv")
 df_all = pd.read_csv(OUTPUT_DIR / "table1_panelB.csv")
+df_sample_uptodate = pd.read_csv(OUTPUT_DIR / "table1_panelA_uptodate.csv")
+df_all_uptodate = pd.read_csv(OUTPUT_DIR / "table1_panelB_uptodate.csv")
 
 # replace 'coupon_y' with 'coupon' in Unnamed: 0
 # replace 'n_mr' with 'rating' in Unnamed: 0
 # replace 'Avg_return' with 'Avf Ret' in Unnamed: 0
 # replace 'trade_size' with 'Trd Size' in Unnamed: 0
 
-df_sample['Unnamed: 0'] = df_sample['Unnamed: 0'].str.replace('coupon_y', 'coupon')
-df_sample['Unnamed: 0'] = df_sample['Unnamed: 0'].str.replace('n_mr', 'rating')
-df_sample['Unnamed: 0'] = df_sample['Unnamed: 0'].str.replace('Avg_return', 'Avf Ret')
-df_sample['Unnamed: 0'] = df_sample['Unnamed: 0'].str.replace('trade_size', 'Trd Size')
+def replace_column_names(df):
+    df['Unnamed: 0'] = df['Unnamed: 0'].str.replace('n_mr', 'rating')
+    df['Unnamed: 0'] = df['Unnamed: 0'].str.replace('Avg_return', 'Avf Ret')
+    df['Unnamed: 0'] = df['Unnamed: 0'].str.replace('trade_size', 'Trd Size')
+    df['Unnamed: 0'] = df['Unnamed: 0'].str.replace('#trade', 'trade')
+    return df
 
-df_all['Unnamed: 0'] = df_all['Unnamed: 0'].str.replace('coupon_y', 'coupon')
-df_all['Unnamed: 0'] = df_all['Unnamed: 0'].str.replace('n_mr', 'rating')
-df_all['Unnamed: 0'] = df_all['Unnamed: 0'].str.replace('Avg_return', 'Avf Ret')
-df_all['Unnamed: 0'] = df_all['Unnamed: 0'].str.replace('trade_size', 'Trd Size')
+df_sample = replace_column_names(df_sample)
+df_all = replace_column_names(df_all)
+df_sample_uptodate = replace_column_names(df_sample_uptodate)
+df_all_uptodate = replace_column_names(df_all_uptodate)
 
 float_format_func = lambda x: '{:.2f}'.format(x)
-
 
 def transform_to_multi_index(df):
     """
@@ -92,41 +95,21 @@ def transform_to_multi_index(df):
 
 multi_df_sample = transform_to_multi_index(df_sample)
 multi_df_all = transform_to_multi_index(df_all)
+multi_df_sample_uptodate = transform_to_multi_index(df_sample_uptodate)
+multi_df_all_uptodate = transform_to_multi_index(df_all_uptodate)
 
-latex_format = f'''
-\\documentclass{{article}}
-\\usepackage{{booktabs}}
-\\usepackage{{pdflscape}}
-\\usepackage{{multirow}}
 
-\\begin{{document}}
+with open(OUTPUT_DIR / "table1_panelA.tex", "w") as f:
+    f.write(multi_df_sample.to_latex(multirow=True, multicolumn=True, multicolumn_format='c', float_format=float_format_func))
 
-\\begin{{landscape}}
+with open(OUTPUT_DIR / "table1_panelB.tex", "w") as f:
+    f.write(multi_df_all.to_latex(multirow=True, multicolumn=True, multicolumn_format='c', float_format=float_format_func))
 
-\\begin{{table}}[ht]
-\\centering
-\\caption{{Panel A: Bonds in Our Sample}}
+with open(OUTPUT_DIR / "table1_panelA_uptodate.tex", "w") as f:
+    f.write(multi_df_sample_uptodate.to_latex(multirow=True, multicolumn=True, multicolumn_format='c', float_format=float_format_func))
 
-{multi_df_sample.to_latex(multirow=True, multicolumn=True, multicolumn_format='c', float_format=float_format_func)}
-
-\\end{{table}}
-
-\\begin{{table}}[ht]
-\\centering
-\\caption{{Panel B: All Bonds Reported in TRACE}}
-
-{multi_df_all.to_latex(multirow=True, multicolumn=True, multicolumn_format='c', float_format=float_format_func)}
-
-\\end{{table}}
-
-\\end{{landscape}}
-
-\\end{{document}}
-
-'''
-
-with open(OUTPUT_DIR / "table1_pandas_to_latex.tex", "w") as f:
-    f.write(latex_format)
+with open(OUTPUT_DIR / "table1_panelB_uptodate.tex", "w") as f:
+    f.write(multi_df_all_uptodate.to_latex(multirow=True, multicolumn=True, multicolumn_format='c', float_format=float_format_func))
 
 
 
