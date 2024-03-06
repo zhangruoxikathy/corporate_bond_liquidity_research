@@ -78,6 +78,7 @@ def task_run_notebooks():
     """
     notebooks = [
         "DataProcessing.ipynb",
+        "summary_statistics.ipynb"
         "table1.ipynb",
         "table2_part1.ipynb",
         "table2_part2.ipynb"
