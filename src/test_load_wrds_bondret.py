@@ -37,7 +37,7 @@ def test_load_daily_bond_functionality():
             't_volume', 't_dvolume', 't_spread',
             'offering_amt', 'offering_price',
             'principal_amt', 'maturity', 'coupon', 'ncoups',
-            'amount_outstanding', 'r_mr', 'n_mr']
+            'amount_outstanding', 'r_mr', 'n_mr'， 'offering_date']
     assert all(col in df_bondret.columns for col in expected_columns)
 
     # Test if the function raises an error when given an invalid data directory
@@ -56,7 +56,7 @@ def test_load_daily_bond_data_validity():
     df_bondret_sample = df_bondret[df_bondret['year'] == 2005]
     
     output_shape = df_bondret_sample.shape
-    expected_shape = (74828, 17)
+    expected_shape = (74828, 18)
 
     output = df_bondret_sample[['cusip', 'offering_amt', 'offering_price', 'n_mr']].\
         describe().to_string().replace(" ", "").replace("\n", "") 
