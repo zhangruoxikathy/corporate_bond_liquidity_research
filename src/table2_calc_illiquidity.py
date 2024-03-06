@@ -11,10 +11,12 @@ Table 2 Measure of Illiquidity:
         - Using our cleaned original data
         - Using our cleaned MMN corrected data
 - Panel B Bond Portfolio
-    - Equal-weighted: Consider a daily portfolio composed of all bonds, with equally weighted bond
-                      returns used to calculate annual illiquidity
+    - Equal-weighted: Consider a daily portfolio composed of all bonds, with equally weighted
+                      bond returns used to calculate monthly illiquidity and median illiquidity
+                      per year
     - Issuance-weighted: Consider a daily portfolio composed of all bonds, with issuance weighted
-                         bond returns used to calculate annual illiquidity
+                         bond returns used to calculate monthly illiquidity and median illiquidity
+                         per year
 - Panel C Implied by quoted bid-ask spread
     - Mean and median monthly bond bid-ask spread per year
 
