@@ -16,6 +16,8 @@ import json
 import load_opensource
 import pandas as pd
 
+import gc
+
 log_format = '%(asctime)s - %(name)s:%(levelname)s - %(process)d - %(message)s'
 log_filename = config.LOG_DIR / 'PullIntraday_WRDS.log'
 logging.basicConfig(level=logging.DEBUG,
@@ -73,11 +75,17 @@ def _pull_trace_data_from_wrds(db, chunk, start_date, end_date):
         'start_date': start_date,
         'end_date': end_date
     }
+
+    # original query:
+    # f"SELECT cusip_id, bond_sym_id, trd_exctn_dt, trd_exctn_tm, days_to_sttl_ct, lckd_in_ind, wis_fl,"
+    # f"sale_cndtn_cd, msg_seq_nb, trc_st, trd_rpt_dt, trd_rpt_tm, entrd_vol_qt, rptd_pr, yld_pt, asof_cd,"
+    # f"orig_msg_seq_nb, rpt_side_cd, cntra_mp_id "
+    # f"FROM trace.trace_enhanced "
+    # f"WHERE cusip_id in %(cusip_id)s AND trd_exctn_dt >= %(start_date)s AND trd_exctn_dt <= %(end_date)s",
     try:
         trace = db.raw_sql(
-            f"SELECT cusip_id, bond_sym_id, trd_exctn_dt, trd_exctn_tm, days_to_sttl_ct, lckd_in_ind, wis_fl,"
-            f"sale_cndtn_cd, msg_seq_nb, trc_st, trd_rpt_dt, trd_rpt_tm, entrd_vol_qt, rptd_pr, yld_pt, asof_cd,"
-            f"orig_msg_seq_nb, rpt_side_cd, cntra_mp_id "
+            f"SELECT cusip_id, trd_exctn_dt, trd_exctn_tm, days_to_sttl_ct, lckd_in_ind, wis_fl,"
+            f"msg_seq_nb, entrd_vol_qt, rptd_pr, orig_msg_seq_nb "
             f"FROM trace.trace_enhanced "
             f"WHERE cusip_id in %(cusip_id)s AND trd_exctn_dt >= %(start_date)s AND trd_exctn_dt <= %(end_date)s",
             params=parm)
@@ -160,6 +168,11 @@ def _get_cusips_from_monthly():
     df_daily = load_opensource.load_daily_bond(data_dir=config.DATA_DIR)
     df_bondret = load_wrds_bondret.load_bondret(data_dir=config.DATA_DIR)
     merged_df = data.all_trace_data_merge(df_daily, df_bondret)
+
+    del df_daily
+    del df_bondret
+    gc.collect()
+
     merged_df = data.sample_selection(merged_df)
 
     return merged_df['cusip'].unique()

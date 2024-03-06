@@ -469,7 +469,7 @@ def calc_annual_illiquidity_table_spd(df):
     return table2_spd
 
 
-def generate_table2_trade_by_trade_csv(start_date, end_date, paths):
+def generate_table2_trade_by_trade(start_date, end_date, paths):
     if all([path.exists() for path in paths]):
         logging.info(f"Already generated data trade-by-trade data")
         return
@@ -486,55 +486,63 @@ def generate_table2_trade_by_trade_csv(start_date, end_date, paths):
     del tbt_df
 
 
-def generate_table2_panelA_B_C(start_date, end_date, paths):
-    if all([path.exists() for path in paths]):
-        logging.info(f"Already generated data for panels A, B, and C")
+def generate_table2_panelA_B_C_MMN(start_date, end_date, paths):
+    part1_needs_run = False
+    part2_needs_run = False
+
+    if not all([path.exists() for path in paths[0]]):
+        part1_needs_run = True
+
+    if not all([path.exists() for path in paths[1]]):
+        part2_needs_run = True
+
+    if part1_needs_run or part2_needs_run:
+        cleaned_daily_df = clean_merged_data(start_date, end_date)
+    else:
+        logging.info(f"Panel A, B, C, MMN data already generated for period {start_date} to {end_date}")
         return
 
-    cleaned_daily_df = clean_merged_data(start_date, end_date)
-    daily_df = calc_deltaprc(cleaned_daily_df)
+    if part1_needs_run:
+        daily_df = calc_deltaprc(cleaned_daily_df)
 
-    del cleaned_daily_df
+        illiq_daily, table2_daily = calc_annual_illiquidity_table(daily_df)
+        illiq_daily_summary = create_summary_stats(illiq_daily)
+        table2_port = calc_annual_illiquidity_table_portfolio(daily_df)
+        table2_spd = calc_annual_illiquidity_table_spd(daily_df)
 
-    illiq_daily, table2_daily = calc_annual_illiquidity_table(daily_df)
-    illiq_daily_summary = create_summary_stats(illiq_daily)
-    table2_port = calc_annual_illiquidity_table_portfolio(daily_df)
-    table2_spd = calc_annual_illiquidity_table_spd(daily_df)
+        illiq_daily.to_csv(paths[0], index=False)
+        illiq_daily_summary.to_csv(paths[1], index=False)
+        table2_daily.to_csv(paths[2], index=False)
+        table2_port.to_csv(paths[3], index=False)
+        table2_spd.to_csv(paths[4], index=False)
 
-    illiq_daily.to_csv(paths[0], index=False)
-    illiq_daily_summary.to_csv(paths[1], index=False)
-    table2_daily.to_csv(paths[2], index=False)
-    table2_port.to_csv(paths[3], index=False)
-    table2_spd.to_csv(paths[4], index=False)
+        # Free memory
+        del illiq_daily
+        del illiq_daily_summary
+        del table2_daily
+        del table2_port
+        del table2_spd
+    else:
+        logging.info(f"Panel A, B, C data already generated for period {start_date} to {end_date}")
 
-    # Free memory
-    del illiq_daily
-    del illiq_daily_summary
-    del table2_daily
-    del table2_port
-    del table2_spd
+    if part2_needs_run:
+        mmn, table2_daily_mmn = calc_illiq_w_mmn_corrected(start_date, end_date,
+                                                                   cleaned_daily_df)
 
+        del cleaned_daily_df
 
-def generate_table2_panelA_with_MMN_data(start_date, end_date, paths):
-    if all([path.exists() for path in paths]):
-        logging.info(f"Already generated data for panels A using MMN data")
-        return
+        illiq_daily_summary_mmn = create_summary_stats(mmn)
 
-    cleaned_daily_df = clean_merged_data(start_date, end_date)
-    mmn, table2_daily_mmn = calc_illiq_w_mmn_corrected(start_date, end_date,
-                                                               cleaned_daily_df)
-    del cleaned_daily_df
+        mmn.to_csv(paths[0], index=False)
+        illiq_daily_summary_mmn.to_csv(paths[1], index=False)
+        table2_daily_mmn.to_csv(paths[2], index=False)
 
-    illiq_daily_summary_mmn = create_summary_stats(mmn)
-
-    mmn.to_csv(paths[0], index=False)
-    illiq_daily_summary_mmn.to_csv(paths[1], index=False)
-    table2_daily_mmn.to_csv(paths[2], index=False)
-
-    # Free memory
-    del mmn
-    del illiq_daily_summary_mmn
-    del table2_daily_mmn
+        # Free memory
+        del mmn
+        del illiq_daily_summary_mmn
+        del table2_daily_mmn
+    else:
+        logging.info(f"MMN data already generated for period {start_date} to {end_date}")
 
 
 def main():
@@ -544,55 +552,55 @@ def main():
     end_date = '2009-06-30'
 
     # Replicate table 2 Panel A Trade-by-Trade in the paper
+    logging.info("Running replicate table 2 Panel A Trade-by-Trade in the paper")
     fpaths = [OUTPUT_DIR.joinpath("table2_panelA_trade_by_trade_paper.csv")]
-    generate_table2_trade_by_trade_csv(start_date, end_date, fpaths)
+    generate_table2_trade_by_trade(start_date, end_date, fpaths)
 
     # Replicate table 2 Panel A Daily Data, Panel B, Panel C in the paper
-    fpaths = [
-        OUTPUT_DIR.joinpath("illiq_daily_paper.csv"),
-        OUTPUT_DIR.joinpath("illiq_summary_paper.csv"),
-        OUTPUT_DIR.joinpath("table2_panelA_daily_paper.csv"),
-        OUTPUT_DIR.joinpath("table2_panelB_paper.csv"),
-        OUTPUT_DIR.joinpath("table2_panelC_paper.csv")
+    logging.info("Running replicate table 2 Panel A Daily Data, Panel B, Panel C, and MMN in the paper")
+    fpaths = [(
+            OUTPUT_DIR.joinpath("illiq_daily_paper.csv"),
+            OUTPUT_DIR.joinpath("illiq_summary_paper.csv"),
+            OUTPUT_DIR.joinpath("table2_panelA_daily_paper.csv"),
+            OUTPUT_DIR.joinpath("table2_panelB_paper.csv"),
+            OUTPUT_DIR.joinpath("table2_panelC_paper.csv")
+        ),
+        (
+            OUTPUT_DIR.joinpath("mmn_paper.csv"),
+            OUTPUT_DIR.joinpath("illiq_daily_summary_mmn_paper.csv"),
+            OUTPUT_DIR.joinpath("table2_daily_mmn_paper.csv")
+        )
     ]
-    generate_table2_panelA_B_C(start_date, end_date, fpaths)
-
-    # Replicate table 2 Panel A Using MMN corrected data
-    fpaths = [
-        OUTPUT_DIR.joinpath("mmn_paper.csv"),
-        OUTPUT_DIR.joinpath("illiq_daily_summary_mmn_paper.csv"),
-        OUTPUT_DIR.joinpath("table2_panelA_daily_mmn_paper.csv")
-    ]
-    generate_table2_panelA_with_MMN_data(start_date, end_date, fpaths)
-
+    generate_table2_panelA_B_C_MMN(start_date, end_date, fpaths)
 
     # Generate Recent Data: Update table to the present
     start_date = start_date
     end_date = datetime.today().strftime('%Y-%m-%d')
 
     # Update table 2 Panel A Trade-by-Trade Data to the present
+    logging.info("Running update table 2 Panel A Trade-by-Trade Data to the present")
     fpaths = [OUTPUT_DIR.joinpath("table2_panelA_trade_by_trade_new.csv")]
-    generate_table2_trade_by_trade_csv(start_date, end_date, fpaths)
+    generate_table2_trade_by_trade(start_date, end_date, fpaths)
 
 
     # Update table 2 Panel A Daily Data, Panel B, Panel C to the present
-    fpaths = [
-        OUTPUT_DIR.joinpath("illiq_daily_new.csv"),
-        OUTPUT_DIR.joinpath("illiq_summary_new.csv"),
-        OUTPUT_DIR.joinpath("table2_panelA_daily_new.csv"),
-        OUTPUT_DIR.joinpath("table2_panelB_new.csv"),
-        OUTPUT_DIR.joinpath("table2_panelC_new.csv")
+    logging.info("Running update table 2 Panel A Daily Data, Panel B, Panel C, and MMN to the present")
+    fpaths = [(
+            OUTPUT_DIR.joinpath("illiq_daily_new.csv"),
+            OUTPUT_DIR.joinpath("illiq_summary_new.csv"),
+            OUTPUT_DIR.joinpath("table2_panelA_daily_new.csv"),
+            OUTPUT_DIR.joinpath("table2_panelB_new.csv"),
+            OUTPUT_DIR.joinpath("table2_panelC_new.csv")
+        ),
+        (
+            OUTPUT_DIR.joinpath("mmn_new.csv"),
+            OUTPUT_DIR.joinpath("illiq_daily_summary_mmn_new.csv"),
+            OUTPUT_DIR.joinpath("table2_daily_mmn_new.csv")
+        )
     ]
-    generate_table2_panelA_B_C(start_date, end_date, fpaths)
+    generate_table2_panelA_B_C_MMN(start_date, end_date, fpaths)
 
-
-    # Using MMN corrected data
-    fpaths = [
-        OUTPUT_DIR.joinpath("mmn_new.csv"),
-        OUTPUT_DIR.joinpath("illiq_daily_summary_mmn_new.csv"),
-        OUTPUT_DIR.joinpath("table2_daily_mmn_new.csv")
-    ]
-    generate_table2_panelA_with_MMN_data(start_date, end_date, fpaths)
+    logging.info("Done generating paper replication and update data files")
 
 
 if __name__ == "__main__":

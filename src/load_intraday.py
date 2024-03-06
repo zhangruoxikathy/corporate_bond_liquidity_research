@@ -36,4 +36,3 @@ def _demo():
 if __name__ == '__main__':
     trade_data = pull_intraday_TRACE()
     trade_data.to_parquet(config.DATA_DIR.joinpath(f'pulled/{FILE_NAME}'))
-    os.rmdir(config.DATA_DIR.joinpath(f'pulled/temp'))
