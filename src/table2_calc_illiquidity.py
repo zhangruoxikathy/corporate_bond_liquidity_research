@@ -170,11 +170,11 @@ def clean_intraday(start_date, end_date):
 
     # dickerson clean
     # df = df[(df['days_to_sttl_ct'] <= 2.0) | (df['days_to_sttl_ct'] == None) | (df['days_to_sttl_ct'] == np.NAN)]
-    df = df[(df['days_to_sttl_ct'] == '002') | (df['days_to_sttl_ct'] == '000')\
-            | (df['days_to_sttl_ct'] == '001') | (df['days_to_sttl_ct'] == 'None') ]
+    # df = df[(df['days_to_sttl_ct'] == '002') | (df['days_to_sttl_ct'] == '000')\
+    #         | (df['days_to_sttl_ct'] == '001') | (df['days_to_sttl_ct'] == 'None') ]
     df = df[df['wis_fl'] != 'Y']
     df = df[(df['lckd_in_ind'] != 'Y')]
-    df = df[(df['sale_cndtn_cd'] == 'None') | (df['sale_cndtn_cd'] == '@')]
+    # df = df[(df['sale_cndtn_cd'] == 'None') | (df['sale_cndtn_cd'] == '@')]
     df = df[df['entrd_vol_qt'] >= 10000]
     df = df[((df['rptd_pr'] > 5) & (df['rptd_pr'] < 1000))]
 
@@ -487,13 +487,15 @@ def generate_table2_trade_by_trade(start_date, end_date, paths):
 
 
 def generate_table2_panelA_B_C_MMN(start_date, end_date, paths):
+    part_1_paths = paths[0]
     part1_needs_run = False
+    part_2_paths = paths[1]
     part2_needs_run = False
 
-    if not all([path.exists() for path in paths[0]]):
+    if not all([path.exists() for path in part_1_paths]):
         part1_needs_run = True
 
-    if not all([path.exists() for path in paths[1]]):
+    if not all([path.exists() for path in part_2_paths]):
         part2_needs_run = True
 
     if part1_needs_run or part2_needs_run:
@@ -510,11 +512,11 @@ def generate_table2_panelA_B_C_MMN(start_date, end_date, paths):
         table2_port = calc_annual_illiquidity_table_portfolio(daily_df)
         table2_spd = calc_annual_illiquidity_table_spd(daily_df)
 
-        illiq_daily.to_csv(paths[0], index=False)
-        illiq_daily_summary.to_csv(paths[1], index=False)
-        table2_daily.to_csv(paths[2], index=False)
-        table2_port.to_csv(paths[3], index=False)
-        table2_spd.to_csv(paths[4], index=False)
+        illiq_daily.to_csv(part_1_paths[0], index=False)
+        illiq_daily_summary.to_csv(part_1_paths[1], index=False)
+        table2_daily.to_csv(part_1_paths[2], index=False)
+        table2_port.to_csv(part_1_paths[3], index=False)
+        table2_spd.to_csv(part_1_paths[4], index=False)
 
         # Free memory
         del illiq_daily
@@ -533,9 +535,9 @@ def generate_table2_panelA_B_C_MMN(start_date, end_date, paths):
 
         illiq_daily_summary_mmn = create_summary_stats(mmn)
 
-        mmn.to_csv(paths[0], index=False)
-        illiq_daily_summary_mmn.to_csv(paths[1], index=False)
-        table2_daily_mmn.to_csv(paths[2], index=False)
+        mmn.to_csv(part_2_paths[0], index=False)
+        illiq_daily_summary_mmn.to_csv(part_2_paths[1], index=False)
+        table2_daily_mmn.to_csv(part_2_paths[2], index=False)
 
         # Free memory
         del mmn

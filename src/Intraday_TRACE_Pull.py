@@ -155,7 +155,6 @@ def pull_TRACE():
                                    end_date=end_date)
 
 
-# TODO: need a dodo task to generate a filters.json file
 def _get_cusips_from_monthly():
     filters_path = config.DATA_DIR.joinpath('pulled/filters.json')
     if filters_path.exists():
