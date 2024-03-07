@@ -37,7 +37,7 @@ def test_load_daily_bond_functionality():
             't_volume', 't_dvolume', 't_spread',
             'offering_amt', 'offering_price',
             'principal_amt', 'maturity', 'coupon', 'ncoups',
-            'amount_outstanding', 'r_mr', 'n_mr'， 'offering_date']
+            'amount_outstanding', 'r_mr', 'n_mr', 'offering_date']
     assert all(col in df_bondret.columns for col in expected_columns)
 
     # Test if the function raises an error when given an invalid data directory
