@@ -72,45 +72,7 @@ def copy_notebook_to_folder(notebook_stem, origin_folder, destination_folder):
 ########
 
 
-def task_run_notebooks():
-    """Preps the notebooks for presentation format.
-    Execute notebooks with summary stats and plots and remove metadata.
-    """
-    notebooks = [
-        "DataProcessing.ipynb",
-        "summary_statistics.ipynb"
-        "table1.ipynb",
-        "table2_part1.ipynb",
-        "table2_part2.ipynb"
-    ]
 
-    stems = [notebook.split(".")[0] for notebook in notebooks]
-
-    file_dep = [
-        # 'load_other_data.py',
-        *[Path(OUTPUT_DIR) / f"_{stem}.py" for stem in stems],
-    ]
-
-    targets = [
-        ## Notebooks converted to HTML
-        *[OUTPUT_DIR / f"{stem}.html" for stem in stems],
-    ]
-
-    actions = [
-        *[jupyter_execute_notebook(notebook) for notebook in stems],
-        *[jupyter_to_html(notebook) for notebook in stems],
-        *[copy_notebook_to_folder(notebook, Path("./src"), OUTPUT_DIR) for notebook in stems],
-        *[copy_notebook_to_folder(notebook, Path("./src"), "./docs") for notebook in stems],
-        *[jupyter_clear_output(notebook) for notebook in stems],
-        # *[jupyter_to_python(notebook, build_dir) for notebook in notebooks_to_run],
-    ]
-    return {
-        "actions": actions,
-        "targets": targets,
-        #"task_dep": [task_pull_data],
-        "file_dep": file_dep,
-        "clean": True,
-    }
 
 
 def task_pull_data():
@@ -344,5 +306,46 @@ def task_compile_latex_report():
         'targets': targets,
         'file_dep': file_dep,
         #"task_dep": [task_generate_plots, task_produce_latex_tables],
+        "clean": True,
+    }
+
+
+def task_run_notebooks():
+    """Preps the notebooks for presentation format.
+    Execute notebooks with summary stats and plots and remove metadata.
+    """
+    notebooks = [
+        "DataProcessing.ipynb",
+        "summary_statistics.ipynb"
+        "table1.ipynb",
+        "table2_part1.ipynb",
+        "table2_part2.ipynb"
+    ]
+
+    stems = [notebook.split(".")[0] for notebook in notebooks]
+
+    file_dep = [
+        # 'load_other_data.py',
+        *[Path(OUTPUT_DIR) / f"_{stem}.py" for stem in stems],
+    ]
+
+    targets = [
+        ## Notebooks converted to HTML
+        *[OUTPUT_DIR / f"{stem}.html" for stem in stems],
+    ]
+
+    actions = [
+        *[jupyter_execute_notebook(notebook) for notebook in stems],
+        *[jupyter_to_html(notebook) for notebook in stems],
+        *[copy_notebook_to_folder(notebook, Path("./src"), OUTPUT_DIR) for notebook in stems],
+        *[copy_notebook_to_folder(notebook, Path("./src"), "./docs") for notebook in stems],
+        *[jupyter_clear_output(notebook) for notebook in stems],
+        # *[jupyter_to_python(notebook, build_dir) for notebook in notebooks_to_run],
+    ]
+    return {
+        "actions": actions,
+        "targets": targets,
+        #"task_dep": [task_pull_data],
+        "file_dep": file_dep,
         "clean": True,
     }
