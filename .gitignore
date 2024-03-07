@@ -12,7 +12,7 @@
 # around this.
 
 Exclude data folder
-/data/*
+/data/pulled/*
 !/data/manual/
 temp*.csv
 */_build/
