@@ -44,6 +44,12 @@ def jupyter_clear_output(notebook):
     return f"jupyter nbconvert --ClearOutputPreprocessor.enabled=True --ClearMetadataPreprocessor.enabled=True --inplace ./src/{notebook}.ipynb"
 # fmt: on
 
+
+def check_file_exists(targets):
+    """Returns True if all specified target files exist."""
+    return all(Path(target).exists() for target in targets)
+
+
 def get_os():
     os_name = platform.system()
     if os_name == "Windows":
@@ -104,6 +110,7 @@ def task_pull_data():
         "clean": True,
         "verbosity": 2, # Print everything immediately. This is important in
         # case WRDS asks for credentials.
+        "uptodate": [check_file_exists(targets)]
     }
 
 
@@ -136,6 +143,7 @@ def task_pull_intraday_data():
         "clean": True,
         "verbosity": 2, # Print everything immediately. This is important in
         # case WRDS asks for credentials.
+        "uptodate": [check_file_exists(targets)]
     }
 
 
@@ -381,7 +389,6 @@ def task_run_notebooks():
     ]
     return {
         "actions": actions,
-
         # "targets": targets,
         # "task_dep": [task_pull_data],
         "file_dep": file_dep,
