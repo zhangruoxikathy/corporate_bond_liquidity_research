@@ -42,8 +42,6 @@ Requirements
 
 '''
 
-
-
 import pandas as pd
 import numpy as np
 import config
@@ -68,7 +66,8 @@ new_header = output_data.iloc[0]  # grab the second row for the header
 output_data = output_data[1:]     # take the data less the header row
 output_data.columns = new_header  # set the header row as the df header
 
-def test_total_bond_number(output_data):
+
+def test_total_bond_number():
     '''
     test if total bond number is within +- 15% of the total bond number appeared in the paper 
     '''
@@ -94,10 +93,8 @@ def test_total_bond_number(output_data):
         assert lower_bound <= actual_count <= upper_bound, f"Total bond number for {year} is {actual_count}, which is not within "f"{tolerance*100}% of the expected {expected_count}"
 
 
-test_total_bond_number(output_data)
 
-
-def test_issuance_data(output_data):
+def test_issuance_data():
     '''
     test if issuance data summary stats is within +-15% of that in the paper, allowing 1 outlier
     '''
@@ -131,9 +128,8 @@ def test_issuance_data(output_data):
                     )
 
 
-test_issuance_data(output_data)
 
-def test_rating_data(output_data):
+def test_rating_data():
 
     '''
     test if rating summary stats is within +-15% of that in the paper, allowing 1 outlier
@@ -168,10 +164,7 @@ def test_rating_data(output_data):
                     )
 
 
-test_rating_data(output_data)
-
-
-def test_maturity_data(output_data):
+def test_maturity_data():
 
     '''
     test if maturity data summary stats is within +-20% of that in the paper, allowing 1 outlier
@@ -207,9 +200,7 @@ def test_maturity_data(output_data):
                     )
 
 
-test_maturity_data(output_data)
-
-def test_coupon_data(output_data):
+def test_coupon_data():
 
     '''
     test if coupon data summary stats is within +-20% of that in the paper, allowing 1 outlier
@@ -244,9 +235,8 @@ def test_coupon_data(output_data):
                         f"which is not within {tolerance*100}% of the expected {expected_value}."
                     )
 
-test_coupon_data(output_data)
 
-def test_age_data(output_data):
+def test_age_data():
     '''
     test if age data summary stats is within +-20% of that in the paper, allowing 1 outlier
     '''
@@ -280,9 +270,9 @@ def test_age_data(output_data):
                     )
 
 
-test_age_data(output_data)
 
-def test_turnover_data(output_data):
+
+def test_turnover_data():
     '''
     test if turnover data summary stats is within +-100% of that in the paper, allowing 6 outlier
     '''
@@ -315,9 +305,8 @@ def test_turnover_data(output_data):
                         f"which is not within {tolerance*100}% of the expected {expected_value}."
                     )
     
-test_turnover_data(output_data)
 
-def test_num_trade_data(output_data):
+def test_num_trade_data():
     '''
     test if trade data summary stats is within +-100% of that in the paper, allowing 2 outlier
     '''
@@ -349,10 +338,10 @@ def test_num_trade_data(output_data):
                         f"which is not within {tolerance*100}% of the expected {expected_value}."
                     )
 
-test_num_trade_data(output_data)
 
 
-def test_trade_size_data(output_data):
+
+def test_trade_size_data():
     '''
     Test if trade size data summary stats is within +-50% of that in the paper, allowing 3 outlier
     '''
@@ -384,10 +373,8 @@ def test_trade_size_data(output_data):
                         f"which is not within {tolerance*100}% of the expected {expected_value}."
                     )
 
-test_trade_size_data(output_data)
 
-
-def test_avg_return_data(output_data):
+def test_avg_return_data():
     '''
     test if the trend in mean and median of average return data is consistent between output and paper
     '''
@@ -425,9 +412,9 @@ def test_avg_return_data(output_data):
             "the trend between Average return in output and in paper is not consistent"
         )
 
-test_avg_return_data(output_data)
 
-def test_volatility_data(output_data):
+
+def test_volatility_data():
     '''
     test if volatility data summary stats is within +-30% of that in the paper, allowing 3 outlier
     '''
@@ -464,10 +451,8 @@ def test_volatility_data(output_data):
                     )
                     
 
-test_volatility_data(output_data)
 
-
-def test_price_data(output_data):
+def test_price_data():
     '''
     test if price data summary stats is within +-20% of that in the paper, allowing 3 outlier
     '''
@@ -506,4 +491,15 @@ def test_price_data(output_data):
                     )
                     
 
-test_price_data(output_data)
+test_total_bond_number()
+test_issuance_data()
+test_rating_data()
+test_maturity_data()
+test_coupon_data()
+test_age_data()
+test_turnover_data()
+test_num_trade_data()
+test_trade_size_data()
+test_avg_return_data()
+test_volatility_data()
+test_price_data()
