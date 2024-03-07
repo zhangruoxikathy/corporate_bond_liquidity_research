@@ -3,7 +3,7 @@ channels:
   - conda-forge
   - defaults
 dependencies:
-  - python>=3.12
+  - python>=3.9
   - altair>=5.1.2
   - beautifulsoup4>=4.12.2
   - doit>=0.36.0
@@ -12,6 +12,7 @@ dependencies:
   - jupyterlab>=4.0.11
   - linearmodels>=5.3
   - matplotlib>=3.8.1
+  - nbconvert>=7.14.1
   - notebook>=7.0.6
   - numpy>=1.26.0
   - openpyxl>=3.1.2
@@ -35,4 +36,8 @@ dependencies:
   - xbbg>=0.7.7
   - xlrd>=2.0.1
   - zstandard>=0.22.0
-
+  - importlib>=1.0.4
+  - importlib-metadata>=4.8.3
+  - jsonschema>=3.0.2
+  - zipp>=3.17.0
+  - cloudpickle>=3.0.0

@@ -17,6 +17,10 @@ like a Makefile, but is Python-based
 import sys
 sys.path.insert(1, './src/')
 
+import importlib
+import importlib_metadata as metadata
+importlib.metadata = metadata
+import nbconvert
 import config
 from pathlib import Path
 from doit.tools import run_once
@@ -341,14 +345,14 @@ def task_compile_latex_report():
     }
 
 
+
 def task_run_notebooks():
     """Preps the notebooks for presentation format.
     Execute notebooks with summary stats and plots and remove metadata.
     """
     notebooks = [
         "DataProcessing.ipynb",
-        "summary_statistics.ipynb"
-        "table1.ipynb",
+        "summary_statistics.ipynb",
         "table2_part1.ipynb",
         "table2_part2.ipynb"
     ]
@@ -357,7 +361,7 @@ def task_run_notebooks():
 
     file_dep = [
         # 'load_other_data.py',
-        # *[Path(OUTPUT_DIR) / f"_{stem}.py" for stem in stems],
+        #*[Path(OUTPUT_DIR) / f"_{stem}.py" for stem in stems],
         "./src/table1.py",
         "./src/table2_calc_illiquidity.py",
         "./data/pulled/Bondret.parquet",
@@ -378,18 +382,19 @@ def task_run_notebooks():
     ]
 
     actions = [
+        
         *[jupyter_execute_notebook(notebook) for notebook in stems],
         *[jupyter_to_html(notebook) for notebook in stems],
 
-        *[copy_notebook_to_folder(notebook, Path("./src"), OUTPUT_DIR) for notebook in stems],
-        *[copy_notebook_to_folder(notebook, Path("./src"), "./docs") for notebook in stems],
+        # *[copy_notebook_to_folder(notebook, Path("./src"), OUTPUT_DIR) for notebook in stems],
+        # *[copy_notebook_to_folder(notebook, Path("./src"), "./docs") for notebook in stems],
         # *[jupyter_clear_output(notebook) for notebook in stems]
-        *[jupyter_to_python(notebook, OUTPUT_DIR) for notebook in notebooks],
+        # *[jupyter_to_python(notebook, OUTPUT_DIR) for notebook in notebooks],
     ]
     return {
         "actions": actions,
         "targets": targets,
-        # "task_dep": ['task_pull_data', 'task_generate_plots', 'task_generate_plots'],
+        "task_dep": ['pull_data', 'summary_data', 'generate_plots'],
         "file_dep": file_dep,
         "clean": True,
     }
