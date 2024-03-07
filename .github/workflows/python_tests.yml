@@ -27,11 +27,11 @@ jobs:
         python -m venv .venv
         source .venv/bin/activate
         pip install -r requirements.txt
-    - name: Test with pytest
-      run: |
-        source .venv/bin/activate
-        pytest
     - name: Run doit tasks
       run: |
         source .venv/bin/activate
         doit
+    - name: Test with pytest
+      run: |
+        source .venv/bin/activate
+        pytest
