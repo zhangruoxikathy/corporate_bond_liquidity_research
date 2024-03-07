@@ -31,3 +31,7 @@ jobs:
       run: |
         source .venv/bin/activate
         pytest
+    - name: Run doit tasks
+      run: |
+        source .venv/bin/activate
+        doit
