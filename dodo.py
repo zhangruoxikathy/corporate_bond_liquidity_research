@@ -98,7 +98,7 @@ def task_pull_data():
     actions = [
         "ipython src/config.py",
         "ipython src/load_wrds_bondret.py",
-        "ipython src/load_opensource.py"
+        "ipython src/load_opensource.py",
         "ipython src/load_intraday.py"
     ]
     return {
