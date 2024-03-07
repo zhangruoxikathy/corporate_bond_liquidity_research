@@ -394,7 +394,7 @@ def task_run_notebooks():
     return {
         "actions": actions,
         "targets": targets,
-        "task_dep": ['pull_data', 'summary_data', 'generate_plots'],
+        # "task_dep": ['pull_data', 'summary_data', 'generate_plots'],
         "file_dep": file_dep,
         "clean": True,
     }
