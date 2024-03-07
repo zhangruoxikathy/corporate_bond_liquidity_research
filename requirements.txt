@@ -151,8 +151,6 @@ python-multipart==0.0.6
 python-slugify==8.0.1
 python-utils==3.8.1
 pytz==2023.3.post1
-pywin32==306
-pywinpty==2.0.12
 PyYAML==6.0.1
 pyzmq==24.0.1
 referencing==0.32.1
