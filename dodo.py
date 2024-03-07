@@ -2,16 +2,14 @@
 Dependency Steps In Order:
 
  - config file to establish required directories
- - wrds monthly data file
- - open source daily data file
-
- - trade-by-trade TRACE data file
+ - task_pull_data
+ - task_pull_intraday_data
+ 
 
 
 Run or update the project. This file uses the `doit` Python package. It works
 like a Makefile, but is Python-based
 """
-
 
 import sys
 sys.path.insert(1, './src/')
@@ -23,7 +21,6 @@ import platform
 
 OUTPUT_DIR = Path(config.OUTPUT_DIR)
 DATA_DIR = Path(config.DATA_DIR)
-
 
 
 # fmt: off
@@ -73,11 +70,9 @@ def copy_notebook_to_folder(notebook_stem, origin_folder, destination_folder):
     return command
 
 
-########
+################################################################
 ## Tasks
-########
-
-
+################################################################
 
 def task_pull_data():
     file_dep = [
@@ -94,7 +89,6 @@ def task_pull_data():
             "BondDailyPublic.parquet",
             "WRDS_MMN_Corrected_Data.parquet",
             ## src/load_intraday.py
-            # "IntradayTRACE.parquet",
         ]
     ]
 
@@ -112,7 +106,6 @@ def task_pull_data():
         # case WRDS asks for credentials.
         "uptodate": [check_file_exists(targets)]
     }
-
 
 
 
@@ -147,8 +140,6 @@ def task_pull_intraday_data():
     }
 
 
-
-
 def task_summary_data():
     actions = [
         "ipython src/table1.py",
@@ -179,7 +170,6 @@ def task_summary_data():
         "table1_panelA_uptodate.csv"
     ]]
 
-
     file_dep = [
         "./src/table1.py",
         "./src/table2_calc_illiquidity.py"
@@ -197,7 +187,7 @@ def task_summary_data():
     return {
         'actions': actions,
         'file_dep': file_dep,
-        #'task_dep': [task_pull_data],
+        #'task_dep': ['task_pull_data', 'task_pull_intraday_data'],
         'targets': targets,
     }
 
@@ -231,7 +221,7 @@ def task_generate_plots():
     return {
         'actions': actions,
         'file_dep': file_dep,
-        #'task_dep': [task_summary_data],
+        #'task_dep': ['task_summary_data'],
         'targets': targets,
     }
 
@@ -298,7 +288,7 @@ def task_produce_latex_tables():
     return {
         'actions': actions,
         'file_dep': file_dep,
-        #'task_dep': [task_summary_data],
+        #'task_dep': ['task_summary_data'],
         'targets': targets,
     }
 
@@ -343,7 +333,7 @@ def task_compile_latex_report():
         ],
         'targets': targets,
         'file_dep': file_dep,
-        #"task_dep": [task_generate_plots, task_produce_latex_tables],
+        #"task_dep": ['task_generate_plots', 'task_produce_latex_tables'],
         "clean": True,
     }
 
@@ -364,7 +354,7 @@ def task_run_notebooks():
 
     file_dep = [
         # 'load_other_data.py',
-        # *[Path(OUTPUT_DIR) / f"_{stem}.py" for stem in stems],
+        *[Path(OUTPUT_DIR) / f"_{stem}.py" for stem in stems],
         "./data/pulled/Bondret.parquet",
         ## src/load_opensource.py
         "./data/pulled/BondDailyPublic.parquet",
@@ -382,15 +372,15 @@ def task_run_notebooks():
         *[jupyter_execute_notebook(notebook) for notebook in stems],
         *[jupyter_to_html(notebook) for notebook in stems],
 
-        # *[copy_notebook_to_folder(notebook, Path("./src"), OUTPUT_DIR) for notebook in stems],
-        # *[copy_notebook_to_folder(notebook, Path("./src"), "./docs") for notebook in stems],
-        # *[jupyter_clear_output(notebook) for notebook in stems]
+        *[copy_notebook_to_folder(notebook, Path("./src"), OUTPUT_DIR) for notebook in stems],
+        *[copy_notebook_to_folder(notebook, Path("./src"), "./docs") for notebook in stems],
+        *[jupyter_clear_output(notebook) for notebook in stems]
         # *[jupyter_to_python(notebook, build_dir) for notebook in notebooks_to_run],
     ]
     return {
         "actions": actions,
-        # "targets": targets,
-        # "task_dep": [task_pull_data],
+        "targets": targets,
+        # "task_dep": ['task_pull_data', 'task_generate_plots', 'task_generate_plots'],
         "file_dep": file_dep,
         "clean": True,
     }

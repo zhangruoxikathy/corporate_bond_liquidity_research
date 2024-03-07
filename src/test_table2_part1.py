@@ -95,7 +95,7 @@ def test_calc_deltaprc():
 ##############################################################
 
 
-def test_table2_panelA_daily_within_tolerance():
+def test_table2_panela_daily_within_tolerance():
     """Test if table 2 Panel A illiquidity results using daily data are within +-40% tolerance
     of the results in the paper."""
     
@@ -304,3 +304,12 @@ def test_table2_panelc_spd_trend():
     all_means_higher = (table2_spd['Mean implied gamma'] > table2_spd['Median implied gamma']).all()
 
     assert all(trend_results.values()) and all_means_higher, "Table 2 Panel C trend test failed"
+
+
+test_clean_merged_data()
+test_calc_deltaprc()
+test_table2_panela_daily_within_tolerance()
+test_table2_panela_daily_trend()
+test_table2_panelb_port_within_tolerance()
+test_table2_panelc_spd_within_tolerance()
+test_table2_panelc_spd_trend()

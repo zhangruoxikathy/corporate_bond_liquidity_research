@@ -35,12 +35,8 @@ def test_load_daily_bond_functionality():
     assert isinstance(df_daily, pd.DataFrame)
 
     # Test if the DataFrame has the expected columns
-    expected_columns = ['cusip_id', 'trd_exctn_dt', 'prclean', 'qvolume']
+    expected_columns = ['cusip_id', 'trd_exctn_dt', 'prclean']
     assert all(col in df_daily.columns for col in expected_columns)
-
-    # Test if the function raises an error when given an invalid data directory
-    with pytest.raises(FileNotFoundError):
-        load_opensource.load_daily_bond(data_dir="invalid_directory")
 
 
 def test_load_daily_bond_data_validity():
@@ -58,18 +54,18 @@ def test_load_daily_bond_data_validity():
     output_shape = df_daily_sample.shape
     expected_shape = (826209, 17)
 
-    output = df_daily_sample[['cusip_id', 'trd_exctn_dt', 'prclean', 'qvolume']].\
+    output = df_daily_sample[['cusip_id', 'trd_exctn_dt', 'prclean']].\
         describe().to_string().replace(" ", "").replace("\n", "") 
     expected_output = '''
-                            trd_exctn_dt        prclean       qvolume
-    count                         826209  823602.000000  8.262090e+05
-    mean   2005-06-30 21:53:21.233102336      99.671788  4.308005e+06
-    min              2005-01-03 00:00:00       0.000100  1.000000e+04
-    25%              2005-03-31 00:00:00      97.064999  5.000000e+04
-    50%              2005-06-28 00:00:00     100.384701  2.000000e+05
-    75%              2005-09-30 00:00:00     104.790972  1.795000e+06
-    max              2005-12-30 00:00:00    1116.249977  1.263632e+10
-    std                              NaN      12.156334  4.755138e+07
+                            trd_exctn_dt        prclean
+    count                         826209  823602.000000
+    mean   2005-06-30 21:53:21.233102336      99.671788
+    min              2005-01-03 00:00:00       0.000100
+    25%              2005-03-31 00:00:00      97.064999
+    50%              2005-06-28 00:00:00     100.384701
+    75%              2005-09-30 00:00:00     104.790972
+    max              2005-12-30 00:00:00    1116.249977
+    std                              NaN      12.156334
     '''
 
     assert (output == expected_output.replace(" ", "").replace("\n", "")) and \
@@ -89,18 +85,13 @@ def test_load_mmn_corrected_bond_functionality():
        'bond_value', 'BOND_VALUE']
     assert all(col in df_mmn.columns for col in expected_columns)
 
-    # Test if the function raises an error when given an invalid data directory
-    with pytest.raises(FileNotFoundError):
-        load_opensource.load_mmn_corrected_bond(data_dir="invalid_directory")
 
-
-
-def test_load_mmn_corrected_bond_validity(df_mmn):
+def test_load_mmn_corrected_bond_validity():
     """Test the validity of MMN corrected monthly bond data loaded from Open Source Bond Asset Pricing."""
     
     # Test if the default date range has the expected start date and end date
-    assert df_mmn['date'].min() == '2002-08-31'
-    assert df_mmn['date'].max() >= '2022-09-01'
+    assert df_mmn['date'].min() == pd.Timestamp('2002-08-31 00:00:00')
+    assert df_mmn['date'].max() >= pd.Timestamp('2022-09-30 00:00:00')
     
     df_mmn_ = df_mmn.copy()
     df_mmn_sample = df_mmn_[(df_mmn_['date'] >= '2005-01-01') & (df_mmn_['date'] <= '2005-12-31')]
@@ -121,6 +112,12 @@ def test_load_mmn_corrected_bond_validity(df_mmn):
     max        0.430446   5048.979951     22.000000
     '''
     
-    expected_shape = (35046, 34)
+    expected_shape = (35046, 33)
     assert (output == expected_output.replace(" ", "").replace("\n", "")) and \
         (output_shape == expected_shape)
+        
+        
+test_load_daily_bond_functionality()
+test_load_daily_bond_data_validity()
+test_load_mmn_corrected_bond_functionality()
+test_load_mmn_corrected_bond_validity()

@@ -110,7 +110,7 @@ def test_table2_panelA_intraday_within_tolerance():
 
     for year, expected_mean in paper_illiq_tbt_mean.items():
         if year not in [2003, 2004, 2008, 2009, 'Full']:
-            actual_mean = table2_daily.loc[table2_daily['Year'] == year, 'Mean illiq'].values[0]
+            actual_mean = table2_tbt.loc[table2_tbt['Year'] == year, 'Mean illiq'].values[0]
             # Check if the actual mean is within the lower and upper bounds based on the tolerance
             lower_bound = expected_mean * (1 - tolerance_mean)
             upper_bound = expected_mean * (1 + tolerance_mean)
@@ -125,8 +125,8 @@ def test_table2_panelA_intraday_trend():
     _, table2_tbt = table2_calc_illiquidity.calc_annual_illiquidity_table(df_deltapr)
 
     table2_tbt['Year'] = table2_tbt['Year'].astype(str)
-    mean_illiq_series = table2_daily.set_index('Year')['Mean illiq']
-    median_illiq_series = table2_daily.set_index('Year')['Median illiq']
+    mean_illiq_series = table2_tbt.set_index('Year')['Mean illiq']
+    median_illiq_series = table2_tbt.set_index('Year')['Median illiq']
 
     years = mean_illiq_series.index[:-1]  # Exclude'Full'
     full_year = 'Full'
@@ -149,6 +149,12 @@ def test_table2_panelA_intraday_trend():
             mean_illiq_series[full_year] > mean_illiq_series['2007'] and
             mean_illiq_series[full_year] < mean_illiq_series['2008'] and
             median_illiq_series[full_year] > median_illiq_series['2007'] and
-            table2_daily.loc[table2_daily['Year'] == full_year, 'Robust t stat'].values[0] > 2)
+            table2_tbt.loc[table2_tbt['Year'] == full_year, 'Robust t stat'].values[0] > 2)
 
     assert mean_illiq_trend and median_illiq_trend and full_trend, "Table 2 Panel A Trade-by-Trade trend test failed"
+
+
+test_clean_intraday()
+test_calc_intraday_deltaprc()
+test_table2_panelA_intraday_within_tolerance()
+test_table2_panelA_intraday_trend()

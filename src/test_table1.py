@@ -215,16 +215,16 @@ def test_coupon_data(output_data):
     test if coupon data summary stats is within +-20% of that in the paper, allowing 1 outlier
     '''
 
-    coupon = output_data[['coupon_y_avg','coupon_y_median', 'coupon_y_std']]
+    coupon = output_data[['coupon_avg','coupon_median', 'coupon_std']]
 
     paper_coupons = {
-        2003: {'coupon_y_avg': 5.84, 'coupon_y_median': 6.00, 'coupon_y_std': 1.63},
-        2004: {'coupon_y_avg': 5.71, 'coupon_y_median': 6.00, 'coupon_y_std': 1.69},
-        2005: {'coupon_y_avg': 5.63, 'coupon_y_median': 5.80, 'coupon_y_std': 1.67},
-        2006: {'coupon_y_avg': 5.50, 'coupon_y_median': 5.50, 'coupon_y_std': 1.65},
-        2007: {'coupon_y_avg': 5.47, 'coupon_y_median': 5.62, 'coupon_y_std': 1.65},
-        2008: {'coupon_y_avg': 5.55, 'coupon_y_median': 5.70, 'coupon_y_std': 1.65},
-        2009: {'coupon_y_avg': 5.80, 'coupon_y_median': 5.88, 'coupon_y_std': 1.60},
+        2003: {'coupon_avg': 5.84, 'coupon_median': 6.00, 'coupon_std': 1.63},
+        2004: {'coupon_avg': 5.71, 'coupon_median': 6.00, 'coupon_std': 1.69},
+        2005: {'coupon_avg': 5.63, 'coupon_median': 5.80, 'coupon_std': 1.67},
+        2006: {'coupon_avg': 5.50, 'coupon_median': 5.50, 'coupon_std': 1.65},
+        2007: {'coupon_avg': 5.47, 'coupon_median': 5.62, 'coupon_std': 1.65},
+        2008: {'coupon_avg': 5.55, 'coupon_median': 5.70, 'coupon_std': 1.65},
+        2009: {'coupon_avg': 5.80, 'coupon_median': 5.88, 'coupon_std': 1.60},
     }
 
     tolerance = 0.2
