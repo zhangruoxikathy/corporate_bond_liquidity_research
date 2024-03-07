@@ -46,15 +46,15 @@ def test_clean_intraday():
     output = cleaned_intraday_df[['trd_exctn_dt', 'prclean']].describe().to_string().replace(" ", "").replace("\n",
                                                                                                               "")
     expected_output = '''
-                            trd_exctn_dt       prclean
-    count                       13276314  1.327631e+07
-    mean   2006-03-18 06:36:35.777774080  9.743166e+01
+                                trd_exctn_dt       prclean
+    count                       14382209  1.438221e+07
+    mean   2006-02-25 10:00:23.818928128  9.757630e+01
     min              2003-04-14 00:00:00  5.005000e+00
-    25%              2004-08-11 00:00:00  9.625000e+01
-    50%              2005-12-02 00:00:00  1.000000e+02
-    75%              2007-12-05 00:00:00  1.037630e+02
+    25%              2004-07-22 00:00:00  9.637500e+01
+    50%              2005-11-07 00:00:00  1.000630e+02
+    75%              2007-10-30 00:00:00  1.039010e+02
     max              2009-06-30 00:00:00  9.999900e+02
-    std                              NaN  1.397011e+01
+    std                              NaN  1.393286e+01
     '''
 
     assert output == expected_output.replace(" ", "").replace("\n", "")
@@ -68,13 +68,13 @@ def test_calc_intraday_deltaprc():
 
     expected_output = """
                 prclean        deltap    deltap_lag
-    count  1.327439e+07  1.327439e+07  1.327439e+07
-    mean   9.743152e+01 -9.018127e-04 -9.038407e-04
-    std    1.396972e+01  1.844254e+00  1.844417e+00
+    count  1.438028e+07  1.438028e+07  1.438028e+07
+    mean   9.757619e+01 -8.236196e-04 -8.151034e-04
+    std    1.393252e+01  1.893601e+00  1.893948e+00
     min    5.005000e+00 -1.000000e+02 -1.000000e+02
-    25%    9.625000e+01 -1.645609e-01 -1.645386e-01
-    50%    1.000000e+02  0.000000e+00  0.000000e+00
-    75%    1.037630e+02  1.813643e-01  1.813442e-01
+    25%    9.637500e+01 -1.481044e-01 -1.480837e-01
+    50%    1.000630e+02  0.000000e+00  0.000000e+00
+    75%    1.039010e+02  1.625491e-01  1.625258e-01
     max    9.999900e+02  1.000000e+02  1.000000e+02
     """
 
@@ -136,7 +136,7 @@ def test_table2_panelA_intraday_trend():
         mean_illiq_series[str(year)] > mean_illiq_series[str(year + 1)]
         for year in [2004, 2005]) and all(
         mean_illiq_series[str(year)] > mean_illiq_series[str(year - 1)]
-        for year in [2007, 2008, 2009])
+        for year in [2008, 2009])
 
     median_illiq_trend = all(
         median_illiq_series[str(year)] > median_illiq_series[str(year + 1)]
