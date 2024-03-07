@@ -75,6 +75,12 @@ Use `del` instead of rm on Windows
 
 `conda` allows for a lot of flexibility, but can often be slow. `pip`, however, is fast for what it does.  You can install the requirements for this project using the `requirements.txt` file specified here. Do this with the following command:
 ```
+conda create -n corp_illiq python=3.9
+```
+Navigate to the this repo, and then use:
+
+```
+conda activate corp_illiq
 pip install -r requirements.txt
 ```
 
@@ -94,7 +100,7 @@ conda env create -f environment.yml
 Now, to load the environment, use
 
 ```
-conda activate blank
+conda activate corp_illiq
 ```
 
 Note that an environment file can be created with the following command:
@@ -119,10 +125,9 @@ conda env create -f environment.yml
 ```
 Now, load the environment with
 ```
-conda activate blank
+conda activate corp_illiq
 ```
-Now, navigate to the directory called `src`
-and run
+Now, navigate to the main directory
 ```
 doit
 ```
@@ -133,8 +138,8 @@ That should be it!
 **Other helpful `conda` commands**
 
 - Create conda environment from file: `conda env create -f environment.yml`
-- Activate environment for this project: `conda activate blank`
-- Remove conda environment: `conda remove --name blank --all`
+- Activate environment for this project: `conda activate corp_illiq`
+- Remove conda environment: `conda remove --name corp_illiq --all`
 - Create blank conda environment: `conda create --name myenv --no-default-packages`
 - Create blank conda environment with different version of Python: `conda create --name myenv --no-default-packages python` Note that the addition of "python" will install the most up-to-date version of Python. Without this, it may use the system version of Python, which will likely have some packages installed already.
 
