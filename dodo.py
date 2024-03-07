@@ -357,13 +357,19 @@ def task_run_notebooks():
 
     file_dep = [
         # 'load_other_data.py',
-        *[Path(OUTPUT_DIR) / f"_{stem}.py" for stem in stems],
+        # *[Path(OUTPUT_DIR) / f"_{stem}.py" for stem in stems],
+        "./src/table1.py",
+        "./src/table2_calc_illiquidity.py",
         "./data/pulled/Bondret.parquet",
         ## src/load_opensource.py
         "./data/pulled/BondDailyPublic.parquet",
         "./data/pulled/WRDS_MMN_Corrected_Data.parquet",
          ## src/load_intraday.py
-        "./data/pulled/IntradayTRACE.parquet"]
+        "./data/pulled/IntradayTRACE.parquet",
+        "./output/illiq_plot_2003-2009.png",
+        "./output/illiq_plot_2003-2023.png",
+        "./output/illiq_plot_MMN_Corrected, 2003-2009.png",
+        "./output/illiq_plot_MMN_Corrected, 2003-2023.png"]
 
 
     targets = [
@@ -377,8 +383,8 @@ def task_run_notebooks():
 
         *[copy_notebook_to_folder(notebook, Path("./src"), OUTPUT_DIR) for notebook in stems],
         *[copy_notebook_to_folder(notebook, Path("./src"), "./docs") for notebook in stems],
-        *[jupyter_clear_output(notebook) for notebook in stems]
-        # *[jupyter_to_python(notebook, build_dir) for notebook in notebooks_to_run],
+        # *[jupyter_clear_output(notebook) for notebook in stems]
+        *[jupyter_to_python(notebook, OUTPUT_DIR) for notebook in notebooks],
     ]
     return {
         "actions": actions,
