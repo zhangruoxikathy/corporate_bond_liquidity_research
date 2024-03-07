@@ -49,3 +49,4 @@ wrds==3.1.6
 xbbg==0.7.7
 xlrd==2.0.1
 zstandard==0.22.0
+tqdm==4.66.2

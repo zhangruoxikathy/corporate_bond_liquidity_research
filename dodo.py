@@ -72,6 +72,7 @@ def copy_notebook_to_folder(notebook_stem, origin_folder, destination_folder):
 ########
 
 
+
 def task_pull_data():
     file_dep = [
         "./src/config.py",
@@ -104,6 +105,7 @@ def task_pull_data():
         "verbosity": 2, # Print everything immediately. This is important in
         # case WRDS asks for credentials.
     }
+
 
 
 
@@ -338,7 +340,6 @@ def task_compile_latex_report():
     }
 
 
-
 def task_run_notebooks():
     """Preps the notebooks for presentation format.
     Execute notebooks with summary stats and plots and remove metadata.
@@ -363,6 +364,7 @@ def task_run_notebooks():
          ## src/load_intraday.py
         "./data/pulled/IntradayTRACE.parquet"]
 
+
     targets = [
         ## Notebooks converted to HTML
         *[OUTPUT_DIR / f"{stem}.html" for stem in stems],
@@ -371,6 +373,7 @@ def task_run_notebooks():
     actions = [
         *[jupyter_execute_notebook(notebook) for notebook in stems],
         *[jupyter_to_html(notebook) for notebook in stems],
+
         # *[copy_notebook_to_folder(notebook, Path("./src"), OUTPUT_DIR) for notebook in stems],
         # *[copy_notebook_to_folder(notebook, Path("./src"), "./docs") for notebook in stems],
         # *[jupyter_clear_output(notebook) for notebook in stems]
@@ -378,8 +381,10 @@ def task_run_notebooks():
     ]
     return {
         "actions": actions,
+
         # "targets": targets,
         # "task_dep": [task_pull_data],
         "file_dep": file_dep,
         "clean": True,
     }
+
