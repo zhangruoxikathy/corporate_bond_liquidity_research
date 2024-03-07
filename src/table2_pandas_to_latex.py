@@ -148,7 +148,7 @@ def main():
             'latex_table2_daily': produce_table2_panel("table2_panelA_daily_paper"),
             'latex_table2_port': produce_table2_panel("table2_panelB_paper"),
             'latex_table2_spd': produce_table2_panel("table2_panelC_paper"),
-            'latex_table2_panelA_daily_mmn': produce_table2_panel("table2_panelA_daily_mmn_paper")
+            'latex_table2_panelA_daily_mmn': produce_table2_panel("table2_daily_mmn_paper")
         }
     )
 
@@ -166,7 +166,7 @@ def main():
             'latex_table2_daily': produce_table2_panel("table2_panelA_daily_new"),
             'latex_table2_port': produce_table2_panel("table2_panelB_new"),
             'latex_table2_spd': produce_table2_panel("table2_panelC_new"),
-            'latex_table2_panelA_daily_mmn': produce_table2_panel("table2_panelA_daily_mmn_new")
+            'latex_table2_panelA_daily_mmn': produce_table2_panel("table2_daily_mmn_new")
         }
     )
 
