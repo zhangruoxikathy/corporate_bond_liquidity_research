@@ -210,6 +210,7 @@ webencodings==0.5.1
 websocket-client==1.7.0
 websockets==12.0
 weightedstats==0.4.1
+wrds==3.1.6
 xbbg==0.7.7
 yfinance==0.2.35
 zipp==3.17.0
