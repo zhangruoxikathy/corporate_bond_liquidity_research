@@ -107,7 +107,7 @@ def task_run_notebooks():
     return {
         "actions": actions,
         "targets": targets,
-        "task_dep": [task_pull_data],
+        #"task_dep": [task_pull_data],
         "file_dep": file_dep,
         "clean": True,
     }
@@ -197,7 +197,7 @@ def task_summary_data():
     return {
         'actions': actions,
         'file_dep': file_dep,
-        'task_dep': [task_pull_data],
+        #'task_dep': [task_pull_data],
         'targets': targets,
     }
 
@@ -231,7 +231,7 @@ def task_generate_plots():
     return {
         'actions': actions,
         'file_dep': file_dep,
-        'task_dep': [task_summary_data],
+        #'task_dep': [task_summary_data],
         'targets': targets,
     }
 
@@ -295,7 +295,7 @@ def task_produce_latex_tables():
     return {
         'actions': actions,
         'file_dep': file_dep,
-        'task_dep': [task_summary_data],
+        #'task_dep': [task_summary_data],
         'targets': targets,
     }
 
@@ -337,6 +337,6 @@ def task_compile_latex_report():
         ],
         'targets': targets,
         'file_dep': file_dep,
-        "task_dep": [task_generate_plots, task_produce_latex_tables],
+        #"task_dep": [task_generate_plots, task_produce_latex_tables],
         "clean": True,
     }
