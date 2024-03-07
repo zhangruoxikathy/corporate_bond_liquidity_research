@@ -9,6 +9,8 @@
 \usepackage{float}
 \usepackage{multirow}
 \usepackage{setspace}
+\usepackage{tikzducks}
+\usepackage{placeins} % Include the placeins package
 \usepackage[colorlinks=true, allcolors=blue]{hyperref}
 \geometry{a4paper, margin=1in}
 
@@ -59,6 +61,20 @@ Updating the results to the current period revealed that the methodology's exclu
 
 \section{Tables}
 
+\begin{figure}[hbt!]
+\centering
+\textbf{\large Original Table 1 from the paper}
+\includegraphics[width=0.68\textwidth]{\PathToAssets/table1_screenshot.jpg}
+\end{figure}
+\FloatBarrier
+
+\begin{figure}[h!]
+\centering
+\textbf{\large Original Table 2 in the paper}
+\includegraphics[width=0.65\textwidth]{\PathToAssets/table2_screenshot.jpg}
+\end{figure}
+\FloatBarrier
+
 \subsection{Table 1 Summary Statistics}
 
 Table 1 provides a detailed overview of the study's sample, comprising frequently traded Phase I and II bonds from April 2003 through June 2009. As detailed in Panel A, the sample includes approximately 800 bonds annually within the specified period, though the total number fluctuates year to year. The observed increase in bond numbers from 2003 to 2004 and 2005 is likely due to NASD's expanded coverage to include Phase III bonds, whereas the decline from 2004 to 2009 can be attributed to bonds maturing or being retired. This fluctuation mirrors the trends observed in the original data.
@@ -69,55 +85,51 @@ With an average time to maturity of nearly 6 years and an average age of about 4
 
 The criteria for selecting the bonds suggests they are traded more frequently than average. Notably, in 2008-2009, Panel B's average turnover ratio for a bond was higher, although the median was considerably lower, indicating outliers' influence on the mean. In terms of the number of trades, average trade size, and turnover ratio, the bonds in Panel A demonstrate slightly higher figures compared to Panel B, indicating enhanced liquidity.
 
-The average return of the bonds, according to our calculation, is lower than that reported in the original paper. However, the trend of average returns from 2003 to 2009 closely aligns with the original paper, showing a significant drop during the Global Financial Crisis in 2008, followed by a recovery in 2009. The volatility and price of the bonds in both Panel A and B closely resemble those in the original paper.
+The average return of the bonds, according to our calculation, is lower than that reported in the paper. However, the trend of average returns from 2003 to 2009 closely aligns with the original paper, showing a significant drop during the Global Financial Crisis in 2008, followed by a recovery in 2009. The volatility and price of the bonds in both Panel A and B closely resemble those in the original paper.
 
-
-\begin{figure}[hbt!]
-\centering
-\textbf{\large Original Table 1 from the paper}
-\includegraphics[width=0.75\textwidth]{\PathToAssets/table1_screenshot.jpg}
-\end{figure}
-
+\subsubsection{Replicate Tables 1 in the Paper, For period 2003/04-2009/06}
 
 \begin{table}[hbt!]
 \centering
-\textbf{\large Replicate Tables 1 in the Paper, For period 2003/04-2009/06： Panel A: Bonds in Our Sample, 2003-2009}
-\resizebox{\textwidth}{!}{%
-    \input{\PathToOutput table1_panelA.tex}
-}
+\textbf{\small Table 1 Panel A: Bonds in Our Sample, 2003-2009}
+\small % Make the font size smaller
+\renewcommand{\arraystretch}{0.9} % Reduce the space between rows
+\input{\PathToOutput table1_panelA.tex}
 \label{table:table1_panelA}
 \end{table}
-
+\FloatBarrier % Prevent floats from floating past this point.
 
 \begin{table}[hbt!]
 \centering
-\textbf{\large Replicate Tables 1 in the Paper, For period 2003/04-2009/06： Panel B: All Bonds Reported in TRACE, 2003-2009}
-\resizebox{\textwidth}{!}{%
-    \input{\PathToOutput table1_panelB.tex}
-}
+\textbf{\small Panel B: All Bonds Reported in TRACE, 2003-2009}
+\small % Make the font size smaller
+\renewcommand{\arraystretch}{0.92} % Reduce the space between rows
+\input{\PathToOutput table1_panelB.tex}
 \label{table:table1_panelB}
 \end{table}
+\FloatBarrier % Prevent floats from floating past this point.
 
+\subsubsection{Update Table 1 in the Paper, For period 2009/06-Present}
 
 \begin{table}[hbt!]
 \centering
-\textbf{\large Update Table 1 in the Paper, For period 2009/06-Present： Panel A: Bonds in Our Sample, 2003-Present}
+\textbf{\small Panel A: Bonds in Our Sample, 2003-Present}
 \resizebox{\textwidth}{!}{%
     \input{\PathToOutput table1_panelA_uptodate.tex}
 }
 \label{table:  table1_panelA_uptodate}
 \end{table}
-
+\FloatBarrier % Prevent floats from floating past this point.
 
 \begin{table}[hbt!]
 \centering
-\textbf{\large Update Table 1 in the Paper, For period 2009/06-Present： Panel B: All Bonds Reported in TRACE, 2003-Present}
+\textbf{\small Panel B: All Bonds Reported in TRACE, 2003-Present}
 \resizebox{\textwidth}{!}{%
     \input{\PathToOutput table1_panelB_uptodate.tex}
 }
 \label{table:  table1_panelB_uptodate}
 \end{table}
-
+\FloatBarrier % Prevent floats from floating past this point.
 
 
 \subsection{Table 2 Measure of Illiquidity $ \gamma = -\text{Cov}(p_t - p_{t-1}, p_{t+1} - p_t) $ }
@@ -149,117 +161,131 @@ Table 2 summarizes the illiquidity measure $\gamma$ for the bonds in our sample.
 \end{itemize}
 
 
-\begin{figure}[hbt!]
-\centering
-\textbf{\large Original Table 2 in the paper}
-\includegraphics[width=0.75\textwidth]{\PathToAssets/table2_screenshot.jpg}
-\end{figure}
-
-\textbf{\large Table 2 Panel A Daily Data}
+\noindent\textbf{\small Table 2 Panel A}
 
 During the period covered by the paper, spanning from 2003 to 2009, the illiquidity metric $\gamma$ exhibited a mean value of 3.12 and a median of 0.07, with a substantial t-statistic of 17.06 using daily data. This compares to an average of 1.18 and a median of 0.56 observed in the paper. Our analysis successfully mirrored the initial decline followed by a subsequent rise in trends as documented in the original study. While other illiquidity metrics maintained a deviation within 40\% when compared to the original findings, the illiquidity we recorded for 2008--2009 were significantly higher -- by a factor of 3 to 4 times -- potentially influenced by approximately six bonds exhibiting $\gamma$ values exceeding 2000. The original study, however, did not specify an approach for managing outliers, leaving us uncertain whether these variations arise from outlier effects or inherent differences in data. In addition, our percentage of illiquidity significant at 95\% level is much lower than what the paper has, suggesting that the authors might have handled outliers somewhat differently to maintain higher significance. 6 out of 8 robust t-stats are significant at 95\% level in our analysis, with the overall robust t-stat = 17.6, close to the 16.53 in the paper, indicating the overall significance of the data.
 
+To replicate the trade-by-trade table, which has the same calculation methodology but with challenges in data acquisition and processing, we streamlined the process by first refining the monthly WRDS Bond return and Open Source Bond Asset Pricing daily data. This preliminary step, essential for managing the extensive Finra TRACE data, helped us isolate the necessary records to mirror the work of Bao, Pan, and Wang. Using specific CUSIP codes, we accessed the relevant TRACE trade data, further refining it to exclude trades that could skew results, following Alexander Dickerson's methodology.
 
-\textbf{\large Table 2 Panel B Bond Portfolio}
+
+\noindent\textbf{\small Table 2 Panel B Bond Portfolio}
 
 For Panel B, we constructed two sets of daily bond portfolios from the same cross-section of bonds and for the same sample period, one being equally weighted and the other being weighted by issuance. After obtaining the daily portfolio returns (using $\Delta \log$ bond price) and lag returns (using $\Delta \log$ bond price lag), we calculated the monthly illiquidity through negative covariance of the returns and lag returns and then found the median per year for two sets of portfolios. The paper suggests that this measure implies that the transitory component extracted by the $\gamma$ measure is idiosyncratic in nature and gets diversified away at the portfolio level, but a suspected systematic component is present when this aggregate illiquidity measure comoves strongly with the aggregate market condition at the time. Similar to the paper, our peak in illiquidity appeared in $\sim$2006--2007, and most of the portfolio illiquidity measures were not statistically significant. All measures replicate the paper within a tolerance of $\pm$0.05 (equal-weighted), $\pm$0.07 (issuance-weighted).
 
 
-\textbf{\large Table 2 Panel C Bid-Ask Spread}
+\noindent\textbf{\small Table 2 Panel C Bid-Ask Spread}
 
 In Panel C, we computed the monthly average and median bid-ask spreads for each year, using these as proxies for implied illiquidity. The methodology involved utilizing the monthly bond return data available on WRDS to calculate the t-spreads, whereas the original authors derived their data from daily figures, potentially accounting for some differences in results. Despite these differences, by applying a factor of 5 to our findings, we were able to align our results with the original study's observed pattern of initial decline followed by an increase in illiquidity, with a tolerance level below 40\%. It is noteworthy that the mean bid-ask spread for 2005 exhibited a slight increase in our table, although the median remained lower than that of the preceding year. This discrepancy underscores the influence of outliers on the mean and indicates a positive skew in the data.
 
 
+\subsubsection{Replicate Table 2 in the Paper, For period 2003/04-2009/06}
 
-\doublespacing
 \begin{table}[hbt!]
 \centering
-\textbf{\large Replicate Table 2 in the Paper, For period 2003/04-2009/06: Panel A: Individual Bonds, Trade-by-Trade Data, 2003-2009}
+\textbf{\small Panel A: Individual Bonds, Trade-by-Trade Data, 2003-2009}
+\small % Make the font size smaller
+\renewcommand{\arraystretch}{0.92} % Reduce the space between rows
 \input{\PathToOutput table2_panelA_trade_by_trade_paper.tex}
 \label{table:table2_panelA_trade_by_trade_paper}
 \end{table}
+\FloatBarrier % Prevent floats from floating past this point.
 
 \begin{table}[hbt!]
 \centering
-\textbf{\large Replicate Table 2 in the Paper, For period 2003/04-2009/06: Panel A: Individual Bonds, Daily Data, 2003-2009}
+\textbf{\small Panel A: Individual Bonds, Daily Data, 2003-2009}
+\small % Make the font size smaller
+\renewcommand{\arraystretch}{0.92} % Reduce the space between rows
 \input{\PathToOutput table2_panelA_daily_paper.tex}
 \label{table:table2_panelA_daily_paper}
 \end{table}
+\FloatBarrier % Prevent floats from floating past this point.
+
 
 \begin{table}[hbt!]
 \centering
-\textbf{\large Replicate Table 2 in the Paper, For period 2003/04-2009/06: Panel B: Bond Portfolios, 2003-2009}
+\textbf{\small Panel B: Bond Portfolios, 2003-2009}
+\small % Make the font size smaller
+\renewcommand{\arraystretch}{0.92} % Reduce the space between rows
 \input{\PathToOutput table2_panelB_paper.tex}
 \label{table:table2_panelB_paper}
 \end{table}
+\FloatBarrier % Prevent floats from floating past this point.
 
 \begin{table}[hbt!]
 \centering
-\textbf{\large Replicate Table 2 in the Paper, For period 2003/04-2009/06: Panel C: Implied by Quoted Bid-Ask Spreads, 2003-2009}
+\textbf{\small Panel C: Implied by Quoted Bid-Ask Spreads, 2003-2009}
+\small % Make the font size smaller
+\renewcommand{\arraystretch}{0.92} % Reduce the space between rows
 \input{\PathToOutput table2_panelC_paper.tex}
 \label{table:table2_panelC_paper}
 \end{table}
+\FloatBarrier % Prevent floats from floating past this point.
 
 
+\subsubsection{Update Table 2 in the Paper, For period 2003/04-Present}
 
 \begin{table}[hbt!]
 \centering
-\textbf{\large Update Table 2 in the Paper, For period 2003/04-Present: Panel A: Individual Bonds, Trade-by-Trade Datas, 2003-Present}
+\textbf{\small Panel A: Individual Bonds, Trade-by-Trade Datas, 2003-Present}
 \resizebox{\textwidth}{!}{%
     \input{\PathToOutput table2_panelA_trade_by_trade_new.tex}
 }
 \label{table:table2_panelA_trade_by_trade_new}
 \end{table}
+\FloatBarrier % Prevent floats from floating past this point.
 
 \begin{table}[hbt!]
 \centering
-\textbf{\large Update Table 2 in the Paper, For period 2003/04-Present: Panel A: Individual Bonds, Daily Data, 2003-Present}
+\textbf{\small Panel A: Individual Bonds, Daily Data, 2003-Present}
 \resizebox{\textwidth}{!}{%
     \input{\PathToOutput table2_panelA_daily_new.tex}
 }
 \label{table:table2_panelA_daily_new}
 \end{table}
-
+\FloatBarrier % Prevent floats from floating past this point.
 
 \begin{table}[hbt!]
 \centering
-\textbf{\large Update Table 2 in the Paper, For period 2003/04-Present: Panel B: Bond Portfolios, 2003-Present}
+\textbf{\small Panel B: Bond Portfolios, 2003-Present}
 \resizebox{\textwidth}{!}{%
     \input{\PathToOutput table2_panelB_new.tex}
 }
 \label{table:table2_panelB_new}
 \end{table}
-
+\FloatBarrier % Prevent floats from floating past this point.
 
 \begin{table}[hbt!]
 \centering
-\textbf{\large Update Table 2 in the Paper, For period 2003/04-Present: Panel C: Implied by Quoted Bid-Ask Spreads, 2003-Present}
+\textbf{\small Panel C: Implied by Quoted Bid-Ask Spreads, 2003-Present}
 \resizebox{\textwidth}{!}{%
     \input{\PathToOutput table2_panelC_new.tex}
 }
 \label{table:table2_panelC_new}
 \end{table}
+\FloatBarrier % Prevent floats from floating past this point.
 
 
+\subsubsection{Table 2 Panel A Daily Data using MMN-Corrected Bond Data}
 
 \begin{table}[hbt!]
 \centering
-\textbf{\large Table 2 Panel A Daily Data using MMN-Corrected Bond Data}
-\textbf{\large Panel A: Individual Bonds, MMN-Corrected Bond Data, 2003-2009}
+\textbf{\small Panel A: Individual Bonds, MMN-Corrected Bond Data, 2003-2009}
+\small % Make the font size smaller
+\renewcommand{\arraystretch}{0.92} % Reduce the space between rows
 \input{\PathToOutput table2_daily_mmn_paper.tex}
 \label{table:table2_daily_mmn_paper}
 \end{table}
-
+\FloatBarrier % Prevent floats from floating past this point.
 
 \begin{table}[hbt!]
 \centering
-\textbf{\large Individual Bonds, MMN-Corrected Bond Data, 2003-Present}
+\textbf{\small Panel A: Individual Bonds, MMN-Corrected Bond Data, 2003-Present}
 \resizebox{\textwidth}{!}{%
     \input{\PathToOutput table2_daily_mmn_new.tex}
 }
 \label{table:table2_daily_mmn_new}
 \end{table}
-
+\FloatBarrier % Prevent floats from floating past this point.
 
 \subsection{Monthly Bond Illiquidity Summary Statistics}
 
@@ -270,76 +296,82 @@ The scatter plots visualize monthly illiquidity for individual bonds, with the r
 
 \begin{table}[hbt!]
 \centering
-\textbf{\large Monthly Bond Illiquidity Summary Statistics Using Daily Data, 2003-2009}
+\textbf{\small Monthly Bond Illiquidity Summary Statistics Using Daily Data, 2003-2009}
+\small % Make the font size smaller
+\renewcommand{\arraystretch}{0.92} % Reduce the space between rows
 \input{\PathToOutput illiq_summary_paper.tex}
 \label{table:illiq_summary_paper}
 \end{table}
-
+\FloatBarrier % Prevent floats from floating past this point.
 
 
 
 \begin{table}[hbt!]
 \centering
-\textbf{\large Monthly Bond Illiquidity Summary Statistics Using Daily Data, 2003-Present}
+\textbf{\small Monthly Bond Illiquidity Summary Statistics Using Daily Data, 2003-Present}
 \resizebox{\textwidth}{!}{%
-    \input{\PathToOutput  illiq_summary_new.tex}
+    \input{\PathToOutput illiq_summary_new.tex}
 }
 \label{table: illiq_summary_new}
 \end{table}
-
+\FloatBarrier % Prevent floats from floating past this point.
 
 
 
 \begin{table}[hbt!]
 \centering
-\textbf{\large Monthly Bond Illiquidity Summary Statistics Using MMN-Corrected Bond Data, 2003-2009}
+\textbf{\small Monthly Bond Illiquidity Summary Statistics Using MMN-Corrected Bond Data, 2003-2009}
+\small % Make the font size smaller
+\renewcommand{\arraystretch}{0.92} % Reduce the space between rows
 \input{\PathToOutput illiq_daily_summary_mmn_paper.tex}
 \label{table:illiq_daily_summary_mmn_paper}
 \end{table}
-
+\FloatBarrier % Prevent floats from floating past this point.
 
 \begin{table}[hbt!]
 \centering
-\textbf{\large Monthly Bond Illiquidity Summary Statistics Using MMN-Corrected Bond Data, 2003-Present}
+\textbf{\small Monthly Bond Illiquidity Summary Statistics Using MMN-Corrected Bond Data, 2003-Present}
 \resizebox{\textwidth}{!}{%
     \input{\PathToOutput illiq_daily_summary_mmn_new.tex}
 }
 \label{table: illiq_daily_summary_mmn_new}
 \end{table}
+\FloatBarrier % Prevent floats from floating past this point.
 
 
-\section{Visualizations}
+\clearpage
+\section{Visualizations  (See combined plot description and observations in the previous section)}
 
 \begin{figure}[hbt!]
 \centering
-\textbf{\large Monthly Illiquidity Per Bond and Average Illiquidity By Year (See combined observations in the previous section)}
+\textbf{\small Monthly Illiquidity Per Bond and Average Illiquidity By Year}
 \caption{Illiquidity by Year with Mean Illiquidity, 2003-2009}
   \centering
-  \includegraphics[width=0.75\linewidth]{\PathToOutput/illiq_plot_2003-2009.png}
+  \includegraphics[width=0.9\linewidth]{\PathToOutput/illiq_plot_2003-2009.png}
   % \caption{Average returns}
 
 \label{fig:illiq_plot_2003-2009}
 \end{figure}
-
+\FloatBarrier % Prevent floats from floating past this point.
 
 \begin{figure}[hbt!]
 \centering
 \caption{Illiquidity by Year with Mean Illiquidity, 2003-Present}
   \centering
-  \includegraphics[width=0.75\linewidth]{\PathToOutput/illiq_plot_2003-2023.png}
+  \includegraphics[width=0.9\linewidth]{\PathToOutput/illiq_plot_2003-2023.png}
   % \caption{Average returns}
 
 \label{fig:illiq_plot_2003-2023}
 \end{figure}
-
+\FloatBarrier % Prevent floats from floating past this point.
 
 
 \begin{figure}[hbt!]
 \centering
-\textbf{\large Monthly Illiquidity Per Bond and Average Illiquidity By Year Using MMN-Corrected Data}
+\textbf{\small Monthly Illiquidity Per Bond and Average Illiquidity By Year Using MMN-Corrected Data}
 \caption{Illiquidity by Year with Mean Illiquidity Using MMN-Corrected Data, 2003-2009}
   \centering
-  \includegraphics[width=0.75\linewidth]{\PathToOutput/illiq_plot_2003-2009.png}
+  \includegraphics[width=0.9\linewidth]{\PathToOutput/illiq_plot_2003-2009.png}
   % \caption{Average returns}
 
 \label{fig:illiq_plot_2003-2009}
@@ -350,11 +382,21 @@ The scatter plots visualize monthly illiquidity for individual bonds, with the r
 \centering
 \caption{Illiquidity by Year with Mean Illiquidity Using MMN-Corrected Data, 2003-Present}
   \centering
-  \includegraphics[width=0.75\linewidth]{\PathToOutput/illiq_plot_2003-2023.png}
+  \includegraphics[width=0.9\linewidth]{\PathToOutput/illiq_plot_2003-2023.png}
   % \caption{Average returns}
 
 \label{fig:illiq_plot_2003-2023}
 \end{figure}
 
+\begin{tikzpicture}
+    \duck[body=yellow!50!brown!40!white,
+        crazyhair=gray!50!white,
+        eyebrow,
+        glasses=brown!70!black,
+        book=\scalebox{0.2}{$E=mc^2$},
+        bookcolour=red!20!brown]
+\end{tikzpicture}
 
 \end{document}
+
+
