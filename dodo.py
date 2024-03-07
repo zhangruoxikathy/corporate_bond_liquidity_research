@@ -107,7 +107,7 @@ def task_run_notebooks():
     return {
         "actions": actions,
         "targets": targets,
-        "task_dep": [task_pull_data],
+        #"task_dep": [task_pull_data],
         "file_dep": file_dep,
         "clean": True,
     }
@@ -197,7 +197,7 @@ def task_summary_data():
     return {
         'actions': actions,
         'file_dep': file_dep,
-        'task_dep': [task_pull_data],
+        #'task_dep': [task_pull_data],
         'targets': targets,
     }
 
@@ -231,7 +231,7 @@ def task_generate_plots():
     return {
         'actions': actions,
         'file_dep': file_dep,
-        'task_dep': [task_summary_data],
+        #'task_dep': [task_summary_data],
         'targets': targets,
     }
 
@@ -270,21 +270,24 @@ def task_produce_latex_tables():
     ])
 
     targets = [OUTPUT_DIR / fname for fname in [
-        'latex_illiq_daily_summary.tex',
-        'latex_illiq_daily_summary_mmn.tex',
-        'latex_table2_trade_by_trade.tex',
-        'latex_table2_daily.tex',
-        'latex_table2_port.tex',
-        'latex_table2_spd.tex',
-        'latex_table2_panelA_daily_mmn.tex',
-        'latex_illiq_daily_summary.tex'
-        'latex_illiq_daily_summary_mmn.tex',
-        'latex_table2_trade_by_trade.tex',
-        'latex_table2_daily.tex',
-        'latex_table2_port.tex',
-        'latex_table2_spd.tex',
-        'latex_table2_panelA_daily_mmn.tex',
-        'table1_pandas_to_latex.tex'
+        'illiq_daily_summary.tex',
+        'illiq_daily_summary_mmn.tex',
+        'table2_trade_by_trade_paper.tex',
+        'table2_daily_paper.tex',
+        'table2_port_paper.tex',
+        'table2_spd_paper.tex',
+        'table2_panelA_daily_mmn_paper.tex',
+        'illiq_daily_summary_new.tex'
+        'illiq_daily_summary_mmn_new.tex',
+        'table2_trade_by_trade_new.tex',
+        'table2_daily_new.tex',
+        'table2_port_new.tex',
+        'table2_spd_new.tex',
+        'table2_panelA_daily_mmn_new.tex',
+        'table1_panelA.tex',
+        'table1_panelB.tex',
+        'table1_panelA_uptopaper.tex',
+        'table1_panelB_uptopaper.tex'
     ]]
 
     actions = [
@@ -295,28 +298,31 @@ def task_produce_latex_tables():
     return {
         'actions': actions,
         'file_dep': file_dep,
-        'task_dep': [task_summary_data],
+        #'task_dep': [task_summary_data],
         'targets': targets,
     }
 
 
 def task_compile_latex_report():
     file_dep = [OUTPUT_DIR / fname for fname in [
-        'latex_illiq_daily_summary.tex',
-        'latex_illiq_daily_summary_mmn.tex',
-        'latex_table2_trade_by_trade.tex',
-        'latex_table2_daily.tex',
-        'latex_table2_port.tex',
-        'latex_table2_spd.tex',
-        'latex_table2_panelA_daily_mmn.tex',
-        'latex_illiq_daily_summary.tex'
-        'latex_illiq_daily_summary_mmn.tex',
-        'latex_table2_trade_by_trade.tex',
-        'latex_table2_daily.tex',
-        'latex_table2_port.tex',
-        'latex_table2_spd.tex',
-        'latex_table2_panelA_daily_mmn.tex',
-        'table1_pandas_to_latex.tex',
+        'illiq_daily_summary.tex',
+        'illiq_daily_summary_mmn.tex',
+        'table2_trade_by_trade_paper.tex',
+        'table2_daily_paper.tex',
+        'table2_port_paper.tex',
+        'table2_spd_paper.tex',
+        'table2_panelA_daily_mmn_paper.tex',
+        'illiq_daily_summary_new.tex'
+        'illiq_daily_summary_mmn_new.tex',
+        'table2_trade_by_trade_new.tex',
+        'table2_daily_new.tex',
+        'table2_port_new.tex',
+        'table2_spd_new.tex',
+        'table2_panelA_daily_mmn_new.tex',
+        'table1_panelA.tex',
+        'table1_panelB.tex',
+        'table1_panelA_uptopaper.tex',
+        'table1_panelB_uptopaper.tex',
         'illiq_plot_2003-2009.png',
         'illiq_plot_2003-2023.png',
         'illiq_plot_MMN_Corrected, 2003-2009.png',
@@ -337,6 +343,6 @@ def task_compile_latex_report():
         ],
         'targets': targets,
         'file_dep': file_dep,
-        "task_dep": [task_generate_plots, task_produce_latex_tables],
+        #"task_dep": [task_generate_plots, task_produce_latex_tables],
         "clean": True,
     }
