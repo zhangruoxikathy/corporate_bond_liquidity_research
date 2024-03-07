@@ -1,10 +1,13 @@
 """
-Dependency Steps In Order:
+Dependency Tasks In Order:
 
- - config file to establish required directories
  - task_pull_data
  - task_pull_intraday_data
- 
+ - task_summary_data
+ - task_generate_plots
+ - task_produce_latex_tables
+ - task_compile_latex_report
+ - task_run_notebooks
 
 
 Run or update the project. This file uses the `doit` Python package. It works
