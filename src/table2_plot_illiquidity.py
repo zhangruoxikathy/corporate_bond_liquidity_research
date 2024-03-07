@@ -105,11 +105,11 @@ def main():
     
     # Import data
     illiq_daily_paper = pd.read_csv(OUTPUT_DIR / "illiq_daily_paper.csv")
-    illiq_daily_summary_paper = pd.read_csv(OUTPUT_DIR / "illiq_daily_summary_paper.csv")
+    illiq_daily_summary_paper = pd.read_csv(OUTPUT_DIR / "illiq_summary_paper.csv")
     mmn_paper = pd.read_csv(OUTPUT_DIR / "mmn_paper.csv")
     illiq_daily_summary_mmn_paper = pd.read_csv(OUTPUT_DIR / "illiq_daily_summary_mmn_paper.csv")
     illiq_daily_new = pd.read_csv(OUTPUT_DIR / "illiq_daily_new.csv")
-    illiq_daily_summary_new = pd.read_csv(OUTPUT_DIR / "illiq_daily_summary_new.csv")
+    illiq_daily_summary_new = pd.read_csv(OUTPUT_DIR / "illiq_summary_new.csv")
     mmn_new = pd.read_csv(OUTPUT_DIR / "mmn_new.csv")
     illiq_daily_summary_mmn_new = pd.read_csv(OUTPUT_DIR / "illiq_daily_summary_mmn_new.csv")
     

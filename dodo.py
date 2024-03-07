@@ -73,14 +73,11 @@ def copy_notebook_to_folder(notebook_stem, origin_folder, destination_folder):
 
 
 
-
-
 def task_pull_data():
     file_dep = [
         "./src/config.py",
         "./src/load_wrds_bondret.py",
         "./src/load_opensource.py",
-        "./src/load_intraday.py"
     ]
     targets = [
         Path(DATA_DIR) / "pulled" / file for file in
@@ -91,7 +88,7 @@ def task_pull_data():
             "BondDailyPublic.parquet",
             "WRDS_MMN_Corrected_Data.parquet",
             ## src/load_intraday.py
-            "IntradayTRACE.parquet",
+            # "IntradayTRACE.parquet",
         ]
     ]
 
@@ -99,6 +96,37 @@ def task_pull_data():
         "ipython src/config.py",
         "ipython src/load_wrds_bondret.py",
         "ipython src/load_opensource.py",
+    ]
+    return {
+        "actions": actions,
+        "targets": targets,
+        "file_dep": file_dep,
+        "clean": True,
+        "verbosity": 2, # Print everything immediately. This is important in
+        # case WRDS asks for credentials.
+    }
+
+
+
+
+def task_pull_intraday_data():
+    file_dep = [
+        "./src/config.py",
+        "./src/load_wrds_bondret.py",
+        "./src/load_opensource.py",
+        "./src/intraday_TRACE_Pull.py",
+        "./src/load_intraday.py",
+        "./data/pulled/Bondret.parquet",
+        "./data/pulled/BondDailyPublic.parquet"
+        ]
+    targets = [
+        Path(DATA_DIR) / "pulled" / file for file in
+        [
+            "IntradayTRACE.parquet",
+        ]
+    ]
+
+    actions = [
         "ipython src/load_intraday.py"
     ]
     return {
@@ -109,6 +137,8 @@ def task_pull_data():
         "verbosity": 2, # Print everything immediately. This is important in
         # case WRDS asks for credentials.
     }
+
+
 
 
 def task_summary_data():
@@ -168,11 +198,11 @@ def task_generate_plots():
 
     file_dep = [OUTPUT_DIR / fname for fname in [
         "illiq_daily_paper.csv",
-        "illiq_daily_summary_paper.csv",
+        "illiq_summary_paper.csv",
         "mmn_paper.csv",
         "illiq_daily_summary_mmn_paper.csv",
         "illiq_daily_new.csv",
-        "illiq_daily_summary_new.csv",
+        "illiq_summary_new.csv",
         "mmn_new.csv",
         "illiq_daily_summary_mmn_new.csv"
     ]]
@@ -232,24 +262,24 @@ def task_produce_latex_tables():
     ])
 
     targets = [OUTPUT_DIR / fname for fname in [
-        'illiq_daily_summary.tex',
-        'illiq_daily_summary_mmn.tex',
-        'table2_trade_by_trade_paper.tex',
-        'table2_daily_paper.tex',
-        'table2_port_paper.tex',
-        'table2_spd_paper.tex',
+        'illiq_summary_paper.tex',
+        'illiq_daily_summary_mmn_paper.tex',
+        'table2_panelA_trade_by_trade_paper.tex',
+        'table2_panelA_daily_paper.tex',
+        'table2_panelB_paper.tex',
+        'table2_panelC_paper.tex',
         'table2_panelA_daily_mmn_paper.tex',
-        'illiq_daily_summary_new.tex'
+        'illiq_summary_new.tex',
         'illiq_daily_summary_mmn_new.tex',
-        'table2_trade_by_trade_new.tex',
-        'table2_daily_new.tex',
-        'table2_port_new.tex',
-        'table2_spd_new.tex',
+        'table2_panelA_trade_by_trade_new.tex',
+        'table2_panelA_daily_new.tex',
+        'table2_panelB_new.tex',
+        'table2_panelC_new.tex',
         'table2_panelA_daily_mmn_new.tex',
         'table1_panelA.tex',
         'table1_panelB.tex',
-        'table1_panelA_uptopaper.tex',
-        'table1_panelB_uptopaper.tex'
+        'table1_panelA_uptodate.tex',
+        'table1_panelB_uptodate.tex'
     ]]
 
     actions = [
@@ -267,24 +297,24 @@ def task_produce_latex_tables():
 
 def task_compile_latex_report():
     file_dep = [OUTPUT_DIR / fname for fname in [
-        'illiq_daily_summary.tex',
-        'illiq_daily_summary_mmn.tex',
-        'table2_trade_by_trade_paper.tex',
-        'table2_daily_paper.tex',
-        'table2_port_paper.tex',
-        'table2_spd_paper.tex',
+        'illiq_summary_paper.tex',
+        'illiq_daily_summary_mmn_paper.tex',
+        'table2_panelA_trade_by_trade_paper.tex',
+        'table2_panelA_daily_paper.tex',
+        'table2_panelB_paper.tex',
+        'table2_panelC_paper.tex',
         'table2_panelA_daily_mmn_paper.tex',
-        'illiq_daily_summary_new.tex'
+        'illiq_summary_new.tex',
         'illiq_daily_summary_mmn_new.tex',
-        'table2_trade_by_trade_new.tex',
-        'table2_daily_new.tex',
-        'table2_port_new.tex',
-        'table2_spd_new.tex',
+        'table2_panelA_trade_by_trade_new.tex',
+        'table2_panelA_daily_new.tex',
+        'table2_panelB_new.tex',
+        'table2_panelC_new.tex',
         'table2_panelA_daily_mmn_new.tex',
         'table1_panelA.tex',
         'table1_panelB.tex',
-        'table1_panelA_uptopaper.tex',
-        'table1_panelB_uptopaper.tex',
+        'table1_panelA_uptodate.tex',
+        'table1_panelB_uptodate.tex',
         'illiq_plot_2003-2009.png',
         'illiq_plot_2003-2023.png',
         'illiq_plot_MMN_Corrected, 2003-2009.png',
@@ -326,8 +356,14 @@ def task_run_notebooks():
 
     file_dep = [
         # 'load_other_data.py',
-        *[Path(OUTPUT_DIR) / f"_{stem}.py" for stem in stems],
-    ]
+        # *[Path(OUTPUT_DIR) / f"_{stem}.py" for stem in stems],
+        "./data/pulled/Bondret.parquet",
+        ## src/load_opensource.py
+        "./data/pulled/BondDailyPublic.parquet",
+        "./data/pulled/WRDS_MMN_Corrected_Data.parquet",
+         ## src/load_intraday.py
+        "./data/pulled/IntradayTRACE.parquet"]
+
 
     targets = [
         ## Notebooks converted to HTML
@@ -337,15 +373,18 @@ def task_run_notebooks():
     actions = [
         *[jupyter_execute_notebook(notebook) for notebook in stems],
         *[jupyter_to_html(notebook) for notebook in stems],
-        *[copy_notebook_to_folder(notebook, Path("./src"), OUTPUT_DIR) for notebook in stems],
-        *[copy_notebook_to_folder(notebook, Path("./src"), "./docs") for notebook in stems],
-        *[jupyter_clear_output(notebook) for notebook in stems],
+
+        # *[copy_notebook_to_folder(notebook, Path("./src"), OUTPUT_DIR) for notebook in stems],
+        # *[copy_notebook_to_folder(notebook, Path("./src"), "./docs") for notebook in stems],
+        # *[jupyter_clear_output(notebook) for notebook in stems]
         # *[jupyter_to_python(notebook, build_dir) for notebook in notebooks_to_run],
     ]
     return {
         "actions": actions,
-        "targets": targets,
-        #"task_dep": [task_pull_data],
+
+        # "targets": targets,
+        # "task_dep": [task_pull_data],
         "file_dep": file_dep,
         "clean": True,
     }
+
