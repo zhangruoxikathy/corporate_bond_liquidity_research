@@ -3,24 +3,23 @@
 
 # About this project
 
-We want to leverage Python to replicate Table 1 and Table 2 from the academic research paper _The Illiquidity of Corporate Bonds_, Bao, Pan, and Wang (2010).
+We want to leverage Python to replicate Table 1 and Table 2 from the academic research paper _The Illiquidity of Corporate Bonds_, Bao, Pan, and Wang (2010). Run doit in the terminal for this project will produce tables, summary statistics, 
 
 # Data used: 
 
-FINRA TRACE 
+1) WRDS BondRet dataset: a cleaned database incorporating two feeds: FINRA’s TRACE (Trade Reporting and Compliance Engine) data for bond transactions, and Mergent FISD data for bond issue and issuer characteristics, reported on a monthly basis
 
-# Task Assignment Draft
+2) Daily TRACE panel data: Maintained by a group of contributors from Open Source Bond Asset Pricing (https://openbondassetpricing.com/), this data includes bond individual level price-relevant data based on FINRA’s TRACE data, reported on a daily basis
 
-Table 1: 2 people
-Table 2: 2 people
+3) FINRA’s TRACE data: the original raw data containing individual level bond characteristics, reported on a trade-by-trade basis
 
-For each table, we must complete the below assignments. Check for overlaps.
+4) MMN-corrected WRDS TRACE data: The bond-level panel with characteristics adjusted for market microstructure noise, pulled directly from Open Source Bond Asset Pricing, reported on a monthly basis
 
-1. A separate file or set of files whose only purpose is to clean the data and put it into a “tidy” format. The analysis of the data should be kept in separate files.
-2. A single LaTeX document that briefly describes the nature of the replication project and contains all the tables and charts that your code produces. 
-3. Provide at least one jupyter notebook that gives an brief tour of the cleaned data and some of the analysis that is performed in the code. You can think of this as giving the reader a tour of the code that you have written. 
-4. Replication and Updating: Replicate the series, tables, and/or figures listed for your assigned project. Choose a reasonable tolerance and construct unit tests to ensure that your numbers match the paper’s within this tolerance. Reproduce the series, tables, and/or figures with updated numbers. That is, replicating the numbers from the paper require performing the calculations over the same time period as that of the paper. In this task, you’ll recalculate the series, tables, and/or figures using numbers up until the present (or at least the most recently available numbers).
-5. Outside of the tables, figures, or derived series that you are to replicate, have you also provided a table of your own summary statistics AND charts that gives you and the reader of sufficient understanding of the underlying data. These tables and/or figures must be typeset on LaTeX and you must provide captions on the Tables and Figure that properly describe them and motivate them. That is, you must tell me in the caption what I should learn or take away from each table and figure. You are to choose how many figures and or tables is sufficient for your case, but it will usually be one of each.
+
+# Report:
+
+`Final_Project_Report.tex` and its pdflatex compiled version `Final_Project_Report.pdf` in the `reports` folder contains the high-level overview and replication results of our project.
+
 
 # Quick Start
 
@@ -60,7 +59,7 @@ Use `del` instead of rm on Windows
 
  - The `output` folder, on the other hand, contains tables and figures that are generated from code. The entire folder should be able to be deleted, because the code can be run again, which would again generate all of the contents.
 
- - I'm using the `doit` Python module as a task runner. It works like `make` and the associated `Makefile`s. To rerun the code, install `doit` (https://pydoit.org/) and execute the command `doit` from the `src` directory. Note that doit is very flexible and can be used to run code commands from the command prompt, thus making it suitable for projects that use scripts written in multiple different programming languages.
+ - We use `doit` Python module as a task runner. It works like `make` and the associated `Makefile`s. To rerun the code, install `doit` (https://pydoit.org/) and execute the command `doit` from the `src` directory. Note that doit is very flexible and can be used to run code commands from the command prompt, thus making it suitable for projects that use scripts written in multiple different programming languages.
 
  - I'm using the `.env` file as a container for absolute paths that are private to each collaborator in the project. You can also use it for private credentials, if needed. It should not be tracked in Git.
 
