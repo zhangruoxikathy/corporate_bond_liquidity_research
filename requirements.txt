@@ -228,3 +228,10 @@ yfinance==0.2.35
 zipp==3.17.0
 zope.interface==6.2
 zstandard==0.22.0
+ipywidget==8.1.2 
+jupyter==1.0.0 
+jupyter-console==6.6.3 
+jupyterlab-widgets==3.0.10 
+qtconsole==5.5.1 
+qtpy==2.4.1 
+widgetsnbextension==4.0.10

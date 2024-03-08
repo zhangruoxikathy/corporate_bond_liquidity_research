@@ -22,10 +22,11 @@ gzip v3.9.13
 #* ************************************** */
 #* Libraries                              */
 #* ************************************** */ 
-import wrds
+
 import pandas as pd
 from pandas.tseries.offsets import MonthEnd, YearEnd
 import numpy as np
+import wrds
 import config
 from pathlib import Path
 
