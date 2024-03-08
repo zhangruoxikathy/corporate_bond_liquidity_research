@@ -40,12 +40,12 @@ We want to leverage Python to replicate Table 1 and Table 2 from the academic re
 
 `conda` allows for a lot of flexibility, but can often be slow. `pip`, however, is fast for what it does.  You can install the requirements for this project using the `requirements.txt` file specified here. Do this with the following command:
 ```
-conda create -n corp_illiq python=3.9
+conda create -n illiq_p python=3.9
 ```
 Navigate to the this repo, and then use:
 
 ```
-conda activate corp_illiq
+conda activate illiq_p
 pip install -r requirements.txt
 ```
 
@@ -61,7 +61,7 @@ doit
 ```
 That should be it! 
 
-Warning: When loading data, if it freezes for too long, it may be wrds asking for your username and password (but doit might suppress the output), so please enter your username until wrds server information pops up.
+Warning: In the pull_data action, if it freezes for too long, it may be wrds asking for your username and password (but doit might suppress the output), so please enter your username until wrds server information pops up.
 
 And then, use the following commend to run unit test:
 ```
