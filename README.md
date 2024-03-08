@@ -3,7 +3,7 @@
 
 # About this project
 
-We want to leverage Python to replicate Table 1 and Table 2 from the academic research paper _The Illiquidity of Corporate Bonds_, Bao, Pan, and Wang (2010). Run doit in the terminal for this project will produce tables, summary statistics, 
+We want to leverage Python to replicate Table 1 and Table 2 from the academic research paper _The Illiquidity of Corporate Bonds_, Bao, Pan, and Wang (2010). Run doit in the terminal for this project will produce tables, summary statistics, plots, jupyter notebook html, and a latex report.
 
 # Data used: 
 
