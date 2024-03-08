@@ -43,7 +43,6 @@ def all_trace_data_merge(df_daily, df_bondret, start_date = '2003-04-14', end_da
     """
 
     # keep only the portion within select time
-    # df_daily = df_daily.copy()
     start_date = pd.to_datetime(start_date)
     end_date = pd.to_datetime(end_date)
 
@@ -53,8 +52,6 @@ def all_trace_data_merge(df_daily, df_bondret, start_date = '2003-04-14', end_da
 
     df_daily = df_daily[(df_daily['trd_exctn_dt'] >= start_date) & (df_daily['trd_exctn_dt'] <= end_date)]
 
-    # df_daily['trd_exctn_dt'] = pd.to_datetime(df_daily['trd_exctn_dt'])
-    
     #create a new column "month_time" based on which we do the merge 
 
     # ddf_daily = dd.from_pandas(df_daily, npartitions=8)
@@ -86,8 +83,6 @@ def sample_selection(df, start_date = '2003-04-14', end_date = '2009-06-30'):
     """
 
     # select Phase I and II bonds from 2003-04-14 to 2009-6-30 
-    #start_date = '2003-04-14'
-    #end_date = '2009-06-30'
     start_date = pd.to_datetime(start_date)
     end_date = pd.to_datetime(end_date)
     df = df[(df['trd_exctn_dt'] >= start_date) & (df['trd_exctn_dt'] <= end_date)]

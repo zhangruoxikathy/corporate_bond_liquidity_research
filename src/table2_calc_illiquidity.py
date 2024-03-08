@@ -101,6 +101,8 @@ warnings.filterwarnings("ignore")
 
 OUTPUT_DIR = config.OUTPUT_DIR
 DATA_DIR = config.DATA_DIR
+START_DATE = config.START_DATE
+END_DATE = config.END_DATE
 
 import load_wrds_bondret
 import load_opensource
@@ -545,8 +547,8 @@ def generate_table2_panelA_B_C_MMN(start_date, end_date, paths):
 def main():
 
     # Replicate Paper Data
-    start_date = '2003-04-14'
-    end_date = '2009-06-30'
+    start_date = START_DATE
+    end_date = END_DATE
 
     # Replicate table 2 Panel A Trade-by-Trade in the paper
     logging.info("Running replicate table 2 Panel A Trade-by-Trade in the paper")
@@ -571,7 +573,7 @@ def main():
     generate_table2_panelA_B_C_MMN(start_date, end_date, fpaths)
 
     # Generate Recent Data: Update table to the present
-    start_date = start_date
+    start_date = START_DATE
     end_date = datetime.today().strftime('%Y-%m-%d')
 
     # Update table 2 Panel A Trade-by-Trade Data to the present

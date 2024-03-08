@@ -26,7 +26,8 @@ DATA_DIR = config('DATA_DIR', default=(BASE_DIR / 'data'), cast=Path)
 OUTPUT_DIR = config('OUTPUT_DIR', default=(BASE_DIR / 'output'), cast=Path)
 LOG_DIR = config('LOG_DIR', default=(BASE_DIR) / 'logs', cast=Path)
 WRDS_USERNAME = config("WRDS_USERNAME", default="zhangruoxikathy")
-
+START_DATE = '2003-04-14' # start date in the paper
+END_DATE = '2009-06-30'  # end date in the paper
 
 if __name__ == "__main__":
     ## If they don't exist, create the data and output directories

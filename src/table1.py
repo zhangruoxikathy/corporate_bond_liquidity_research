@@ -1,3 +1,17 @@
+'''
+Overview
+-------------
+This Python script aims to replicate table 1 summary statistics in the paper with
+periods in the paper and update it to the present.
+
+Requirements
+-------------
+
+../data/pulled/Bondret resulting from load_wrds_bondret.py
+../data/pulled/BondDailyPublic resulting from load_opensource.py
+../data/pulled/IntradayTRACE resulting from load_intraday.py
+'''
+
 import pandas as pd
 import numpy as np
 import config
@@ -9,6 +23,9 @@ import datetime
 
 OUTPUT_DIR = config.OUTPUT_DIR
 DATA_DIR = config.DATA_DIR
+START_DATE = config.START_DATE
+END_DATE = config.END_DATE
+
 
 
 def cal_avrage(dataframe, column):
@@ -243,7 +260,7 @@ if __name__ == "__main__":
     # #loading raw data 
     df_bondret = load_wrds_bondret.load_bondret(data_dir = DATA_DIR)
     df_daily = load_opensource.load_daily_bond(data_dir=DATA_DIR)
-    df_intraday = load_intraday.load_intraday_TRACE(data_dir=DATA_DIR, start_date = '2003-04-14', end_date = '2009-06-30')
+    df_intraday = load_intraday.load_intraday_TRACE(data_dir=DATA_DIR, start_date = START_DATE, end_date = END_DATE)
 
     # pre-processing the data
     df_all = data_processing.all_trace_data_merge(df_daily, df_bondret)   #this is the dataset for panel B in table 1 
@@ -257,13 +274,14 @@ if __name__ == "__main__":
 
 
     # #loading raw data 
+    # today = datetime.today().strftime('%Y-%m-%d')
     df_bondret = load_wrds_bondret.load_bondret(data_dir = DATA_DIR)
     df_daily = load_opensource.load_daily_bond(data_dir=DATA_DIR)
-    df_intraday = load_intraday.load_intraday_TRACE(data_dir=DATA_DIR, start_date = '2003-04-14', end_date = '2023-12-31')
+    df_intraday = load_intraday.load_intraday_TRACE(data_dir=DATA_DIR, start_date=START_DATE, end_date='2023-12-31')
 
-    df_all_uptodate = data_processing.all_trace_data_merge(df_daily, df_bondret, start_date='2003-04-14', end_date = '2023-12-31')   #this is the dataset for panel B in table 1 
+    df_all_uptodate = data_processing.all_trace_data_merge(df_daily, df_bondret, start_date=START_DATE, end_date='2023-12-31')   #this is the dataset for panel B in table 1 
     del df_daily, df_bondret
-    df_sample_uptodate = data_processing.sample_selection(df_all_uptodate, start_date = '2003-04-14', end_date = '2023-12-31') # this is the dataset for panel A in table 1
+    df_sample_uptodate = data_processing.sample_selection(df_all_uptodate, start_date=START_DATE, end_date='2023-12-31') # this is the dataset for panel A in table 1
 
     
     df_sample_result_uptodate, df_all_result_uptodate = calculation(df_sample_uptodate, df_all_uptodate, df_intraday)
